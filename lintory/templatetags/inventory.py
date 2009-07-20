@@ -203,14 +203,9 @@ class get_licenses_by_software_owner_node(template.Node):
                     left = left + value
 
         # add unlicenced installs, so they don't get forgotten
-        if owner is None:
-            unlicensed_installations = models.software_installation.objects.filter(
-                Q(active=True,software=software,license_key__isnull=True)
-            )
-        else:
-            unlicensed_installations = models.software_installation.objects.filter(
-                Q(active=True,software=software,license_key__isnull=True,computer__owner=owner)
-            )
+        unlicensed_installations = models.software_installation.objects.filter(
+            Q(active=True,software=software,license_key__isnull=True)
+        )
 
         found = found + unlicensed_installations.count()
 
@@ -275,7 +270,7 @@ class get_active_software_installations_by_software_owner_node(template.Node):
         else:
             software_installations = models.software_installation.objects.filter(
                     Q(active=True,software=software,license_key__license__owner=owner) |
-                    Q(active=True,software=software,license_key__isnull=True,computer__owner=owner))
+                    Q(active=True,software=software,license_key__isnull=True))
 
         context[tag] = software_installations
         return ''
