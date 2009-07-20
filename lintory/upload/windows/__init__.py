@@ -530,23 +530,34 @@ def get_license_keys(data_dict):
 def install_software(data_datetime, os, name, version, license_keys):
     key = hacks.get_license_key(name, license_keys)
 
-    print "Installing '%s' version '%s' on '%s' with key '%s'"%(name,version,os, key)
     list = hacks.strip_software_version(name)
-
     for new_name, new_version in list:
-        print u"... simplified as '%s' version '%s'" % (new_name, version)
-
         try:
             software = models.software.objects.get(name=new_name)
         except models.software.DoesNotExist, e:
-            raise import_error("Cannot find software '%s'"%(name))
+            print "Creating software '%s'"%(new_name)
+            software = models.software.objects.create(name=new_name)
 
-        si,c = models.software_installation.objects.get_or_create(
-                os = os,
-                software = software,
-                active = True,
-                defaults={'seen_first': data_datetime, 'seen_last': data_datetime},
-        )
+        try:
+            c = False
+            si = models.software_installation.objects.get(
+                    os = os,
+                    software = software,
+                    active = True,
+            )
+        except models.software_installation.DoesNotExist, e:
+            c = True
+            si = models.software_installation()
+            si.os = os
+            si.software = software
+            si.active = True
+            si.seen_first = data_datetime
+            si.seen_last = data_datetime
+
+        if c:
+            print u"Installing '%s' version '%s'"%(name, version)
+            print u"... simplified as '%s' version '%s'" % (new_name, version)
+            print u"... os '%s' storage '%s'"%(os, os.storage)
 
         si.software_version = version
         si.auto_delete = True
@@ -554,6 +565,7 @@ def install_software(data_datetime, os, name, version, license_keys):
 
         # Where we given a license key?
         if c or has_changed(si.auto_license_key,si.license_key,key):
+            print "Updating license key of '%s' to '%s'"%(new_name,key)
             if key is not None:
                 try:
                     si.license_key = models.license_key.objects.get(
