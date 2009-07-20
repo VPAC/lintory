@@ -30,6 +30,10 @@ def upload(request):
     tmppath = path + ".tmp"
     print path
 
+    (head,tail) = os.path.split(path)
+    if not os.path.exists(head):
+        os.makedirs(head)
+
     file = open(tmppath,"w")
     file.write(request.raw_post_data)
     file.close()
