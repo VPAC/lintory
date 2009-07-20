@@ -1,0 +1,73 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{{ object }}{% endblock %}
+
+{% block content %}
+
+<h1>{{ object }}</h1>
+
+{% if perms.lintory.change_data or perms.inventory.delete_data %}
+<ul class="object-tools">
+{% if perms.lintory.change_data %}
+<li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
+{% endif %}
+{% if perms.lintory.delete_data %}
+<li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a></li>
+{% endif %}
+</ul>
+{% endif %}
+
+<dl class="infobox">
+<dt>Date</dt><dd>{{object.datetime}}</dd>
+<dt>File</dt><dd>{{object.file}}</dd>
+
+<dt>Computer</dt><dd>
+{% if object.computer %}
+        <a href="{{ object.computer.get_absolute_url }}">{{ object.computer }}</a>
+{% else %}
+    {% if object.create_computer %}
+        create
+    {% else %}
+        auto-detect
+    {% endif %}
+{% endif %}
+</dd>
+
+<dt>OS</dt><dd>
+{% if object.os %}
+        <a href="{{ object.os.get_absolute_url }}">{{ object.os }}</a>
+{% else %}
+    {% if object.create_os %}
+        create
+    {% else %}
+        auto-detect
+    {% endif %}
+{% endif %}
+</dd>
+
+<dt>Imported</dt><dd>{{ object.imported }}</dd>
+<dt>Last attempt</dt><dd>{{ object.last_attempt }}</dd>
+
+{% if object.comments %}
+<dt>Comments</dt><dd>{{object.comments|linebreaks }}</dd>
+{% endif %}
+</dl>
+
+{% if object.errors %}
+<h2>Errors</h2>
+{{ object.errors|linebreaks }}
+{% endif %}
+
+<h2>History</h2>
+{% show_history "data" object %}
+
+{% if perms.lintory.can_see_key %}
+<h2>Raw Data</h2>
+{{ object.file.file.read|linebreaks }}
+{% endif %}
+
+{% endblock %}

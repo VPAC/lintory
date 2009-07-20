@@ -1,0 +1,64 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{{ software }} by {{ party }}{% endblock %}
+
+{% block content %}
+<h1>{{ software }} by {{ party }}</h1>
+
+{% if perms.lintory.change_software or perms.inventory.delete_software or perms.inventory.add_license_key or perms.inventory.add_software_installation %}
+<ul class="object-tools">
+{% if perms.lintory.change_software %}
+<li><a class="changelink" href="{{ software.get_edit_url }}">Edit</a></li>
+{% endif %}
+{% if perms.lintory.delete_software %}
+<li><a class="deletelink" href="{{ software.get_delete_url }}">Delete</a></li>
+{% endif %}
+{% if perms.lintory.add_license_key %}
+<li><a class="addlink" href="{{ software.get_add_license_url }}">Add license</a></li>
+{% endif %}
+{% if perms.lintory.add_software_installation %}
+<li><a class="addlink" href="{{ software.get_add_software_installation_url }}">Add installation</a></li>
+{% endif %}
+</ul>
+{% endif %}
+
+{% get_licenses_by_software_owner "licenses" software party %}
+{% get_license_keys_by_software_owner "license_keys" software party %}
+{% get_active_software_installations_by_software_owner "active_installations" software party %}
+
+<dl class="infobox">
+<dt>Party</dt><dd><a href="{{ party.get_absolute_url }}">{{ party }}</a></dd>
+<dt>Software</dt><dd><a href="{{ software.get_absolute_url }}">{{ software }}</a></dd>
+<dt>Num installations</dt><dd>
+    {% ifnotequal licenses_max None %}
+    max {{licenses_max}} / found
+    {% endifnotequal %}
+    {{licenses_found}}
+    {% ifnotequal licenses_left None %}
+    / left {{licenses_left}}
+    {% endifnotequal %}
+</dd>
+<dt>Comments</dt><dd>{{software.comments|linebreaks }}</dd>
+</dl>
+
+<h2>Licenses</h2>
+
+{% show_license_list licenses %}
+
+<h2>License keys</h2>
+
+{% show_license_key_list license_keys %}
+
+<h2>Active Software Installations</h2>
+
+{% show_software_installation_list active_installations %}
+
+<h2>History</h2>
+
+{% show_history "software" software %}
+
+{% endblock %}

@@ -1,0 +1,89 @@
+{% load inventory %}
+{% if object_list %}
+    <table>
+      <tr>
+        <th>License</th>
+        <th>Version</th>
+{% if not hide.computer %}
+        <th>Computer</th>
+{% endif %}
+{% if not hide.owner %}
+        <th>Owner</th>
+{% endif %}
+        <th>Max</th>
+        <th>Found</th>
+        <th>Left</th>
+        <th>Keys</th>
+        <th>Comments</th>
+{% if perms.lintory.change_license or perms.inventory.delete_license %}
+        <th colspan="2">Actions</th>
+{% endif %}
+      </tr>
+    {% for license in object_list %}
+      {% with license.error_list as error_list %}{% if error_list %}
+      <tr><td colspan='11'>{% show_error_list error_list %}</td></tr>
+      {% endif %}{% endwith %}
+      <tr>
+        <td><a href="{{ license.get_absolute_url }}">{{ license }}</a></td>
+        {% if license.version %}
+        <td>{{license.version}}</td>
+        {% else %}
+        <td>None</td>
+        {% endif %}
+{% if not hide.computer %}
+{% if license.computer %}
+        <td><a href="{{license.computer.get_absolute_url}}">{{license.computer}}</a></td>
+{% else %}
+        <td>None</td>
+{% endif %}
+{% endif %}
+{% if not hide.owner %}
+{% if license.get_owner %}
+        <td><a href="{{ license.get_owner.get_absolute_url }}">{{ license.get_owner }}</a></td>
+{% else %}
+        <td>None</td>
+{% endif %}
+{% endif %}
+        <td>
+        {% ifnotequal license.installations_max None %}
+          {{license.installations_max}}
+        {% else %}
+          None
+        {% endifnotequal %}
+        </td>
+        <td>
+          {{license.software_installations_found }}
+        </td>
+        <td>
+        {% ifnotequal license.software_installations_left None %}
+          {{license.software_installations_left}}
+        {% else %}
+          None
+        {% endifnotequal %}
+        </td>
+        <td>
+        {% for lk in license.license_key_set.all %}
+            {% show_license_key lk %} {{lk.software}}{% if not forloop.last %}, {% endif %}<br/>
+        {% endfor %}
+        </td>
+        <td>
+            {{license.comments }}
+        </td>
+{% if perms.lintory.change_license or perms.inventory.delete_license %}
+{% if perms.lintory.change_license %}
+        <td><a class="changelink" href="{{ license.get_edit_url }}">edit</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% if perms.lintory.delete_license %}
+        <td><a class="deletelink" href="{{ license.get_delete_url }}">delete</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% endif %}
+      </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No licenses are available.</p>
+{% endif %}

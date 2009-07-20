@@ -1,0 +1,26 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}Inventory{% endblock %}
+
+{% block content %}
+
+<ul>
+<li><a href="{% url party_list %}">parties</a></li>
+<li><a href="{% url task_list %}">tasks</a></li>
+<li><a href="{% url location_detail 1 %}">locations</a></li>
+<li><a href="{% url software_list %}">software</a></li>
+<li><a href="{% url hardware_list %}">hardware</a><ul>
+    <li><a href="{% url hardware_type_list "computer" %}">computers</a></li>
+    <li><a href="{% url hardware_type_list "storage" %}">storage</a></li>
+    <li><a href="{% url hardware_type_list "monitor" %}">monitors</a></li>
+</ul></li>
+<li><a href="{% url license_list %}">licenses</a></li>
+<li><a href="{% url vendor_list %}">vendors</a></li>
+<li><a href="{% url data_list %}">Raw unprocessed data</a></li>
+</ul>
+
+{% endblock %}

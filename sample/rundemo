@@ -1,0 +1,9 @@
+DJANGO="$HOME/tree/django-trunk"
+APP=sample
+DIR=$PWD
+
+export PYTHONPATH="$DIR:$DJANGO"
+export DJANGO_SETTINGS_MODULE="sample.settings"
+
+"$DIR/sample/manage.py" syncdb
+"$DIR/sample/manage.py" "$@"

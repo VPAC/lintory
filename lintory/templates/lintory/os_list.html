@@ -1,0 +1,22 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{{ type.plural_name|capfirst }}{% endblock %}
+
+{% block content %}
+
+<h1>OS</h1>
+
+{% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user type %}
+{% if add_perm %}
+<ul class="object-tools">
+<li><a class="addlink" href="{% url os_create %}">Create</a></li>
+</ul>
+{% endif %}
+
+{% show_os_list object_list %}
+
+{% endblock %}

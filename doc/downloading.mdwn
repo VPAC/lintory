@@ -1,0 +1,18 @@
+# Downloading
+
+Note: Unfortunately source code is not yet available, while I get a response on
+a query on the monotone mailing list. I expect to have it online by within
+several days. When it is available, follow these instructions. If several days
+have elapsed and there is still no sign of the source code, please bug me.
+
+How to download Lintory.
+
+1. Download/install monotone. Debian/Ubuntu pakages are available in respective distributions.
+2. type in
+
+        mtn --db=/some/path/lintory.mtn db init
+        mtn --db=/some/path/lintory.mtn pull Lintory.mtn-host.prjek.net org.vpac.brian.lintory.main
+        mtn --db=/some/path/lintory.mtn co org.vpac.brian.lintory.main lintory
+        cd lintory
+
+2. Proceed to [[installation]].

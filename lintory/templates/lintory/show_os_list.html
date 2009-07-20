@@ -1,0 +1,42 @@
+{% load inventory %}
+
+{% if object_list %}
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Computer Name</th>
+        <th>Storage</th>
+        <th>Used by</th>
+{% if perms.lintory.change_os or perms.inventory.delete_os %}
+        <th colspan="2">Actions</th>
+{% endif %}
+      </tr>
+    {% for os in object_list %}
+      <tr>
+        <td><a href="{{ os.get_absolute_url }}">{{ os }}</a></td>
+        <td>{{ os.computer_name }}</td>
+        <td><a href="{{ os.storage.get_absolute_url }}">{{ os.storage }}</a></td>
+{% if os.storage.used_by %}
+        <td><a href="{{ os.storage.used_by.get_absolute_url }}">{{ os.storage.used_by }}</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% if perms.lintory.change_os or perms.inventory.delete_os %}
+{% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user os.type %}
+{% if edit_perm %}
+        <td><a class="changelink" href="{{ os.get_edit_url }}">edit</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% if delete_perm %}
+        <td><a class="deletelink" href="{{ os.get_delete_url }}">delete</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% endif %}
+      </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No os is available.</p>
+{% endif %}

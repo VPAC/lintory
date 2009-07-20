@@ -1,0 +1,47 @@
+{% if object_list %}
+    <table>
+      <tr>
+        <th>Task</th>
+        <th>Hardware</th>
+        <th>Assigned</th>
+        <th>Completed</th>
+        <th>Comments</th>
+{% if perms.lintory.change_hardware_task or perms.inventory.delete_hardware_task %}
+        <th colspan="2">Actions</th>
+{% endif %}
+      </tr>
+    {% for hardware_task in object_list %}
+      <tr>
+        <td><a href="{{ hardware_task.task.get_absolute_url }}">{{ hardware_task.task }}</a></td>
+        {% with hardware_task.hardware.get_object as hardware %}
+        <td><a href="{{ hardware.get_absolute_url }}">{{ hardware }}</a></td>
+        {% endwith %}
+{% if hardware_task.get_assigned %}
+        <td><a href="{{ hardware_task.get_assigned.get_absolute_url }}">{{ hardware_task.get_assigned }}</a></td>
+{% else %}
+	<td>None</td>
+{% endif %}
+{% if hardware_task.date_complete %}
+        <td>{{hardware_task.date_complete}}</td>
+{% else %}
+	<td>N/A</td>
+{% endif %}
+        <td>{{hardware_task.comments|linebreaks}}</td>
+{% if perms.lintory.change_hardware_task or perms.inventory.delete_hardware_task %}
+{% if perms.lintory.change_hardware_task %}
+        <td><a class="changelink" href="{{ hardware_task.get_edit_url }}">edit</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% if perms.lintory.delete_hardware_task %}
+        <td><a class="deletelink" href="{{ hardware_task.get_delete_url }}">delete</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% endif %}
+      </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No tasks are available.</p>
+{% endif %}

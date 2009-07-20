@@ -1,0 +1,50 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{{ object }}{% endblock %}
+
+{% block content %}
+
+<h1>{{ object }}</h1>
+
+{% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user object.type %}
+{% if edit_perm or delete_perm %}
+    <ul class="object-tools">
+    {% if perms.lintory.change_hardware and edit_perm %}
+        <li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
+    {% endif %}
+    {% if perms.lintory.delete_hardware and delete_perm %}
+        <li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a></li>
+    {% endif %}
+    </ul>
+{% endif %}
+
+<dl class="infobox">
+<dt>OS</dt><dd>{{ object }}</dd>
+<dt>First seen</dt><dd>{{ object.seen_first }}</dd>
+<dt>Last seen</dt><dd>{{ object.seen_last }}</dd>
+<dt>Computer Name</dt><dd>{{ object.computer_name }}</dd>
+<dt>Storage</dt><dd><a href="{{ object.storage.get_absolute_url }}">{{ object.storage }}</a></dd>
+{% if object.storage.used_by %}
+<dt>Used by</dt><dd><a href="{{ object.storage.used_by.get_absolute_url }}">{{ object.storage.used_by }}</a></dd>
+{% endif %}
+</dl>
+
+{% if object.active_software_installations %}
+<h2>Active Software Installations</h2>
+{% show_software_installation_list object.active_software_installations %}
+{% endif %}
+
+{% if object.inactive_software_installations %}
+<h2>Deleted Software Installations</h2>
+{% show_software_installation_list object.inactive_software_installations %}
+{% endif %}
+
+<h2>History</h2>
+
+{% show_history "os" object %}
+
+{% endblock %}

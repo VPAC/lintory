@@ -1,0 +1,99 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{{ object }}{% endblock %}
+
+{% block content %}
+<h1>{{ object }}</h1>
+
+{% if perms.lintory.add_location or perms.inventory.change_location or perms.inventory.delete_location %}
+<ul class="object-tools">
+{% if perms.lintory.add_location %}
+<li><a class="addlink" href="{{ object.get_create_url }}">Create</a></li>
+{% endif %}
+{% if perms.lintory.change_location %}
+<li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
+{% endif %}
+{% if perms.lintory.delete_location %}
+<li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a></li>
+{% endif %}
+</ul>
+{% endif %}
+
+<dl class="infobox">
+<dt>Location</dt><dd>{{ object }}</dd>
+<dt>Address</dt><dd>{{ object.address|linebreaks }}</dd>
+<dt>Owner</dt><dd><a href="{{ object.get_owner.get_absolute_url }}">{{ object.get_owner }}</a></dd>
+<dt>User</dt><dd><a href="{{ object.get_user.get_absolute_url }}">{{ object.get_user }}</a></dd>
+{% if object.parent %}
+<dt>Parent</dt><dd><a href="{{ object.parent.get_absolute_url }}">{{ object.parent }}</a></dd>
+{% endif %}
+{% if object.get_absolute_svg_url %}
+<dt>Diagram</dt><dd><a href="{{ object.get_absolute_svg_url }}">SVG</a></dd>
+{% endif %}
+<dt>Comments</dt><dd>{{ object.comments|linebreaks }}</dd>
+</dl>
+
+{% if object.children.all %}
+<h2>Sublocations</h2>
+{% show_location_list object.children.all %}
+{% endif %}
+
+{% with object.get_self_or_children_hardware as hardware_list %}
+{% if hardware_list %}
+<h2>Hardware</h2>
+{% show_hardware_list hardware_list %}
+{% endif %}
+{% endwith %}
+
+{% with object.tasks as tasks %}
+{% if tasks %}
+<h2>Tasks</h2>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Total</th>
+        <th>Done</th>
+        <th>Todo</th>
+{% if perms.lintory.change_location or perms.inventory.delete_location %}
+        <th colspan="2">Actions</th>
+{% endif %}
+      </tr>
+      <tr>
+         <td><a href="{% url location_task_list object.pk %}">all tasks</a></td>
+         <td>-</td>
+         <td>-</td>
+         <td>-</td>
+      </tr>
+    {% for task in tasks %}
+      <tr>
+        <td><a href="{% url location_task object.pk task.pk %}">{{ task }}</a></td>
+        <td>{{task.hardware_tasks_all.count}}</td>
+        <td>{{task.hardware_tasks_done.count}}</td>
+        <td>{{task.hardware_tasks_todo.count}}</td>
+{% if perms.lintory.change_location or perms.inventory.delete_location %}
+{% if perms.lintory.change_location %}
+        <td><a class="changelink" href="{{ task.get_edit_url }}">edit</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% if perms.lintory.delete_location %}
+        <td><a class="deletelink" href="{{ task.get_delete_url }}">delete</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% endif %}
+      </tr>
+    {% endfor %}
+    </table>
+{% endif %}
+{% endwith %}
+
+<h2>History</h2>
+
+{% show_history "location" object %}
+
+{% endblock %}

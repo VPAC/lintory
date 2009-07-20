@@ -1,0 +1,39 @@
+{% if perms.lintory.add_history_item %}
+<ul class="object-tools">
+<li><a class="addlink" href="{% url history_item_create type_id=type_id object_id=object.pk %}">Add</a></li>
+</ul>
+{% endif %}
+
+{{ object.history_item_set }}
+
+{%if object.get_history %}
+<table>
+  <tr>
+    <th>Date</th>
+    <th>Title</th>
+    <th>Body</th>
+{% if perms.lintory.change_history_item or perms.inventory.delete_history_item %}
+    <th colspan="2">Actions</th>
+{% endif %}
+  </tr>
+{% for item in object.get_history %}
+    <tr>
+      <td>{{ item.date }}</td>
+      <td>{{ item.title }}</td>
+      <td>{{ item.body|urlizetrunc:40|linebreaks }}</td>
+{% if perms.lintory.change_history_item or perms.inventory.delete_history_item %}
+{% if perms.lintory.change_history_item %}
+      <td><a class="changelink" href="{% url history_item_edit history_item_id=item.pk %}">Edit</a></td>
+{% else %}
+      <td></td>
+{% endif %}
+{% if perms.lintory.delete_history_item %}
+      <td><a class="deletelink" href="{% url history_item_delete history_item_id=item.pk %}">Delete</a></td>
+{% else %}
+      <td></td>
+{% endif %}
+{% endif %}
+    </tr>
+{% endfor %}
+</table>
+{% endif %}

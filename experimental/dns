@@ -1,0 +1,158 @@
+#!/usr/bin/python
+# lintory - keep track of computers and licenses
+# Copyright (C) 2008-2009 Brian May
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import IPy
+from optparse import OptionParser
+
+import lintory.models as models
+
+domain = "test.vpac.org"
+
+
+class network:
+        def __init__(self, inet4_prefix, inet6_prefix, label, location, type):
+                self.inet4_prefix = inet4_prefix
+                self.inet6_prefix = inet6_prefix
+                self.label = label
+                self.location = location
+                self.type = type
+
+networks = [
+        network('172.31.4',  '2001:388:60ac:104',    'hq1',   7, "wired"),
+        network('172.31.5',  '2001:388:60ac:105',   'hq3f',  11, "wired"),
+        network('172.31.6',  '2001:388:60ac:106',   'hq3b',  11, "wired"),
+        network('172.31.8',  '2001:388:60ac:108', 'hqwifi',   2, "wireless"),
+        network('172.31.34', '2001:388:60ac:134',     'fb', 118, "wired"),
+        network('172.31.35', '2001:388:60ac:135', 'fbwifi', 118, "wireless"),
+        network('172.31.64', '2001:388:60ac:164',     'mu',   5, "wired"),
+        network('172.31.65', '2001:388:60ac:165', 'muwifi',   5, "wireless"),
+]
+
+
+def get_interface_type(interface):
+        name = interface.name.lower()
+
+        if name.find("wireless") != -1:
+                return "wireless"
+        elif name.find("wifi") != -1:
+                return "wireless"
+        elif name.find("virtual") != -1:
+                return "virtual"
+        elif name.find("bluetooth") != -1:
+                return "bluetooth"
+        else:
+                return "wired"
+
+
+def is_in_location(location,test_location):
+        if location.id == test_location.id:
+                return True
+
+        if location.parent is not None:
+                return is_in_location(location.parent,test_location)
+
+        return False
+
+
+def main():
+
+        parser = OptionParser()
+        parser.add_option("-t", "--type",action="store", dest="type",
+                          default="forward",
+                          help="Forward or reverse DNS?")
+        (options, args) = parser.parse_args()
+
+        if options.type == "forward":
+                comment = ';'
+        elif options.type == "ipv4_reverse":
+                comment = ';'
+        elif options.type == "ipv6_reverse":
+                comment = ';'
+        elif options.type == "ipv4_dhcp":
+                comment = '#'
+        else:
+                parser.error(u"type %s must be forward, ipv4_reverse, ipv6_reverse, or ipv4_dhcp"%(options.type))
+
+        hosts= {}
+        for c in models.computer.objects.filter(date_of_disposal__isnull=True):
+                print u"\n\n%s %s"%(comment,c.name)
+                if c.is_portable:
+                        print u"%s is portable"%(comment)
+                print u"%s owner %s, user %s, location %s"%(comment,c.owner,c.user,c.location)
+
+                if c.id not in hosts:
+                        hosts[c.id] = 0
+
+                c_nets = []
+                for i in c.interface_set.all():
+                        host_id =  i.inet6_host_id()
+                        type = get_interface_type(i)
+
+
+                        i_nets = []
+                        print u"%s %s -- %s, %s"%(comment, i.name, i.ethernet_address, type)
+                        for net in networks:
+                                good_network = True
+
+                                if type is None:
+                                        pass
+                                elif type == net.type:
+                                        pass
+                                else:
+                                        good_network = False
+
+                                if c.is_portable:
+                                        pass
+                                elif is_in_location(c.location,models.location.objects.get(id=net.location)):
+                                        pass
+                                else:
+                                        good_network = False
+
+                                if good_network:
+                                        i_nets.append(net)
+                                        c_nets.append(net)
+
+                        for net in i_nets:
+                                ipv4_addr = IPy.IP(u"%s.%s"%(net.inet4_prefix,c.id))
+                                ipv6_addr = IPy.IP(u"%s:%s"%(net.inet6_prefix,host_id))
+                                host = u"%s.%s.%s."%(c.name,net.label,domain)
+
+                                if options.type == "forward":
+                                        print u"%s IN A %s"%(host,ipv4_addr)
+                                        print u"%s IN AAAA %s"%(host,ipv6_addr)
+                                elif options.type == "ipv4_dhcp":
+                                        hosts[c.id] = hosts[c.id] + 1
+                                        print u"host %s_%d {"%(c.name,hosts[c.id])
+                                        print u"  hardware ethernet %s;"%(i.ethernet_address)
+                                        print u"  fixed-address %s;"%(ipv4_addr)
+                                        print u"}"
+                                elif options.type == "ipv4_reverse":
+                                        print u"%s IN PTR %s"%(ipv4_addr.reverseName(),host)
+                                elif options.type == "ipv6_reverse":
+                                        print u"%s IN PTR %s"%(ipv6_addr.reverseName(),host)
+
+                if len(c_nets)==1:
+                        host = u"%s.%s."%(c.name,domain)
+                        real_host = u"%s.%s.%s."%(c.name,c_nets[0].label,domain)
+                        if options.type == "forward":
+                                print u"%s IN CNAME %s"%(host,real_host)
+
+        return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,21 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}Tasks{% endblock %}
+
+{% block content %}
+
+<h1>Vendors</h1>
+
+{% if perms.lintory.add_vendor %}
+<ul class="object-tools">
+<li><a class="addlink" href="{% url vendor_create %}">Create</a></li>
+</ul>
+{% endif %}
+
+{% show_vendor_list object_list %}
+
+{% endblock %}

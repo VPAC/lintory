@@ -1,0 +1,13 @@
+{% extends "lintory/hardware_detail.html" %}
+
+{% block class="infobox" %}
+{% if object.size %}
+<dt>Size</dt><dd>{{ object.size }} inches</a></dd>
+{% endif %}
+{% if object.width %}
+<dt>Width</dt><dd>{{ object.width }} inches</a></dd>
+{% endif %}
+{% if object.height %}
+<dt>Height</dt><dd>{{ object.height }} inches</a></dd>
+{% endif %}
+{% endblock %}

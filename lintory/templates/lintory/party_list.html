@@ -1,0 +1,26 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}People{% endblock %}
+
+{% block content %}
+<p>List details for objects where <a href="{% url party_detail "none" %}">no party</a> is defined.</p>
+
+{% if object_list %}
+    <table>
+      <tr>
+        <th>Name</th>
+      </tr>
+    {% for person in object_list %}
+      <tr>
+        <td><a href="{{ person.get_absolute_url }}">{{ person }}</a></td>
+      </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No parties are available.</p>
+{% endif %}
+{% endblock %}

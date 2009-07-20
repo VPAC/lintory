@@ -1,0 +1,66 @@
+{% extends "lintory/hardware_detail.html" %}
+{% load inventory %}
+
+{% block class="infobox" %}
+{% if object.is_portable %}
+<dt>Portable</dt><dd>Computer is portable and may be moved to other locations and networks.</dd>
+{% else %}
+<dt>Portable</dt><dd>Computer is not-portable and not likely to be moved to other locations and networks.</dd>
+{% endif %}
+{% if object.memory %}
+<dt>Memory</dt><dd>{{ object.memory|bytes }}</dd>
+{% endif %}
+{% endblock %}
+
+{% block class="body_start" %}
+<h2>Network adaptors</h2>
+<table>
+  <tr>
+    <th></th>
+    <th>Mac Address</th>
+    <th>IP Address</th>
+  </tr>
+{% for na in object.network_adaptors.all %}
+    {% with na.error_list as error_list %}{% if error_list %}
+    <tr><td colspan='5'>{% show_error_list error_list %}</td></tr>
+    {% endif %}{% endwith %}
+    <tr>
+      <td><a href="{{ na.get_absolute_url }}">{{na}}</a></td>
+      <td><a href="{% url hardware_by_mac_address na.mac_address %}">{{na.mac_address}}</a></td>
+      <td>{{na.IPv4_address}}</td>
+    </tr>
+{% endfor %}
+</table>
+
+{% if object.license_set.all %}
+<h2>OEM Licenses</h2>
+{% show_license_list object.license_set.all %}
+{% endif %}
+
+{% if object.used_storage.all %}
+<h2>Uses Storage</h2>
+{% show_hardware_list object.used_storage.all %}
+{% endif %}
+
+{% with object.os_list as os_list %}
+{% if os_list %}
+<h2>OS</h2>
+{% show_os_list os_list %}
+{% endif %}
+{% endwith %}
+
+{% with object.active_software_installations as active_software_installations %}
+{% if active_software_installations %}
+<h2>Active Software Installations</h2>
+{% show_software_installation_list active_software_installations %}
+{% endif %}
+{% endwith %}
+
+{% with object.inactive_software_installations as inactive_software_installations %}
+{% if inactive_software_installations %}
+<h2>Deleted Software Installations</h2>
+{% show_software_installation_list inactive_software_installations %}
+{% endif %}
+{% endwith %}
+
+{% endblock %}

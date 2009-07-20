@@ -1,0 +1,67 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{{ object }}{% endblock %}
+
+{% block content %}
+
+<h1>{{ object }}</h1>
+
+{% if perms.lintory.change_software or perms.inventory.delete_software or perms.inventory.add_license_key or perms.inventory.add_software_installation %}
+<ul class="object-tools">
+{% if perms.lintory.change_software %}
+<li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
+{% endif %}
+{% if perms.lintory.delete_software %}
+<li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a></li>
+{% endif %}
+{% if perms.lintory.add_license_key %}
+<li><a class="addlink" href="{{ object.get_add_license_url }}">Add license</a></li>
+{% endif %}
+{% if perms.lintory.add_software_installation %}
+<li><a class="addlink" href="{{ object.get_add_software_installation_url }}">Add installation</a></li>
+{% endif %}
+</ul>
+{% endif %}
+
+<dl class="infobox">
+<dt>Software</dt><dd>{{ object }}</dd>
+<dt>Num installations</dt><dd>
+    {% ifnotequal object.software_installations_max None %}
+    max {{object.software_installations_max}} / found
+    {% endifnotequal %}
+    {{object.software_installations_found}}
+    {% ifnotequal object.software_installations_left None %}
+    / left {{object.software_installations_left}}
+    {% endifnotequal %}
+</dd>
+{% if object.vendor %}
+<dt>Vendor</dt><dd><a href="{{ object.vendor.get_absolute_url }}">{{ object.vendor }}</a></dd>
+{% endif %}
+<dt>Comments</dt><dd>{{object.comments|linebreaks }}</dd>
+</dl>
+
+<h2>Licenses</h2>
+
+{% show_license_list object.licenses %}
+
+<h2>License Keys</h2>
+
+{% show_license_key_list object.license_key_set.all %}
+
+<h2>Active Software Installations</h2>
+
+{% show_software_installation_list object.active_software_installations %}
+
+<h2>Deleted Software Installations</h2>
+
+{% show_software_installation_list object.inactive_software_installations %}
+
+<h2>History</h2>
+
+{% show_history "software" object %}
+
+{% endblock %}

@@ -1,0 +1,44 @@
+{% load inventory %}
+
+{% if object_list %}
+    <table>
+      <tr>
+        <th></th>
+        <th>Make</th>
+        <th>Model</th>
+        <th>Type</th>
+        <th>Installed</th>
+{% if perms.lintory.change_hardware or perms.inventory.delete_hardware %}
+        <th colspan="2">Actions</th>
+{% endif %}
+      </tr>
+    {% for object in object_list %}{% with object.get_object as hardware %}
+      <tr>
+        <td><a href="{{ hardware.get_absolute_url }}">{{ hardware }}</a></td>
+        <td>{{ hardware.manufacturer }}</td>
+        <td>{{ hardware.model }}</td>
+        <td><a href="{% url hardware_type_list hardware.type.type_id %}">{{ hardware.type.single_name }}</a></td>
+{% if  hardware.installed_on %}{% with hardware.installed_on.get_object as installed_on %}
+        <td><a href="{{ installed_on.get_absolute_url }}">{{ installed_on }}</a></td>
+{% endwith %}{% else %}
+        <td></td>
+{% endif %}
+{% if perms.lintory.change_hardware or perms.inventory.delete_hardware %}
+{% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user hardware.type %}
+{% if edit_perm %}
+        <td><a class="changelink" href="{{ hardware.get_edit_url }}">edit</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% if delete_perm %}
+        <td><a class="deletelink" href="{{ hardware.get_delete_url }}">delete</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% endif %}
+      </tr>
+    {% endwith %} {% endfor %}
+    </table>
+{% else %}
+    <p>No hardware is available.</p>
+{% endif %}

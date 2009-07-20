@@ -1,0 +1,59 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{{ object }}{% endblock %}
+
+{% block content %}
+
+<h1>{{ object }}</h1>
+
+{% if perms.lintory.change_vendor or perms.inventory.delete_vendor %}
+<ul class="object-tools">
+{% if perms.lintory.change_vendor %}
+<li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
+{% endif %}
+{% if perms.lintory.delete_vendor %}
+<li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a></li>
+{% endif %}
+</ul>
+{% endif %}
+
+<dl class="infobox">
+<dt>Vendor</dt><dd>{{object}}</dd>
+{% if object.address %}
+<dt>Address</dt><dd>{{object.address|linebreaks }}</dd>
+{% endif %}
+{% if object.telephone %}
+<dt>Telephone</dt><dd>{{object.telephone}}</dd>
+{% endif %}
+{% if object.email %}
+<dt>E-Mail</dt><dd>{{object.email}}</dd>
+{% endif %}
+{% if object.comments %}
+<dt>Comments</dt><dd>{{object.comments|linebreaks }}</dd>
+{% endif %}
+</dl>
+
+{% if object.software_set.all %}
+<h2>Software</h2>
+{% show_software_list object.software_set.all %}
+{% endif %}
+
+{% if object.license_set.all %}
+<h2>License</h2>
+{% show_license_list object.license_set.all %}
+{% endif %}
+
+{% if object.hardware_set.all %}
+<h2>Hardware</h2>
+{% show_hardware_list object.hardware_set.all %}
+{% endif %}
+
+<h2>History</h2>
+
+{% show_history "vendor" object %}
+
+{% endblock %}

@@ -1,0 +1,59 @@
+# Installation instructions
+
+This lists the steps you should only have to do once on the initial install.
+
+## Requirements
+
+Subject to change:
+
+* Django from subversion.
+* Curl for Win32.
+* LDAP server for retrieving parties that may own or use things.
+* Linux server for central server. Other platforms may work, but not supported.
+
+Warning: Database schema is currently experimental and subject to change.
+
+## Quick start
+
+1. [[download|downloading]] and unpack source code.
+2. cd into source directory.
+3. copy sample/settings-template.py to sample/settings.py and modify settings at top. In particular you *must*
+change the LDAP settings or nothing will work.
+4. Update sample/rundemo with path to django from subversion. Note: when setting up the database, django
+will ask you if you want to setup an admin user. This is a good thing. However it will also ask you
+for a password - this password is not used as Lintory uses LDAP for authentication.
+5. Run sample/rundemo:
+
+        sample/rundemo runserver
+
+## Long term setup
+
+This setup is not idea for production use. The ideal is to use a real
+webserver in some fashion. See Django documentation for details.
+
+You will need to put the lintory directory in your python search
+path somehow.
+
+## Windows client computers
+
+1. Download Win32 version of curl from <http://curl.haxx.se/download.html>. Get
+a version with SSL support.
+2. Extract *.exe and *.dll files and put into scripts directory.
+3. Export scripts directory and make available to Windows clients, eg. via
+Samba.
+4. Update scripts/windows/get_and_upload.cmd. In particular, the LUTILS line
+will need to be updated, and the parameters to curl will need adjusting.
+5. The script you just edited just runs get_lintory.vbs, writes the results to
+a file, and then uses a HTTP PUT request to send them to the server. Using
+https is recommended for increased security - you can be sure you are sending
+the data to the corrrect server).
+6. Run this script. Or put script in domain login, to have it execute
+automatically on login.
+
+## Limitations
+
+For limitations you need to know about, see the [[limitations]] page.
+
+## Usage
+
+For day-to-day usage instructions, see [[usage]]

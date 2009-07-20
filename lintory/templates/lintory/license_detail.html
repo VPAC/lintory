@@ -1,0 +1,73 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{{ object }}{% endblock %}
+
+{% block content %}
+
+<h1>{{ object }}</h1>
+
+{% if perms.lintory.change_license or perms.inventory.delete_license or perms.inventory.add_license_key %}
+<ul class="object-tools">
+{% if perms.lintory.change_license %}
+<li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
+{% endif %}
+{% if perms.lintory.delete_license %}
+<li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a></li>
+{% endif %}
+{% if perms.lintory.add_license_key %}
+<li><a class="addlink" href="{{ object.get_add_license_key_url }}">Add key</a></li>
+{% endif %}
+</ul>
+{% endif %}
+
+<dl class="infobox">
+<dt>License</dt><dd>{{ object }}</dd>
+<dt>Num installations</dt><dd>
+    {% ifnotequal object.installations_max None %}
+    max {{object.installations_max}} / found
+    {% endifnotequal %}
+    {{object.software_installations_found}}
+    {% ifnotequal object.software_installations_left None %}
+    / left {{object.software_installations_left}}
+    {% endifnotequal %}
+</dd>
+{% if object.version %}
+<dt>Valid for version</dt><dd> {{object.version}}</dd>
+{% endif %}
+{% if object.computer %}
+<dt>Valid on computer</dt><dd><a href="{{object.computer.get_absolute_url}}">{{object.computer}}</a></dd>
+{% endif %}
+{% if object.expires %}
+<dt>Valid until</dt><dd>{{object.expires}}</dd>
+{% endif %}
+{% if object.get_owner %}
+<dt>Owner</dt><dd><a href="{{ object.get_owner.get_absolute_url }}">{{ object.get_owner }}</a></dd>
+{% endif %}
+{% if object.vendor %}
+<dt>Vendor</dt><dd><a href="{{ object.vendor.get_absolute_url }}">{{ object.vendor }}</a></dd>
+{% endif %}
+<dt>Comments</dt><dd>{{object.comments|linebreaks }}</dd>
+</dl>
+
+{% show_error_list object.error_list %}
+
+<h2>License Keys</h2>
+{% show_license_key_list object.license_key_set.all %}
+
+<h2>Active Software Installations</h2>
+
+{% show_software_installation_list object.active_software_installations %}
+
+<h2>Deleted Software Installations</h2>
+
+{% show_software_installation_list object.inactive_software_installations %}
+
+<h2>History</h2>
+
+{% show_history "license" object %}
+
+{% endblock %}

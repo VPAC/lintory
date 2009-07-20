@@ -1,0 +1,52 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{% if perms.lintory.can_see_key %}{{ object }}{% else %}LK{{ object.pk }}{% endif %}{% endblock %}
+
+{% block content %}
+
+<h1>{% if perms.lintory.can_see_key %}{{ object }}{% else %}LK{{ object.pk }}{% endif %}</h1>
+
+{% if perms.lintory.change_license_key or perms.inventory.delete_license_key %}
+<ul class="object-tools">
+{% if perms.lintory.change_license_key %}
+<li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
+{% endif %}
+{% if perms.lintory.delete_license_key %}
+<li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a</li>
+{% endif %}
+</ul>
+{% endif %}
+
+<dl class="infobox">
+<dt>License key</dt><dd>{{ object }}</dd>
+<dt>Num installations</dt><dd>{{object.software_installations_found}}</dd>
+<dt>Comments</dt><dd>{{object.comments|linebreaks }}</dd>
+</dl>
+
+{% show_error_list object.error_list %}
+
+<h2>Software</h2>
+
+<a href="{{object.software.get_absolute_url}}">{{object.software}}</a>
+
+<h2>License</h2>
+
+<a href="{{object.license.get_absolute_url}}">{{object.license}}</a>
+
+<h2>Active Software Installations</h2>
+
+{% show_software_installation_list object.active_software_installations %}
+
+<h2>Deleted Software Installations</h2>
+
+{% show_software_installation_list object.inactive_software_installations %}
+
+<h2>History</h2>
+
+{% show_history "license_key" object %}
+
+{% endblock %}

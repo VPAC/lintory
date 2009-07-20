@@ -1,0 +1,50 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{{ party }}{% endblock %}
+
+{% block content %}
+<h1>{{ party }}</h1>
+
+<ul class="object-tools">
+{% if party %}
+<li><a class="viewlink" href="{% url party_software_list party.get_id %}">Software</a></li>
+{% else %}
+<li><a class="viewlink" href="{% url party_software_list "none" %}">Software</a></li>
+{% endif %}
+</ul>
+
+{% if assigned_hardware_tasks %}
+<h2>Tasks</h2>
+{% show_hardware_task_list assigned_hardware_tasks %}
+{% endif %}
+
+{% if own_locations %}
+<h2>Owner of Locations</h2>
+{% show_location_list own_locations %}
+{% endif %}
+
+{% if use_locations %}
+<h2>User of Locations</h2>
+{% show_location_list use_locations %}
+{% endif %}
+
+{% if own_licenses %}
+<h2> Licenses </h2>
+{% show_license_list own_licenses %}
+{% endif %}
+
+{% if own_hardware %}
+<h2> Owner of Hardware </h2>
+{% show_hardware_list own_hardware %}
+{% endif %}
+
+{% if use_hardware %}
+<h2> User of Hardware </h2>
+{% show_hardware_list use_hardware %}
+{% endif %}
+
+{% endblock %}

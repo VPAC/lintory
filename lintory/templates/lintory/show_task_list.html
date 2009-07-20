@@ -1,0 +1,35 @@
+{% if object_list %}
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Total</th>
+        <th>Done</th>
+        <th>Todo</th>
+{% if perms.lintory.change_task or perms.inventory.delete_task %}
+        <th colspan="2">Actions</th>
+{% endif %}
+      </tr>
+    {% for task in object_list %}
+      <tr>
+        <td><a href="{{ task.get_absolute_url }}">{{ task }}</a></td>
+        <td>{{task.hardware_tasks_all.count}}</td>
+        <td>{{task.hardware_tasks_done.count}}</td>
+        <td>{{task.hardware_tasks_todo.count}}</td>
+{% if perms.lintory.change_task or perms.inventory.delete_task %}
+{% if perms.lintory.change_task %}
+        <td><a class="changelink" href="{{ task.get_edit_url }}">edit</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% if perms.lintory.delete_task %}
+        <td><a class="deletelink" href="{{ task.get_delete_url }}">delete</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% endif %}
+      </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No tasks are available.</p>
+{% endif %}

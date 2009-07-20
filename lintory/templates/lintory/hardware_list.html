@@ -1,0 +1,24 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{{ type.plural_name|capfirst }}{% endblock %}
+
+{% block content %}
+
+<h1>{{ type.plural_name|capfirst }}</h1>
+
+{% ifnotequal type "hardware" %}
+{% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user type %}
+{% if perms.lintory.add_hardware and add_perm %}
+<ul class="object-tools">
+<li><a class="addlink" href="{% url hardware_type_create type.type_id %}">Create</a></li>
+</ul>
+{% endif %}
+{% endifnotequal %}
+
+{% show_hardware_list object_list %}
+
+{% endblock %}

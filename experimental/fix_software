@@ -1,0 +1,35 @@
+#!/usr/bin/python
+# lintory - keep track of computers and licenses
+# Copyright (C) 2008-2009 Brian May
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from lintory import models
+from lintory import helpers
+import re
+
+for software in  models.software.objects.all():
+    list = helpers.strip_software_version(software.name)
+
+    if len(list) == 1:
+        (new_name,version) = list[0]
+
+        if software.name != new_name:
+            print u"Renaming %s to %s version %s"%(software.name,new_name,version)
+
+            old = software
+            new = models.software.objects.get(name=new_name)
+            models.software_installation.objects.filter(software=old).update(software=new)
+            models.license_key.objects.filter(software=old).update(software=new)
+            old.delete()

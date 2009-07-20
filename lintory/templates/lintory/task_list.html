@@ -1,0 +1,21 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}Tasks{% endblock %}
+
+{% block content %}
+
+<h1>Tasks</h1>
+
+{% if perms.lintory.add_task %}
+<ul class="object-tools">
+<li><a class="addlink" href="{% url task_create %}">Create</a></li>
+</ul>
+{% endif %}
+
+{% show_task_list object_list %}
+
+{% endblock %}

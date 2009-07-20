@@ -1,0 +1,102 @@
+# Bugs/issues/limitations in import
+
+The software is currently alpha software. While it is in use at a medium
+sized company, there is still much development work to be done to resolve
+some of its limitations, as described here.
+
+## Documentation
+
+This documentation is a limitation. It talks more about Lintory's limitations
+then its features.
+
+## Auto imports not implemented
+
+Currently, while I test it, uploading won't automatically try to import
+details into the database when the data is uploaded.
+
+This is done manually
+
+1. Setup environment as done by sample/rundemo. Or equiv if you already have
+migrated away from demo setup.
+2. Run lintory/import <filename>
+3. This process moves the file into the done directory of the path specified
+in settings.py.
+
+## Data format
+
+More checks are needed to ensure that the data format received for imports is
+what we expect.
+
+At present time, any non-ASCII characters are stripped from the input file.
+This was because some windows software applications have weird non-ASCII
+characters that don't seem to have any meaning.
+
+## Paranoid
+
+There is a reasonable amount of guess work involved in importing computers into
+the database. The design goal is to have the import abort with an error if it
+is unsure of something, rather then blindly do the wrong thing.  For example,
+some computers come supplied with a dummy serial number, so the serial number
+cannot be used as the sole means of identifying the computer. However there may
+still be cases where it gets confused and does the wrong thing.
+
+## New computers
+
+New computers will not be automatically created. This is because the algorithm
+attempts to avoid the risk of a false positive when identifying a computer from
+the data base, in favour of a false negative. As such, as false negative doesn't
+mean the computer doesn't already exist in the database, and be blindly
+creating a new entry we could end up with duplicates, which could get
+confusing.
+
+The current solution is to manually select the data record associated with the
+uploaded file, and turn on the create_computer option. The next time
+the data is imported, the computer should be created automatically.
+
+## Storage devices
+
+Problems can occur if for example the import routine does not recognise the
+current hard disk installed in the computer. In this case it will create a new
+hard disk, and mark the current hard disk as non-installed. As a result, the OS
+will no longer be marked in use by the computer, and all software will no
+longer be associated with the computer (it will still be marked as installed on
+the OS which is installed on the hard disk however). This can be rectified by
+finding the hard disk, and marking it as "installed" and "in use" on the
+computer again.
+
+## Security
+
+If you allow anybody to upload data to the server, then anybody can upload
+data. Including false data. Or data specially designed to exploit hidden
+security issues within lintory.
+
+The solution to this would be to restrict running this application to a trusted
+user, and have that user authenticate when uploading results to the server.
+
+Unfortunately there is no convenient method of having a program run
+automatically on a remote Windows desktop with a restricted account.
+
+### WMIEXEC:
+
+Another solution might be wmiexec. Unfortunately it is no longer in Ubuntu.
+
+Get a copy on wmiexec, from: <http://boreditguy.com/blog/?p=274>.
+
+Do something like:
+
+    winexe //host -U domain/administrator '\\server\path\lintory\get_and_upload.cmd'
+
+If you cannot connect to a remote Windows machine, check:
+
+* Networking is working.
+
+* Microsoft XP Home Edition won't work as far as I know. Probably none of the
+home edition products will work.
+
+* Windows firewall (or some other fireall) isn't blocking the connection.
+
+* Control Panel --> Administrative Tools --> Local Security Policy
+Expand Local Policies, and select Security Options.  "Network access: Sharing
+and security model for local accounts" should be "Classic - Local users
+authenticate as themselves" and NOT "Guest only - local users authenticate as
+Guest"

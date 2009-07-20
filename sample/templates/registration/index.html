@@ -1,0 +1,18 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}<div class="breadcrumbs">
+<a href="{% url root %}">home</a> &rsaquo; 
+accounts</div>{% endblock %}
+
+{% block title %}Inventory{% endblock %}
+
+{% block content %}
+
+<ul>
+<li><a href="login/">Login</a></li>
+<li><a href="logout/">Logout</a></li>
+<li><a href="profile/">Profile</a></li>
+</ul>
+
+{% endblock %}

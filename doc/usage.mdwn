@@ -1,0 +1,5 @@
+# Usage
+
+This section describes common day to day usage of lintory.
+
+No it doesn't, the section still needs to be written.

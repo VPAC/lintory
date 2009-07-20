@@ -1,0 +1,196 @@
+#!/usr/bin/python
+# lintory - keep track of computers and licenses
+# Copyright (C) 2008-2009 Brian May
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from lintory import models, party
+import sys
+import re
+
+
+class logger:
+        doing = u"aaa"
+
+        def set_doing(self,doing):
+                self.doing = doing
+
+        def warning(self,msg):
+                print u"%s: %s" % (self.doing,msg)
+
+log = logger()
+
+def name_check(label,name,required):
+        if name is None and required:
+                log.warning(u"%s is none"%(label))
+
+        if isinstance(name,party.fields.Error_Name):
+                log.warning(u"%s illegal %s"%(label,name))
+
+# ensure r_name == l_name or r_name is in group(l_name)
+def cross_check_name(l_label,l_name,r_label,r_name):
+        if l_name is None:
+                pass
+        elif r_name is None:
+                pass
+        elif isinstance(l_name,party.fields.Error_Name):
+                pass
+        elif isinstance(r_name,party.fields.Error_Name):
+                pass
+        elif l_name.get_id() == u"cn=vpac,ou=group,dc=vpac,dc=org" and \
+             re.match(u"^cn=\w+,ou=group,dc=vpac,dc=org$",r_name.get_id()) is not None:
+                pass
+        elif not r_name.compare(l_name) and not r_name.is_in_group(l_name):
+                log.warning(u"%s %s (group) != %s %s (account)"
+                        %(l_label,l_name,
+                          r_label,r_name))
+
+def check_duplicates(d,name,id,value):
+        if value is None:
+                pass
+        elif not d.has_key(value):
+                d[value] = id
+        else:
+                log.warning(u"Duplicate %s found %d"%(name,d[value]))
+
+
+def main():
+        print u"Checking party..."
+#        list = party.connection.list()
+#        for name in list:
+#                print u"%s"%name
+
+
+        print u""
+        print u"Checking locations..."
+        for l in models.location.objects.all():
+                log.set_doing(u"%d:%s"%(l.pk,l))
+
+                name_check(u"owner",l.owner,False)
+                name_check(u"user",l.user,False)
+                cross_check_name(u"owner",l.owner,u"user",l.user)
+
+                for c in l.get_hardware():
+                        log.set_doing(u"%d:%s:%s"%(l.pk,l,c))
+                        cross_check_name(u"location owner",l.owner,
+                                         u"hardware owner",c.get_owner())
+                        cross_check_name(u"location user",l.user,
+                                         u"hardware user",c.get_user())
+
+                for sl in l.children.all():
+                        log.set_doing(u"%d:%s:%s"%(l.pk,l,sl))
+                        cross_check_name(u"location owner",l.owner,
+                                         u"sub location owner",sl.get_owner())
+                        cross_check_name(u"location user",l.user,
+                                         u"sub location user",sl.get_user())
+
+        print u""
+        print u"Checking hardware..."
+        for h in models.hardware.objects.all():
+            log.set_doing(u"%d:%s"%(c.pk,c))
+            computer = h.get_object()
+
+        print u""
+        print u"Checking computers..."
+        party = {}
+        serial_numbers = {}
+        asset_ids = {}
+        for c in models.computer.objects.all():
+                log.set_doing(u"%d:%s"%(c.pk,c))
+
+                name_check(u"owner",c.owner,True)
+                name_check(u"user",c.user,False)
+                cross_check_name(u"owner",c.owner,u"user",c.user)
+
+                if c.location is None:
+                        log.warning(u"No location defined")
+
+
+                log.set_doing(u"%d:%s:duplicates"%(c.pk,c))
+                check_duplicates(party,u"name",c.pk,c.name)
+                check_duplicates(serial_numbers,u"serial number",c.pk,c.serial_number)
+                check_duplicates(asset_ids,u"asset id",c.pk,c.asset_id)
+
+                for i in c.active_software_installations():
+                        log.set_doing(u"%d:%s:software installations:%d:%s"%(c.pk,c,i.pk,i.software))
+
+                        if i.license_key is not None:
+                                i_owner = i.license_key.license.get_owner()
+                        else:
+                                i_owner = None
+
+                        if i_owner is not None and c.owner is not None:
+                                done = False
+                                if i_owner.get_id() == u"cn=systems,ou=group,dc=vpac,dc=org":
+                                        m = re.match(u"^cn=\w+,ou=group,dc=vpac,dc=org$",c.owner.get_id())
+                                        if m is not None:
+                                                done = True
+
+                                if not done and not i_owner.compare(c.owner):
+                                        log.warning(u"License owner %s does not match computer owner %s "
+                                                %(i_owner,c.owner))
+
+        print u""
+        print u"Checking license..."
+        for l in models.license.objects.all():
+                log.set_doing(u"%d:%s"%(l.pk,l))
+                name_check(u"owner",l.owner,False)
+
+                if l.computer is not None:
+                        c_owner = l.computer.get_owner()
+                        if c_owner is None and l.owner is None:
+                                good = True
+                        elif c_owner is None:
+                                good = False
+                        elif l.owner is None:
+                                good = False
+                        elif not c_owner.compare(l.owner):
+                                good = False
+                        else:
+                                good = True
+
+                        if not good:
+                                log.warning(u"license has fixed computer %s but license owner is %s not computer owner %s"
+                                        %(l.computer,l.owner,c.owner))
+
+                error_list = l.error_list()
+                for error in error_list:
+                        log.warning(error)
+
+        print u""
+        print u"Checking license key..."
+        for l in models.license_key.objects.all():
+                log.set_doing(u"%d:%s(%s-->%s)"%(l.pk,l,l.license,l.software))
+
+                error_list = l.error_list()
+                for error in error_list:
+                        log.warning(error)
+
+        si_software = {}
+        print u""
+        print u"Checking software installations..."
+        for si in models.software_installation.objects.filter(active=True):
+                log.set_doing(u"%d:%s(%s,%s)"%(si.pk,si,si.software,si.computer))
+
+                error_list = si.error_list()
+                for error in error_list:
+                        log.warning(error)
+
+                if si.computer.pk not in si_software:
+                        si_software[si.computer.pk] = {}
+
+                check_duplicates(si_software[si.computer.pk],u"software",si.pk,si.software)
+
+if __name__ == u"__main__":
+    sys.exit(main())

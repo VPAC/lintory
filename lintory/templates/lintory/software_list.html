@@ -1,0 +1,21 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}Software{% endblock %}
+
+{% block content %}
+
+<h1>Software</h1>
+
+{% if perms.lintory.add_software %}
+<ul class="object-tools">
+<li><a class="addlink" href="{% url software_create %}">Create</a></li>
+</ul>
+{% endif %}
+
+{% show_software_list object_list %}
+
+{% endblock %}

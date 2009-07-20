@@ -1,0 +1,34 @@
+{% extends "lintory/hardware_detail.html" %}
+{% load inventory %}
+
+{% block class="infobox" %}
+{% if object.used_by %}
+<dt>Used by</dt><dd><a href="{{ object.used_by.get_absolute_url }}">{{ object.used_by }}</a></dd>
+{% endif %}
+{% endblock %}
+
+{% block class="body_start" %}
+{% with object.os_list as os_list %}
+<h2>OS</h2>
+{% if perms.lintory.add_os %}
+<ul class="object-tools">
+<li><a class="addlink" href="{% url os_create object.pk %}">Add</a></li>
+</ul>
+{% endif %}
+{% show_os_list os_list %}
+{% endwith %}
+
+{% with object.active_software_installations as active_software_installations %}
+{% if active_software_installations %}
+<h2>Active Software Installations</h2>
+{% show_software_installation_list active_software_installations %}
+{% endif %}
+{% endwith %}
+
+{% with object.inactive_software_installations as inactive_software_installations %}
+{% if inactive_software_installations %}
+<h2>Deleted Software Installations</h2>
+{% show_software_installation_list inactive_software_installations %}
+{% endif %}
+{% endwith %}
+{% endblock %}

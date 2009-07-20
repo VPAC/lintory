@@ -1,0 +1,63 @@
+{% load inventory %}
+{% if object_list %}
+<table>
+  <tr>
+    <th>Key</th>
+    <th>Found</th>
+{% if not hide.software %}
+    <th>Software</th>
+{% endif %}
+{% if not hide.license %}
+    <th>License</th>
+    <th>Max</th>
+    <th>Found</th>
+    <th>Left</th>
+{% endif %}
+    <th>Comments</th>
+{% if perms.lintory.change_license_key or perms.inventory.delete_license_key %}
+    <th colspan="2">Actions</th>
+{% endif %}
+  </tr>
+{% for license_key in object_list %}
+    {% with license_key.error_list as error_list %}{% if error_list %}
+    <tr><td colspan='9'>{% show_error_list error_list %}</td></tr>
+    {% endif %}{% endwith %}
+    <tr>
+      <td>{% show_license_key license_key %}</td>
+      <td>
+        {{license_key.software_installations_found }}
+      </td>
+{% if not hide.software %}
+      <td><a href="{{ license_key.software.get_absolute_url }}">{{license_key.software}}</a></td>
+{% endif %}
+{% if not hide.license %}
+      <td><a href="{{ license_key.license.get_absolute_url }}">{{ license_key.license }}</a></td>
+      <td>
+        {{license_key.license.installations_max }}
+      </td>
+      <td>
+        {{license_key.license.software_installations_found }}
+      </td>
+      <td>
+        {{license_key.license.software_installations_left }}
+      </td>
+{% endif %}
+      <td>
+        {{license_key.comments }}
+      </td>
+{% if perms.lintory.change_license_key or perms.inventory.delete_license_key %}
+{% if perms.lintory.change_license_key %}
+      <td><a class="changelink" href="{{ license_key.get_edit_url }}">edit</a></td>
+{% else %}
+      <td></td>
+{% endif %}
+{% if perms.lintory.delete_license_key %}
+      <td><a class="deletelink" href="{{ license_key.get_delete_url }}">delete</a></td>
+{% else %}
+      <td></td>
+{% endif %}
+{% endif %}
+    </tr>
+{% endfor %}
+</table>
+{% endif %}

@@ -1,0 +1,1 @@
+<a href="{{ license_key.get_absolute_url }}"> {% if perms.lintory.can_see_key %}{{ license_key }}{% else %}LK{{ license_key.pk }}{% endif %}</a>
