@@ -9,19 +9,6 @@ some of its limitations, as described here.
 This documentation is a limitation. It talks more about Lintory's limitations
 then its features.
 
-## Auto imports not implemented
-
-Currently, while I test it, uploading won't automatically try to import
-details into the database when the data is uploaded.
-
-This is done manually
-
-1. Setup environment as done by sample/rundemo. Or equiv if you already have
-migrated away from demo setup.
-2. Run lintory/import <filename>
-3. This process moves the file into the done directory of the path specified
-in settings.py.
-
 ## Data format
 
 More checks are needed to ensure that the data format received for imports is
@@ -31,7 +18,7 @@ At present time, any non-ASCII characters are stripped from the input file.
 This was because some windows software applications have weird non-ASCII
 characters that don't seem to have any meaning.
 
-## Paranoid
+## Paranoia
 
 There is a reasonable amount of guess work involved in importing computers into
 the database. The design goal is to have the import abort with an error if it
@@ -56,19 +43,22 @@ the data is imported, the computer should be created automatically.
 ## Storage devices
 
 Problems can occur if for example the import routine does not recognise the
-current hard disk installed in the computer. In this case it will create a new
-hard disk, and mark the current hard disk as non-installed. As a result, the OS
-will no longer be marked in use by the computer, and all software will no
-longer be associated with the computer (it will still be marked as installed on
-the OS which is installed on the hard disk however). This can be rectified by
-finding the hard disk, and marking it as "installed" and "in use" on the
-computer again.
+current hard disk installed in the computer. Hopefully I have resolved all
+cases where this occurs, however I can't guarantee you won't encounter a corner
+case that riggers it again.
+
+In that case Lintory will create a new hard disk, and mark the current hard
+disk as non-installed. As a result, the OS will no longer be marked in use by
+the computer, and all software will no longer be associated with the computer
+(it will still be marked as installed on the OS which is installed on the hard
+disk however). This can be rectified by finding the hard disk, and marking it
+as "installed" and "in use" on the computer again.
 
 ## Security
 
 If you allow anybody to upload data to the server, then anybody can upload
 data. Including false data. Or data specially designed to exploit hidden
-security issues within lintory.
+security issues within Lintory.
 
 The solution to this would be to restrict running this application to a trusted
 user, and have that user authenticate when uploading results to the server.

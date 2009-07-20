@@ -1,18 +1,32 @@
 # Downloading
 
-Note: Unfortunately source code is not yet available, while I get a response on
-a query on the monotone mailing list. I expect to have it online by within
-several days. When it is available, follow these instructions. If several days
-have elapsed and there is still no sign of the source code, please bug me.
+## Requirements
+
+Lintory is Alpha software. As such these limitations may be removed if there is enough demand.
+
+* Django from subversion.
+* Curl for Win32.
+* LDAP server for retrieving parties that may own or use things.
+* Linux server for central server. Other platforms may work, but not supported.
+
+Warning: Database schema is also experimental and subject to change.
+
+## Monotone instructions
 
 How to download Lintory.
 
-1. Download/install monotone. Debian/Ubuntu pakages are available in respective distributions.
-2. type in
+1. Download/install [monotone](http://www.monotone.ca/). If you use a recent version of Debian or Ubuntu:
+
+        sudo apt-get install monotone
+
+2. Use monotone to download the source code:
 
         mtn --db=/some/path/lintory.mtn db init
-        mtn --db=/some/path/lintory.mtn pull Lintory.mtn-host.prjek.net org.vpac.brian.lintory.main
+        mtn --db=/some/path/lintory.mtn pull Lintory.mtn-host.prjek.net --branch=org.vpac.brian.lintory.main
         mtn --db=/some/path/lintory.mtn co org.vpac.brian.lintory.main lintory
         cd lintory
+
+    Replace /some/path with path where you want to put monotone database. This
+    contains the full revision history of the source code.
 
 2. Proceed to [[installation]].
