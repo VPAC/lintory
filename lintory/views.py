@@ -32,7 +32,6 @@ import lintory.forms as forms
 import lintory.party as party
 
 from django.template import Context, loader
-from django.db.models import Count
 
 import datetime
 
@@ -321,13 +320,13 @@ def party_software_list(request, object_id):
         n = None
         own_software =  models.software.objects.filter(
                 license_key__isnull = False,
-                license_key__license__owner__isnull = True).annotate(Count("pk"))
+                license_key__license__owner__isnull = True).distinct()
     else:
         try:
             n = party.connection.lookup_id(object_id)
         except party.Lookup_Error, e:
             raise Http404
-        own_software =  models.software.objects.filter(license_key__license__owner = n).annotate(Count("pk"))
+        own_software =  models.software.objects.filter(license_key__license__owner = n).distinct()
 
     breadcrumbs = [ ]
     breadcrumbs.append(models.breadcrumb(reverse("lintory_root"),"home"))

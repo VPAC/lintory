@@ -20,7 +20,7 @@ from django.utils.http import urlquote
 
 from lintory import models
 
-from django.db.models import Q, Count
+from django.db.models import Q
 
 register = template.Library()
 
@@ -166,12 +166,12 @@ class get_licenses_by_software_owner_node(template.Node):
         if owner is None:
             licenses = models.license.objects.filter(
                 license_key__isnull=False,
-                license_key__software=software,owner__isnull=True).annotate(Count("pk"))
+                license_key__software=software,owner__isnull=True).distinct()
         else:
-            licenses = models.license.objects.filter(license_key__software=software,owner=owner).annotate(Count("pk"))
+            licenses = models.license.objects.filter(license_key__software=software,owner=owner).distinct()
 
         # are there are licenses for this software?
-        licenses_count = models.license.objects.filter(license_key__software=software).annotate(Count("pk")).count()
+        licenses_count = models.license.objects.filter(license_key__software=software).distinct().count()
         if licenses_count == 0:
             # If no licenses, assume we have unlimited installs available
             max = None

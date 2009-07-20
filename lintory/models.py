@@ -696,7 +696,7 @@ class software(model):
         ordering = ('name',)
 
     def licenses(self):
-        return license.objects.filter(license_key__software=self).annotate(models.Count("pk"))
+        return license.objects.filter(license_key__software=self).distinct()
 
     def software_installations_max(self):
         software_installations_max = None
