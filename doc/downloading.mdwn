@@ -22,11 +22,14 @@ How to download Lintory.
 2. Use monotone to download the source code:
 
         mtn --db=/some/path/lintory.mtn db init
-        mtn --db=/some/path/lintory.mtn pull Lintory.mtn-host.prjek.net --branch=org.vpac.brian.lintory.main
-        mtn --db=/some/path/lintory.mtn co org.vpac.brian.lintory.main lintory
+        mtn --db=/some/path/lintory.mtn pull Lintory.mtn-host.prjek.net org.vpac.brian.lintory.main
+        mtn --db=/some/path/lintory.mtn co --branch org.vpac.brian.lintory.main lintory
         cd lintory
 
     Replace /some/path with path where you want to put monotone database. This
     contains the full revision history of the source code.
+
+    The fingerprint of the remote server is a52f85615cb2445989f525bf17a603250381a751 (in case you trust
+    this website...).
 
 2. Proceed to [[installation]].
