@@ -6,6 +6,7 @@ import re
 
 from lintory.views import lintory_root
 from lintory import helpers, models
+from lintory.upload.windows import hacks
 
 class import_error(Exception):
     def __init__(self, value):
@@ -527,25 +528,10 @@ def get_license_keys(data_dict):
     return license_keys
 
 def install_software(data_datetime, os, name, version, license_keys):
-    key = None
-
-    if name in license_keys:
-        key = license_keys[name]
-
-    elif name == "Microsoft Windows Server 2008 Standard":
-        key = license_keys["Windows Server (R) 2008 Standard"]
-
-    elif name == "Microsoft Windows Vista Business":
-        key = license_keys["Windows Vista (TM) Business"]
-
-    elif name == "Microsoft Windows Vista Ultimate":
-        key = license_keys["Windows Vista (TM) Ultimate"]
-
-    elif name == "Microsoft Windows XP Professional":
-        key = license_keys["Microsoft Windows XP"]
+    key = hacks.get_license_key(name, license_keys)
 
     print "Installing '%s' version '%s' on '%s' with key '%s'"%(name,version,os, key)
-    list = helpers.strip_software_version(name)
+    list = hacks.strip_software_version(name)
 
     for new_name, new_version in list:
         print u"... simplified as '%s' version '%s'" % (new_name, version)
