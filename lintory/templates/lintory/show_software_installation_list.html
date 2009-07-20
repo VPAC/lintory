@@ -21,7 +21,7 @@
   </tr>
 {% for installation in object_list %}
     {% with installation.error_list as error_list %}{% if error_list and installation.active %}
-    <tr><td colspan='9'>{% show_error_list error_list %}</td></tr>
+    <tr><td colspan='10'>{% show_error_list error_list %}</td></tr>
     {% endif %}{% endwith %}
     <tr>
 {% if installation.os.storage.used_by %}
