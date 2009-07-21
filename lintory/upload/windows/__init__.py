@@ -373,6 +373,9 @@ def sync_hardware(data_datetime, computer, data_dict):
         computer.serial_number = serial_number
     computer.auto_serial_number = serial_number
 
+    # save results
+    computer.save()
+
     # Now do the hardware
     hardware = [ h.pk for h in computer.installed_hardware.all() ]
     used_storage = [ h.pk for h in computer.used_storage.all() ]
@@ -597,6 +600,9 @@ def sync_software(data_datetime, os, data_dict):
     os.computer_name      = son(data_dict['OperatingSystem'][0]['CSName'])
     os.seen_last          = data_datetime
 
+    # save results
+    os.save()
+
     si_list = [ si.pk for si in os.active_software_installations() ]
 
     license_keys = get_license_keys(data_dict)
@@ -670,9 +676,8 @@ def load(data):
         if data.datetime < data.computer.seen_last:
             data.errors += u"Warning: Computer data is older than last update\n"
         else:
+            # sync_hardware calls data.computer.save()
             sync_hardware(data.datetime, data.computer, data_dict)
-
-        data.computer.save()
 
         # SOFTWARE
 
@@ -700,13 +705,13 @@ def load(data):
             else:
                 raise import_error("OS storage is not marked in use on any computer")
 
+            # sync_software calls data.os.save()
             sync_software(data.datetime, data.os, data_dict)
 
         if data.errors == "":
             data.errors = None
 
         data.imported = datetime.datetime.now()
-        data.os.save()
 
     except import_error, e:
         # Ooops. Something went wrong. Sob.
