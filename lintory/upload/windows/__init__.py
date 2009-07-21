@@ -186,6 +186,7 @@ def get_computer(data_dict):
 def create_computer(data_datetime):
     c = models.computer()
     c.seen_first = data_datetime
+    c.seen_last = data_datetime
     return c
 
 def get_disk_drive_from_id(id, data_dict):
@@ -290,9 +291,10 @@ def get_os(computer, data_dict):
 
     return os
 
-def create_os(data_dateime, computer, data_dict):
+def create_os(data_datetime, computer, data_dict):
     os = models.os()
-    os.seen_first = datetime
+    os.seen_first = data_datetime
+    os.seen_last = data_datetime
     os.storage = get_os_storage(computer, data_dict)
     return os
 
