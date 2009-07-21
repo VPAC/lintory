@@ -16,6 +16,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.utils.encoding import smart_unicode
 from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
 from django.template import RequestContext
@@ -122,8 +123,23 @@ def object_list(request, object_list, type, template=None, kwargs={}):
     if template is None:
         template='lintory/'+type.type_id+'_list.html'
 
+    paginator = Paginator(object_list, 50) # Show 50 objects per page
+
+    # Make sure page request is an int. If not, deliver first page.
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+
+    # If page request (9999) is out of range, deliver last page of results.
+    try:
+        page_obj = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        page_obj = paginator.page(paginator.num_pages)
+
     return render_to_response(template, {
-            'object_list': object_list,
+            'type': type,
+            'page_obj': page_obj,
             'breadcrumbs': breadcrumbs,
             },context_instance=RequestContext(request))
 
@@ -256,18 +272,14 @@ def history_item_delete(request, history_item_id):
     history_item = get_object_or_404(models.history_item, pk=history_item_id)
     return object_delete(request, history_item)
 
-# People
+#########
+# PARTY #
+#########
 
 def party_list(request):
-    breadcrumbs = [ ]
-    breadcrumbs.append(models.breadcrumb(reverse("lintory_root"),"home"))
-    breadcrumbs.append(models.breadcrumb(reverse("party_list"),"parties"))
-
-    return render_to_response('lintory/party_list.html', {
-            'object_list': party.connection.list(),
-            'breadcrumbs': breadcrumbs,
-            },context_instance=RequestContext(request))
-
+    type = models.types["party"]
+    list = party.connection.list()
+    return object_list(request, list, type)
 
 def party_detail(request, object_id):
     if object_id == "none":
@@ -593,12 +605,9 @@ type_dict = {
 # HARDWARE OBJECTS
 
 def hardware_list(request):
-    breadcrumbs = models.types["hardware"].get_breadcrumbs()
-    return render_to_response('lintory/hardware_list.html', {
-            'type': models.types["hardware"],
-            'object_list': models.hardware.objects.all(),
-            'breadcrumbs': breadcrumbs,
-            },context_instance=RequestContext(request))
+    type = models.types["hardware"]
+    list = models.hardware.objects.all()
+    return object_list(request, list, type)
 
 
 def hardware_detail(request, object_id):
@@ -633,13 +642,8 @@ def hardware_type_list(request, type_id):
 
     type = models.types[type_id]
     type_class = type_dict[type_id].type_class
-    object_list = type_class.objects.all()
-    breadcrumbs = models.types[type_id].get_breadcrumbs()
-    return render_to_response('lintory/hardware_list.html', {
-            'type': type,
-            'object_list': object_list,
-            'breadcrumbs': breadcrumbs,
-            },context_instance=RequestContext(request))
+    list = type_class.objects.all()
+    return object_list(request, list, type, template="lintory/hardware_list.html")
 
 def hardware_type_create(request, type_id):
     if type_id not in type_dict:
@@ -667,14 +671,7 @@ def hardware_by_mac_address(request, mac_address):
     if count == 0:
         raise Http404
 
-    breadcrumbs = models.types["hardware"].get_breadcrumbs()
-    breadcrumbs.append(models.breadcrumb(reverse("hardware_by_mac_address",args=[mac_address]),mac_address))
-
-    return render_to_response('lintory/hardware_list.html', {
-            'type': type,
-            'object_list': list,
-            'breadcrumbs': breadcrumbs,
-            },context_instance=RequestContext(request))
+    return object_list(request, list, type, template="lintory/hardware_list.html")
 
 ############
 # SOFTWARE #

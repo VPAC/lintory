@@ -85,6 +85,12 @@ class generic_type:
 
 types = {}
 
+class party_type(generic_type):
+    def plural_name(self):
+        return "parties"
+
+types['party'] = party_type('party')
+
 # BASE ABSTRACT MODEL CLASS
 
 class model(models.Model):

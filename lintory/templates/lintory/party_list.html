@@ -2,19 +2,23 @@
 {% load i18n %}
 {% load inventory %}
 
+{% block stylesheet %}{{ MEDIA_URL }}css/changelists.css{% endblock %}
+
 {% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
 
-{% block title %}People{% endblock %}
+{% block title %}Parties{% endblock %}
 
 {% block content %}
+<h1>Parties</h1>
+
 <p>List details for objects where <a href="{% url party_detail "none" %}">no party</a> is defined.</p>
 
-{% if object_list %}
+{% if page_obj.object_list %}
     <table>
       <tr>
         <th>Name</th>
       </tr>
-    {% for person in object_list %}
+    {% for person in page_obj.object_list %}
       <tr>
         <td><a href="{{ person.get_absolute_url }}">{{ person }}</a></td>
       </tr>
@@ -23,4 +27,7 @@
 {% else %}
     <p>No parties are available.</p>
 {% endif %}
+
+{% pagination page_obj %}
+
 {% endblock %}

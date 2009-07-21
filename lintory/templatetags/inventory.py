@@ -302,3 +302,73 @@ class get_permissions_from_type_node(template.Node):
         context[edit_tag] = type.has_edit_perms(user)
         context[delete_tag] = type.has_delete_perms(user)
         return ''
+
+def _get_link(i):
+    return u"?page=%d"%(i)
+
+@register.simple_tag
+def paginator_prev(page_obj):
+    if page_obj.number <= 1:
+        return mark_safe(u'')
+    else:
+        return mark_safe(u"<a href='%s'>&lt;</a>" % (_get_link(page_obj.number-1)))
+
+@register.simple_tag
+def paginator_next(page_obj):
+    if page_obj.number >= page_obj.paginator.num_pages:
+        return mark_safe(u'')
+    else:
+        return mark_safe(u"<a href='%s'>&gt;</a>" % (_get_link(page_obj.number+1)))
+
+@register.simple_tag
+def paginator_number(page_obj,i):
+    if i == DOT:
+        return mark_safe(u'... ')
+    elif i == page_obj.number:
+        return mark_safe(u'<span class="this-page">%d</span> ' % (i))
+    else:
+        return mark_safe(u'<a href="%s"%s>%d</a> ' % (_get_link(i), (i == page_obj.paginator.num_pages and ' class="end"' or ''), i))
+
+DOT='.'
+
+@register.inclusion_tag('lintory/pagination.html')
+def pagination(page_obj):
+    paginator, page_num = page_obj.paginator, page_obj.number
+
+    if paginator.num_pages <= 1:
+        pagination_required = False
+        page_range = []
+    else:
+        pagination_required = True
+        ON_EACH_SIDE = 3
+        ON_ENDS = 2
+
+        # If there are 10 or fewer pages, display links to every page.
+        # Otherwise, do some fancy
+        if paginator.num_pages <= 10:
+            page_range = range(1,paginator.num_pages+1)
+        else:
+            # Insert "smart" pagination links, so that there are always ON_ENDS
+            # links at either end of the list of pages, and there are always
+            # ON_EACH_SIDE links at either end of the "current page" link.
+            page_range = []
+            if page_num > (ON_EACH_SIDE + ON_ENDS + 1):
+                page_range.extend(range(1, ON_ENDS+1))
+                page_range.append(DOT)
+                page_range.extend(range(page_num - ON_EACH_SIDE, page_num))
+            else:
+                page_range.extend(range(1, page_num))
+
+            if page_num < (paginator.num_pages - ON_EACH_SIDE - ON_ENDS):
+                page_range.extend(range(page_num, page_num + ON_EACH_SIDE + 1))
+                page_range.append(DOT)
+                page_range.extend(range(paginator.num_pages - ON_ENDS + 1, paginator.num_pages + 1))
+            else:
+                page_range.extend(range(page_num, paginator.num_pages + 1))
+
+    return {
+        'pagination_required': pagination_required,
+        'page_obj': page_obj,
+        'page_range': page_range,
+    }
+

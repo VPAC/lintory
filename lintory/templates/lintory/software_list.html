@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load inventory %}
 
+{% block stylesheet %}{{ MEDIA_URL }}css/changelists.css{% endblock %}
+
 {% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
 
 {% block title %}Software{% endblock %}
@@ -16,6 +18,8 @@
 </ul>
 {% endif %}
 
-{% show_software_list object_list %}
+{% show_software_list page_obj.object_list %}
+
+{% pagination page_obj %}
 
 {% endblock %}
