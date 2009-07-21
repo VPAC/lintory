@@ -265,11 +265,10 @@ class location(model):
     def get_create_url(self):
         return('location_create', [ str(self.pk) ])
 
-    @models.permalink
     def get_absolute_svg_url(self):
         try:
             t = loader.get_template('lintory/locations/%i.svg' % self.id)
-            return('location_svg', [ str(self.pk) ])
+            return reverse('location_svg', args=[ str(self.pk) ])
         except loader.TemplateDoesNotExist:
             return None
 
