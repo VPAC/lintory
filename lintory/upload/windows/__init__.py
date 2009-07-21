@@ -223,7 +223,7 @@ def get_os_storage(computer, data_dict):
             storage = models.storage.objects.get(
                         auto_manufacturer=son(disk_drive['Manufacturer']),
                         auto_model=son(disk_drive['Model']),
-                        serial_number=serial_number,
+                        auto_serial_number=serial_number,
                         total_size=son(disk_drive['TotalSectors']),
                         sector_size=son(disk_drive['BytesPerSector']),
             )
@@ -238,7 +238,7 @@ def get_os_storage(computer, data_dict):
                     used_by=computer,
                     auto_manufacturer=son(disk_drive['Manufacturer']),
                     auto_model=son(disk_drive['Model']),
-                    serial_number=serial_number,
+                    auto_serial_number=serial_number,
                     total_size=son(disk_drive['TotalSectors']),
                     sector_size=son(disk_drive['BytesPerSector']),
         )
@@ -493,7 +493,6 @@ def sync_hardware(data_datetime, computer, data_dict):
                 raise import_error("The storage device '%s' (%d) is in use by another computer"%(s,s.pk))
 
             # Update values
-            s.serial_number= serial_number
             s.total_size   = son(disk_drive['TotalSectors'])
             s.sector_size  = son(disk_drive['BytesPerSector'])
             s.seen_last    = data_datetime
@@ -512,6 +511,12 @@ def sync_hardware(data_datetime, computer, data_dict):
             if c or has_changed(s.auto_model,s.model,value):
                 s.model = value
             s.auto_model = value
+
+            # Update serial number, if required
+            value = serial_number
+            if c or has_changed(s.auto_serial_number,s.serial_number,value):
+                s.serial_number = value
+            s.auto_serial_number = value
 
             # Save values
             s.save()
