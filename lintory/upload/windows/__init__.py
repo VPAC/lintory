@@ -573,7 +573,6 @@ def install_software(data_datetime, os, name, version, license_keys):
         if c:
             print u"Installing '%s' version '%s'"%(name, version)
             print u"... simplified as '%s' version '%s'" % (new_name, version)
-            print u"... os '%s' storage '%s'"%(os, os.storage)
 
         si.software_version = version
         si.auto_delete = True
