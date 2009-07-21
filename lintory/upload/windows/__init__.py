@@ -656,14 +656,13 @@ def load(data):
     if data.format != "windows":
         raise RuntimeError("We only support windows format here")
 
-    # parse all the data into a python dictionary
-    data_dict = parse_file(data.file)
-
     try:
         data.errors = ""
 
-        # HARDWARE
+        # parse all the data into a python dictionary
+        data_dict = parse_file(data.file)
 
+        # HARDWARE
         if data.computer is None:
             try:
                 data.computer = get_computer(data_dict)
@@ -719,6 +718,7 @@ def load(data):
 
     except import_error, e:
         # Ooops. Something went wrong. Sob.
+        print "import error: %s"%(e.value)
         data.errors += u"The following error occured during importing:\n%s"%(e.value)
 
     # SAVE RECORD
