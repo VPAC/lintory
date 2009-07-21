@@ -1,0 +1,21 @@
+# Developer documentation
+
+The software is currently alpha software. While it is in use at a medium
+sized company, there is still much development work to be done to resolve
+some of its [[limitations]].
+
+These pages are designed to encourage the community to develop Lintory further.
+
+Links
+
+* [Sourceforge project page](https://sourceforge.net/projects/lintory/)
+* [Monotone project page](http://mtn-host.prjek.net//projects/Lintory/)
+
+History
+
+* [[revision 1|1]]
+* [[current]] design
+
+Todo
+
+* [[broken]] links.

@@ -1,0 +1,768 @@
+# Current design
+
+Date: 2007-07-23
+
+[[!toc levels=2]]
+
+## Hardware
+[[!graph src="""
+// dot 2.20.2 on Linux 2.6.28-11-generic
+// SchemaSpy rev 514
+  graph [
+    rankdir="RL"
+    bgcolor="#ffffff"
+    label="\nCurrent version"
+    labeljust="l"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "lintory_computer" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_computer</TD></TR>
+      <TR><TD PORT="hardware_ptr_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">hardware_ptr_id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="is_portable" COLSPAN="3" ALIGN="LEFT">is_portable</TD></TR>
+      <TR><TD PORT="memory" COLSPAN="3" ALIGN="LEFT">memory</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">3 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_computer.html"
+    tooltip="lintory_computer"
+  ];
+  "lintory_hardware" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_hardware</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="type_id" COLSPAN="3" ALIGN="LEFT">type_id</TD></TR>
+      <TR><TD PORT="seen_first" COLSPAN="3" ALIGN="LEFT">seen_first</TD></TR>
+      <TR><TD PORT="seen_last" COLSPAN="3" ALIGN="LEFT">seen_last</TD></TR>
+      <TR><TD PORT="manufacturer" COLSPAN="3" ALIGN="LEFT">manufacturer</TD></TR>
+      <TR><TD PORT="model" COLSPAN="3" ALIGN="LEFT">model</TD></TR>
+      <TR><TD PORT="product_number" COLSPAN="3" ALIGN="LEFT">product_number</TD></TR>
+      <TR><TD PORT="serial_number" COLSPAN="3" ALIGN="LEFT">serial_number</TD></TR>
+      <TR><TD PORT="service_number" COLSPAN="3" ALIGN="LEFT">service_number</TD></TR>
+      <TR><TD PORT="date_of_manufacture" COLSPAN="3" ALIGN="LEFT">date_of_manufacture</TD></TR>
+      <TR><TD PORT="date_of_disposal" COLSPAN="3" ALIGN="LEFT">date_of_disposal</TD></TR>
+      <TR><TD PORT="asset_id" COLSPAN="3" ALIGN="LEFT">asset_id</TD></TR>
+      <TR><TD PORT="owner" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">owner</TD></TR>
+      <TR><TD PORT="user" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">user</TD></TR>
+      <TR><TD PORT="location_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">location_id</TD></TR>
+      <TR><TD PORT="vendor_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">vendor_id</TD></TR>
+      <TR><TD PORT="installed_on_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">installed_on_id</TD></TR>
+      <TR><TD PORT="auto_delete" COLSPAN="3" ALIGN="LEFT">auto_delete</TD></TR>
+      <TR><TD PORT="auto_manufacturer" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">auto_manufacturer</TD></TR>
+      <TR><TD PORT="auto_model" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">auto_model</TD></TR>
+      <TR><TD PORT="auto_serial_number" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">auto_serial_number</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">6 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_hardware.html"
+    tooltip="lintory_hardware"
+  ];
+  "lintory_monitor" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_monitor</TD></TR>
+      <TR><TD PORT="hardware_ptr_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">hardware_ptr_id</TD></TR>
+      <TR><TD PORT="size" COLSPAN="3" ALIGN="LEFT">size</TD></TR>
+      <TR><TD PORT="width" COLSPAN="3" ALIGN="LEFT">width</TD></TR>
+      <TR><TD PORT="height" COLSPAN="3" ALIGN="LEFT">height</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/lintory_monitor.html"
+    tooltip="lintory_monitor"
+  ];
+  "lintory_network_adaptor" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_network_adaptor</TD></TR>
+      <TR><TD PORT="hardware_ptr_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">hardware_ptr_id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="network_type" COLSPAN="3" ALIGN="LEFT">network_type</TD></TR>
+      <TR><TD PORT="mac_address" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">mac_address</TD></TR>
+      <TR><TD PORT="IPv4_address" COLSPAN="3" ALIGN="LEFT">IPv4_address</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/lintory_network_adaptor.html"
+    tooltip="lintory_network_adaptor"
+  ];
+  "lintory_storage" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_storage</TD></TR>
+      <TR><TD PORT="hardware_ptr_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">hardware_ptr_id</TD></TR>
+      <TR><TD PORT="used_by_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">used_by_id</TD></TR>
+      <TR><TD PORT="total_size" COLSPAN="3" ALIGN="LEFT">total_size</TD></TR>
+      <TR><TD PORT="sector_size" COLSPAN="3" ALIGN="LEFT">sector_size</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_storage.html"
+    tooltip="lintory_storage"
+  ];
+  "lintory_computer":"hardware_ptr_id":w -> "lintory_hardware":"id":e [arrowhead=none arrowtail=teeodot];
+  "lintory_hardware":"installed_on_id":w -> "lintory_hardware":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_monitor":"hardware_ptr_id":w -> "lintory_hardware":"id":e [arrowhead=none arrowtail=teeodot];
+  "lintory_network_adaptor":"hardware_ptr_id":w -> "lintory_hardware":"id":e [arrowhead=none arrowtail=teeodot];
+  "lintory_storage":"hardware_ptr_id":w -> "lintory_hardware":"id":e [arrowhead=none arrowtail=teeodot];
+  "lintory_storage":"used_by_id":w -> "lintory_computer":"hardware_ptr_id":e [arrowhead=none arrowtail=crowodot];
+"""]]
+
+Here we have a number of different hardware types, with different attributs, all based on the
+`lintory_hardware` table. That is all hardware items have the attributes in `lintory_table`.
+
+Some attributes deserve special mention:
+
+`lintory_hardware`
+
+* `type_id` - the type of this hardware, to allow getting all fields when the type is not known.
+* `auto_delete` - if this hardware item was not found automatically, it should not be deleted automatically.
+* `auto_*` - these are fields automatically determined from automatic probing. Sometimes it does not match what we
+expect. We keep a seperate copy of these, so we can tell if they have changed or not.
+* `seend_first` - when was this hardware first seen?
+* `seend_last` - when was this hardware last seen?
+
+`lintory_monitor`
+
+* `size` - monitor size in inches.
+* `width` and `height` - I initially imagined these would be width/height in inches, but now suspect width/height
+in pixels would be better. Especially for LCD monitors.
+
+`lintory_storage`
+
+* `used_by_id` - it is theoriticially possible to have a hard disk installed in one computer, but in use
+by another. e.g. the block device could be shared over the network. This does not include NFS, Samba, etc, where
+the disk should still be marked as in use by the server computer.
+* `total_size` - total number of sectors on disk
+
+More hardware types may be needed, e.g:
+
+* Power supply.
+* Display card.
+* Processor? CPU?
+
+## Software
+[[!graph src="""
+// dot 2.20.2 on Linux 2.6.28-11-generic
+// SchemaSpy rev 514
+  graph [
+    rankdir="RL"
+    bgcolor="#ffffff"
+    label="\nCurrent version"
+    labeljust="l"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "lintory_computer" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_computer</TD></TR>
+      <TR><TD PORT="hardware_ptr_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">hardware_ptr_id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="is_portable" COLSPAN="3" ALIGN="LEFT">is_portable</TD></TR>
+      <TR><TD PORT="memory" COLSPAN="3" ALIGN="LEFT">memory</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">3 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_computer.html"
+    tooltip="lintory_computer"
+  ];
+  "lintory_license" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_license</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="vendor_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">vendor_id</TD></TR>
+      <TR><TD PORT="vendor_tag" COLSPAN="3" ALIGN="LEFT">vendor_tag</TD></TR>
+      <TR><TD PORT="installations_max" COLSPAN="3" ALIGN="LEFT">installations_max</TD></TR>
+      <TR><TD PORT="version" COLSPAN="3" ALIGN="LEFT">version</TD></TR>
+      <TR><TD PORT="computer_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">computer_id</TD></TR>
+      <TR><TD PORT="expires" COLSPAN="3" ALIGN="LEFT">expires</TD></TR>
+      <TR><TD PORT="owner" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">owner</TD></TR>
+      <TR><TD PORT="text" COLSPAN="3" ALIGN="LEFT">text</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_license.html"
+    tooltip="lintory_license"
+  ];
+  "lintory_license_key" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_license_key</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="software_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">software_id</TD></TR>
+      <TR><TD PORT="license_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">license_id</TD></TR>
+      <TR><TD PORT="key" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">key</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_license_key.html"
+    tooltip="lintory_license_key"
+  ];
+  "lintory_os" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_os</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="storage_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">storage_id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="computer_name" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">computer_name</TD></TR>
+      <TR><TD PORT="seen_first" COLSPAN="3" ALIGN="LEFT">seen_first</TD></TR>
+      <TR><TD PORT="seen_last" COLSPAN="3" ALIGN="LEFT">seen_last</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">2 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_os.html"
+    tooltip="lintory_os"
+  ];
+  "lintory_software" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_software</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD PORT="vendor_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">vendor_id</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">2 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_software.html"
+    tooltip="lintory_software"
+  ];
+  "lintory_software_installation" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_software_installation</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="os_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">os_id</TD></TR>
+      <TR><TD PORT="software_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">software_id</TD></TR>
+      <TR><TD PORT="active" COLSPAN="3" ALIGN="LEFT">active</TD></TR>
+      <TR><TD PORT="seen_first" COLSPAN="3" ALIGN="LEFT">seen_first</TD></TR>
+      <TR><TD PORT="seen_last" COLSPAN="3" ALIGN="LEFT">seen_last</TD></TR>
+      <TR><TD PORT="license_key_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">license_key_id</TD></TR>
+      <TR><TD PORT="software_version" COLSPAN="3" ALIGN="LEFT">software_version</TD></TR>
+      <TR><TD PORT="auto_license_key" COLSPAN="3" ALIGN="LEFT">auto_license_key</TD></TR>
+      <TR><TD PORT="auto_delete" COLSPAN="3" ALIGN="LEFT">auto_delete</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/lintory_software_installation.html"
+    tooltip="lintory_software_installation"
+  ];
+  "lintory_storage" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_storage</TD></TR>
+      <TR><TD PORT="hardware_ptr_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">hardware_ptr_id</TD></TR>
+      <TR><TD PORT="used_by_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">used_by_id</TD></TR>
+      <TR><TD PORT="total_size" COLSPAN="3" ALIGN="LEFT">total_size</TD></TR>
+      <TR><TD PORT="sector_size" COLSPAN="3" ALIGN="LEFT">sector_size</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_storage.html"
+    tooltip="lintory_storage"
+  ];
+  "lintory_license_key":"license_id":w -> "lintory_license":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_license_key":"software_id":w -> "lintory_software":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_os":"storage_id":w -> "lintory_storage":"hardware_ptr_id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_software_installation":"license_key_id":w -> "lintory_license_key":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_software_installation":"os_id":w -> "lintory_os":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_software_installation":"software_id":w -> "lintory_software":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_storage":"used_by_id":w -> "lintory_computer":"hardware_ptr_id":e [arrowhead=none arrowtail=crowodot];
+"""]]
+
+A `lintory_license` is a license that enables us to use some
+`lintory_software`. A `lintory_license` can be for many `lintory_software`, and
+a `lintory_software` can have many `lintory_license`.
+
+An `lintory_software_installation` refers to a physical installation of `lintory_software` using
+the software/license mapping optionally described in `lintory_license_key`. The `software_id` value must
+match the `software_id`, if given by the `lintory_license_key`.
+
+A `lintory_software_installation` is not for a `lintory_computer`, as one computer may have many
+OS on a dual boot system. Similarly it is possible to swap hard disks around. Swapping the hard disk
+does not swap the computers around. Any OEM licenses are still for the original computers. So
+a `lintory_software_installation` refers to a `lintory_os` which is a section of a hard disk
+reserved for an OS installation.
+
+## Tasks
+
+[[!graph src="""
+// dot 2.20.2 on Linux 2.6.28-11-generic
+// SchemaSpy rev 514
+  graph [
+    rankdir="RL"
+    bgcolor="#ffffff"
+    label="\nCurrent version"
+    labeljust="l"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "lintory_hardware" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_hardware</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="type_id" COLSPAN="3" ALIGN="LEFT">type_id</TD></TR>
+      <TR><TD PORT="seen_first" COLSPAN="3" ALIGN="LEFT">seen_first</TD></TR>
+      <TR><TD PORT="seen_last" COLSPAN="3" ALIGN="LEFT">seen_last</TD></TR>
+      <TR><TD PORT="manufacturer" COLSPAN="3" ALIGN="LEFT">manufacturer</TD></TR>
+      <TR><TD PORT="model" COLSPAN="3" ALIGN="LEFT">model</TD></TR>
+      <TR><TD PORT="product_number" COLSPAN="3" ALIGN="LEFT">product_number</TD></TR>
+      <TR><TD PORT="serial_number" COLSPAN="3" ALIGN="LEFT">serial_number</TD></TR>
+      <TR><TD PORT="service_number" COLSPAN="3" ALIGN="LEFT">service_number</TD></TR>
+      <TR><TD PORT="date_of_manufacture" COLSPAN="3" ALIGN="LEFT">date_of_manufacture</TD></TR>
+      <TR><TD PORT="date_of_disposal" COLSPAN="3" ALIGN="LEFT">date_of_disposal</TD></TR>
+      <TR><TD PORT="asset_id" COLSPAN="3" ALIGN="LEFT">asset_id</TD></TR>
+      <TR><TD PORT="owner" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">owner</TD></TR>
+      <TR><TD PORT="user" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">user</TD></TR>
+      <TR><TD PORT="location_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">location_id</TD></TR>
+      <TR><TD PORT="vendor_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">vendor_id</TD></TR>
+      <TR><TD PORT="installed_on_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">installed_on_id</TD></TR>
+      <TR><TD PORT="auto_delete" COLSPAN="3" ALIGN="LEFT">auto_delete</TD></TR>
+      <TR><TD PORT="auto_manufacturer" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">auto_manufacturer</TD></TR>
+      <TR><TD PORT="auto_model" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">auto_model</TD></TR>
+      <TR><TD PORT="auto_serial_number" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">auto_serial_number</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">6 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_hardware.html"
+    tooltip="lintory_hardware"
+  ];
+  "lintory_hardware_task" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_hardware_task</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="task_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">task_id</TD></TR>
+      <TR><TD PORT="hardware_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">hardware_id</TD></TR>
+      <TR><TD PORT="date_complete" COLSPAN="3" ALIGN="LEFT">date_complete</TD></TR>
+      <TR><TD PORT="assigned" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">assigned</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/lintory_hardware_task.html"
+    tooltip="lintory_hardware_task"
+  ];
+  "lintory_task" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_task</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_task.html"
+    tooltip="lintory_task"
+  ];
+  "lintory_hardware_task":"hardware_id":w -> "lintory_hardware":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_hardware_task":"task_id":w -> "lintory_task":"id":e [arrowhead=none arrowtail=crowodot];
+"""]]
+
+An attempt to keep track of bulk tasks that must be carried out on many cmputers. e.g. upgrade all Windows
+computers to Windows SP3. Maybe this should map to the `lintory_os` instead/or as well as the `lintory_hardware`?
+
+## Importing raw data
+
+[[!graph src="""
+// dot 2.20.2 on Linux 2.6.28-11-generic
+// SchemaSpy rev 514
+  graph [
+    rankdir="RL"
+    bgcolor="#ffffff"
+    label="\nCurrent version"
+    labeljust="l"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "lintory_data" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_data</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="datetime" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">datetime</TD></TR>
+      <TR><TD PORT="file" COLSPAN="3" ALIGN="LEFT">file</TD></TR>
+      <TR><TD PORT="format" COLSPAN="3" ALIGN="LEFT">format</TD></TR>
+      <TR><TD PORT="computer_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">computer_id</TD></TR>
+      <TR><TD PORT="create_computer" COLSPAN="3" ALIGN="LEFT">create_computer</TD></TR>
+      <TR><TD PORT="os_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">os_id</TD></TR>
+      <TR><TD PORT="create_os" COLSPAN="3" ALIGN="LEFT">create_os</TD></TR>
+      <TR><TD PORT="imported" COLSPAN="3" ALIGN="LEFT">imported</TD></TR>
+      <TR><TD PORT="last_attempt" COLSPAN="3" ALIGN="LEFT">last_attempt</TD></TR>
+      <TR><TD PORT="errors" COLSPAN="3" ALIGN="LEFT">errors</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/lintory_data.html"
+    tooltip="lintory_data"
+  ];
+"""]]
+
+This is used to keep track of a data file used to represent raw data, that hasn't been procesed, received
+from a computer.
+
+There is a bit of guesswork involved in importing. Sometimes the import routine may not be able to find
+a computer, in which case, `computer_id` can be used to force it to chose a computer it wouldn't overwise choose,
+or `create_computer` can be set to create a new computer.
+
+Same with the OS. `os_id` can be used to force a os that wouldn't otherwise be used, and `os_create` will create
+a new one.
+
+If an import has already completed, `last_attempt` will have the date/time of the last attempt, and
+`imported` will be set to the date/time if it worked correctly. Otherwise `errors` will contain any
+errors that occured. `computer_id` and `os_id`, if blank, are automatically filled in when determined
+by the importer.
+
+`datetime` contains the date/time of the data, and `format` is the format used. `file` points to
+a file on disk containing the data.
+
+## Complete diagram
+
+[[!graph src="""
+// dot 2.20.2 on Linux 2.6.28-11-generic
+// SchemaSpy rev 514
+  graph [
+    rankdir="RL"
+    bgcolor="#ffffff"
+    label="\nCurrent version"
+    labeljust="l"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="11"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="11"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "lintory_computer" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_computer</TD></TR>
+      <TR><TD PORT="hardware_ptr_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">hardware_ptr_id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="is_portable" COLSPAN="3" ALIGN="LEFT">is_portable</TD></TR>
+      <TR><TD PORT="memory" COLSPAN="3" ALIGN="LEFT">memory</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">3 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_computer.html"
+    tooltip="lintory_computer"
+  ];
+  "lintory_data" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_data</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="datetime" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">datetime</TD></TR>
+      <TR><TD PORT="file" COLSPAN="3" ALIGN="LEFT">file</TD></TR>
+      <TR><TD PORT="format" COLSPAN="3" ALIGN="LEFT">format</TD></TR>
+      <TR><TD PORT="computer_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">computer_id</TD></TR>
+      <TR><TD PORT="create_computer" COLSPAN="3" ALIGN="LEFT">create_computer</TD></TR>
+      <TR><TD PORT="os_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">os_id</TD></TR>
+      <TR><TD PORT="create_os" COLSPAN="3" ALIGN="LEFT">create_os</TD></TR>
+      <TR><TD PORT="imported" COLSPAN="3" ALIGN="LEFT">imported</TD></TR>
+      <TR><TD PORT="last_attempt" COLSPAN="3" ALIGN="LEFT">last_attempt</TD></TR>
+      <TR><TD PORT="errors" COLSPAN="3" ALIGN="LEFT">errors</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/lintory_data.html"
+    tooltip="lintory_data"
+  ];
+  "lintory_hardware" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_hardware</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="type_id" COLSPAN="3" ALIGN="LEFT">type_id</TD></TR>
+      <TR><TD PORT="seen_first" COLSPAN="3" ALIGN="LEFT">seen_first</TD></TR>
+      <TR><TD PORT="seen_last" COLSPAN="3" ALIGN="LEFT">seen_last</TD></TR>
+      <TR><TD PORT="manufacturer" COLSPAN="3" ALIGN="LEFT">manufacturer</TD></TR>
+      <TR><TD PORT="model" COLSPAN="3" ALIGN="LEFT">model</TD></TR>
+      <TR><TD PORT="product_number" COLSPAN="3" ALIGN="LEFT">product_number</TD></TR>
+      <TR><TD PORT="serial_number" COLSPAN="3" ALIGN="LEFT">serial_number</TD></TR>
+      <TR><TD PORT="service_number" COLSPAN="3" ALIGN="LEFT">service_number</TD></TR>
+      <TR><TD PORT="date_of_manufacture" COLSPAN="3" ALIGN="LEFT">date_of_manufacture</TD></TR>
+      <TR><TD PORT="date_of_disposal" COLSPAN="3" ALIGN="LEFT">date_of_disposal</TD></TR>
+      <TR><TD PORT="asset_id" COLSPAN="3" ALIGN="LEFT">asset_id</TD></TR>
+      <TR><TD PORT="owner" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">owner</TD></TR>
+      <TR><TD PORT="user" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">user</TD></TR>
+      <TR><TD PORT="location_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">location_id</TD></TR>
+      <TR><TD PORT="vendor_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">vendor_id</TD></TR>
+      <TR><TD PORT="installed_on_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">installed_on_id</TD></TR>
+      <TR><TD PORT="auto_delete" COLSPAN="3" ALIGN="LEFT">auto_delete</TD></TR>
+      <TR><TD PORT="auto_manufacturer" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">auto_manufacturer</TD></TR>
+      <TR><TD PORT="auto_model" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">auto_model</TD></TR>
+      <TR><TD PORT="auto_serial_number" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">auto_serial_number</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">6 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_hardware.html"
+    tooltip="lintory_hardware"
+  ];
+  "lintory_hardware_task" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_hardware_task</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="task_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">task_id</TD></TR>
+      <TR><TD PORT="hardware_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">hardware_id</TD></TR>
+      <TR><TD PORT="date_complete" COLSPAN="3" ALIGN="LEFT">date_complete</TD></TR>
+      <TR><TD PORT="assigned" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">assigned</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/lintory_hardware_task.html"
+    tooltip="lintory_hardware_task"
+  ];
+  "lintory_history_item" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_history_item</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="content_type_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">content_type_id</TD></TR>
+      <TR><TD PORT="object_pk" COLSPAN="3" ALIGN="LEFT">object_pk</TD></TR>
+      <TR><TD PORT="date" COLSPAN="3" ALIGN="LEFT">date</TD></TR>
+      <TR><TD PORT="title" COLSPAN="3" ALIGN="LEFT">title</TD></TR>
+      <TR><TD PORT="body" COLSPAN="3" ALIGN="LEFT">body</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/lintory_history_item.html"
+    tooltip="lintory_history_item"
+  ];
+  "lintory_license" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_license</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="vendor_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">vendor_id</TD></TR>
+      <TR><TD PORT="vendor_tag" COLSPAN="3" ALIGN="LEFT">vendor_tag</TD></TR>
+      <TR><TD PORT="installations_max" COLSPAN="3" ALIGN="LEFT">installations_max</TD></TR>
+      <TR><TD PORT="version" COLSPAN="3" ALIGN="LEFT">version</TD></TR>
+      <TR><TD PORT="computer_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">computer_id</TD></TR>
+      <TR><TD PORT="expires" COLSPAN="3" ALIGN="LEFT">expires</TD></TR>
+      <TR><TD PORT="owner" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">owner</TD></TR>
+      <TR><TD PORT="text" COLSPAN="3" ALIGN="LEFT">text</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_license.html"
+    tooltip="lintory_license"
+  ];
+  "lintory_license_key" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_license_key</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="software_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">software_id</TD></TR>
+      <TR><TD PORT="license_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">license_id</TD></TR>
+      <TR><TD PORT="key" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">key</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_license_key.html"
+    tooltip="lintory_license_key"
+  ];
+  "lintory_location" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_location</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="address" COLSPAN="3" ALIGN="LEFT">address</TD></TR>
+      <TR><TD PORT="owner" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">owner</TD></TR>
+      <TR><TD PORT="user" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">user</TD></TR>
+      <TR><TD PORT="parent_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">parent_id</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 row</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">2 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_location.html"
+    tooltip="lintory_location"
+  ];
+  "lintory_monitor" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_monitor</TD></TR>
+      <TR><TD PORT="hardware_ptr_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">hardware_ptr_id</TD></TR>
+      <TR><TD PORT="size" COLSPAN="3" ALIGN="LEFT">size</TD></TR>
+      <TR><TD PORT="width" COLSPAN="3" ALIGN="LEFT">width</TD></TR>
+      <TR><TD PORT="height" COLSPAN="3" ALIGN="LEFT">height</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/lintory_monitor.html"
+    tooltip="lintory_monitor"
+  ];
+  "lintory_network_adaptor" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_network_adaptor</TD></TR>
+      <TR><TD PORT="hardware_ptr_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">hardware_ptr_id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="network_type" COLSPAN="3" ALIGN="LEFT">network_type</TD></TR>
+      <TR><TD PORT="mac_address" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">mac_address</TD></TR>
+      <TR><TD PORT="IPv4_address" COLSPAN="3" ALIGN="LEFT">IPv4_address</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/lintory_network_adaptor.html"
+    tooltip="lintory_network_adaptor"
+  ];
+  "lintory_os" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_os</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="storage_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">storage_id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="computer_name" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">computer_name</TD></TR>
+      <TR><TD PORT="seen_first" COLSPAN="3" ALIGN="LEFT">seen_first</TD></TR>
+      <TR><TD PORT="seen_last" COLSPAN="3" ALIGN="LEFT">seen_last</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">2 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_os.html"
+    tooltip="lintory_os"
+  ];
+  "lintory_software" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_software</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD PORT="vendor_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">vendor_id</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">2 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_software.html"
+    tooltip="lintory_software"
+  ];
+  "lintory_software_installation" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_software_installation</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="os_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">os_id</TD></TR>
+      <TR><TD PORT="software_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">software_id</TD></TR>
+      <TR><TD PORT="active" COLSPAN="3" ALIGN="LEFT">active</TD></TR>
+      <TR><TD PORT="seen_first" COLSPAN="3" ALIGN="LEFT">seen_first</TD></TR>
+      <TR><TD PORT="seen_last" COLSPAN="3" ALIGN="LEFT">seen_last</TD></TR>
+      <TR><TD PORT="license_key_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">license_key_id</TD></TR>
+      <TR><TD PORT="software_version" COLSPAN="3" ALIGN="LEFT">software_version</TD></TR>
+      <TR><TD PORT="auto_license_key" COLSPAN="3" ALIGN="LEFT">auto_license_key</TD></TR>
+      <TR><TD PORT="auto_delete" COLSPAN="3" ALIGN="LEFT">auto_delete</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/lintory_software_installation.html"
+    tooltip="lintory_software_installation"
+  ];
+  "lintory_storage" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_storage</TD></TR>
+      <TR><TD PORT="hardware_ptr_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">hardware_ptr_id</TD></TR>
+      <TR><TD PORT="used_by_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">used_by_id</TD></TR>
+      <TR><TD PORT="total_size" COLSPAN="3" ALIGN="LEFT">total_size</TD></TR>
+      <TR><TD PORT="sector_size" COLSPAN="3" ALIGN="LEFT">sector_size</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_storage.html"
+    tooltip="lintory_storage"
+  ];
+  "lintory_task" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_task</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_task.html"
+    tooltip="lintory_task"
+  ];
+  "lintory_vendor" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lintory_vendor</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="name" COLSPAN="3" ALIGN="LEFT">name</TD></TR>
+      <TR><TD PORT="address" COLSPAN="3" ALIGN="LEFT">address</TD></TR>
+      <TR><TD PORT="telephone" COLSPAN="3" ALIGN="LEFT">telephone</TD></TR>
+      <TR><TD PORT="email" COLSPAN="3" ALIGN="LEFT">email</TD></TR>
+      <TR><TD PORT="comments" COLSPAN="3" ALIGN="LEFT">comments</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">3 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/lintory_vendor.html"
+    tooltip="lintory_vendor"
+  ];
+  "lintory_computer":"hardware_ptr_id":w -> "lintory_hardware":"id":e [arrowhead=none arrowtail=teeodot];
+  "lintory_data":"computer_id":w -> "lintory_computer":"hardware_ptr_id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_data":"os_id":w -> "lintory_os":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_hardware":"installed_on_id":w -> "lintory_hardware":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_hardware":"location_id":w -> "lintory_location":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_hardware":"vendor_id":w -> "lintory_vendor":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_hardware_task":"hardware_id":w -> "lintory_hardware":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_hardware_task":"task_id":w -> "lintory_task":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_history_item":"content_type_id":w -> "django_content_type":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_license":"computer_id":w -> "lintory_computer":"hardware_ptr_id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_license":"vendor_id":w -> "lintory_vendor":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_license_key":"license_id":w -> "lintory_license":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_license_key":"software_id":w -> "lintory_software":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_location":"parent_id":w -> "lintory_location":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_monitor":"hardware_ptr_id":w -> "lintory_hardware":"id":e [arrowhead=none arrowtail=teeodot];
+  "lintory_network_adaptor":"hardware_ptr_id":w -> "lintory_hardware":"id":e [arrowhead=none arrowtail=teeodot];
+  "lintory_os":"storage_id":w -> "lintory_storage":"hardware_ptr_id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_software":"vendor_id":w -> "lintory_vendor":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_software_installation":"license_key_id":w -> "lintory_license_key":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_software_installation":"os_id":w -> "lintory_os":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_software_installation":"software_id":w -> "lintory_software":"id":e [arrowhead=none arrowtail=crowodot];
+  "lintory_storage":"hardware_ptr_id":w -> "lintory_hardware":"id":e [arrowhead=none arrowtail=teeodot];
+  "lintory_storage":"used_by_id":w -> "lintory_computer":"hardware_ptr_id":e [arrowhead=none arrowtail=crowodot];
+"""]]
+

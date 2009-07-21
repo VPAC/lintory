@@ -1,4 +1,4 @@
-# Lintory
+# End-user documentation
 
 Lintory is a Django based python application that aims to help keep track of
 software licenses, license requirements, hardware, MAC addresses, users and
@@ -9,7 +9,15 @@ The software is currently alpha software. While it is in use at a medium
 sized company, there is still much development work to be done to resolve
 some of its [[developer/limitations]].
 
-Target audience:
+Regardless of the above, this page is aimed at end users of this
+software.
 
-* [[End_user]]
-* [[Developer]]
+Topics:
+
+* [[Downloading]]
+* [[Installation]]
+* [[Usage]]
+
+Support:
+
+* [Support page](http://sourceforge.net/projects/lintory/support)

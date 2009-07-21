@@ -3,3 +3,7 @@
 This section describes common day to day usage of lintory.
 
 No it doesn't, the section still needs to be written.
+
+## Limitations
+
+For limitations you need to know about, see the [[developer/limitations]] page.

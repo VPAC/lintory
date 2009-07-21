@@ -47,10 +47,6 @@ by cron job. This will automatically import any computers that haven't been
 imported. Then check the data section on the website - errors will be logged
 here.
 
-## Limitations
-
-For limitations you need to know about, see the [[limitations]] page.
-
 ## Usage
 
 For day-to-day usage instructions, see [[usage]]
