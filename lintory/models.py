@@ -526,7 +526,7 @@ class storage(hardware):
             size = size / 1000
             units = "TB"
 
-        return u"%s %s harddisk"%(size, units)
+        return u"%d %s harddisk"%(size, units)
 
 
 class storage_type(hardware_type):
