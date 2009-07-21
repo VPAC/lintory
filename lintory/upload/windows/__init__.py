@@ -15,6 +15,12 @@ class import_error(Exception):
     def __unicode__(self):
             return repr(self.value)
 
+class computer_does_not_exist(import_error):
+    pass
+
+class os_does_not_exist(import_error):
+    pass
+
 def upload(request):
     if request.method != "PUT":
         raise Http404("Unsupported request method")
@@ -170,7 +176,7 @@ def get_computer(data_dict):
     # Check - did we get a valid result?
     count = query.count()
     if count == 0:
-        raise import_error("No matching computer found")
+        raise computer_does_not_exist("No matching computer found")
 
     if count > 1:
         raise import_error("Too many matching computers")
@@ -280,7 +286,7 @@ def get_os(computer, data_dict):
                     storage = storage,
         )
     except models.os.DoesNotExist, e:
-        raise import_error("Cannot find OS '%s'"%(name))
+        raise os_does_not_exist("Cannot find OS '%s'"%(name))
 
     return os
 
@@ -647,11 +653,16 @@ def load(data):
         # HARDWARE
 
         if data.computer is None:
-            data.computer = get_computer(data_dict)
-        elif data.create_computer:
-            data.computer = create_computer(data.datetime)
+            try:
+                data.computer = get_computer(data_dict)
+                print "computer %s (%d)"%(data.computer,data.computer.pk)
+            except computer_does_not_exist, e:
+                if data.create_computer:
+                    data.computer = create_computer(data.datetime)
+                    print "creating computer"
+                else:
+                    raise
 
-        print "computer %s (%d)"%(data.computer,data.computer.pk)
 
         # Check data is recent
         if data.datetime < data.computer.seen_last:
@@ -664,11 +675,16 @@ def load(data):
         # SOFTWARE
 
         if data.os is None:
-            data.os = get_os(data.computer, data_dict)
-        elif data.create_os:
-            data.os = create_os(data.datetime, data.computer, data_dict)
+            try:
+                data.os = get_os(data.computer, data_dict)
+                print "os %s (%d)"%(data.os,data.os.pk)
+            except os_does_not_exist, e:
+                if data.create_os:
+                    data.os = create_os(data.datetime, data.computer, data_dict)
+                    print "creating os"
+                else:
+                    raise
 
-        print "os %s (%d)"%(data.os,data.os.pk)
         print "os is on storage %s (%d)"%(data.os.storage,data.os.storage.pk)
 
         # Check data is recent
