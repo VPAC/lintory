@@ -384,10 +384,19 @@ def sync_hardware(data_datetime, computer, data_dict):
     for network in data_dict['NetworkAdapter']:
         if is_physical_network_adapter(network):
             mac_address = helpers.fix_mac_address(network['MACAddress'])
-            na,c = models.network_adaptor.objects.get_or_create(
-                    mac_address=mac_address,
-                    defaults={'seen_first': data_datetime, 'seen_last': data_datetime},
-            )
+
+            try:
+                c = False
+                na = models.network_adaptor.objects.get(
+                        mac_address=mac_address,
+                )
+            except models.network_adaptor.DoesNotExist, e:
+                print u"Creating network adaptor for computer '%s'"%(computer)
+                c = True
+                na = models.network_adaptor()
+                na.mac_address = mac_address
+                na.seen_first  = data_datetime
+                na.seen_last   = data_datetime
 
             # Ensure same hardware not installed on same computer multiple times
             if na.pk is not None and na.pk in seen_hardware:
@@ -398,6 +407,9 @@ def sync_hardware(data_datetime, computer, data_dict):
             # sanity check
             if na.installed_on is not None and na.installed_on.pk != computer.pk:
                 raise import_error("The network adaptor '%s' (%d) is installed on another computer"%(na,na.pk))
+
+            if s.installed_on is None:
+                print u"Installing network adaptor for computer '%s'"%(computer)
 
             na.installed_on = computer
             na.name         = son(network['Name'])
@@ -475,6 +487,7 @@ def sync_hardware(data_datetime, computer, data_dict):
 
             # Forth try, just create a new one
             if s is None:
+                print u"Creating storage for computer '%s'"%(computer)
                 s = models.storage()
                 c = True
                 s.seen_first=data_datetime
@@ -491,6 +504,12 @@ def sync_hardware(data_datetime, computer, data_dict):
 
             if s.used_by is not None and s.used_by.pk != computer.pk:
                 raise import_error("The storage device '%s' (%d) is in use by another computer"%(s,s.pk))
+
+            if s.installed_on is None:
+                print u"Installing storage for computer '%s'"%(computer)
+
+            if s.used_by is None:
+                print u"Marking storage as used by computer '%s'"%(computer)
 
             # Update values
             s.total_size   = son(disk_drive['TotalSectors'])
