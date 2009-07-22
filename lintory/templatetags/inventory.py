@@ -163,7 +163,7 @@ class get_licenses_by_software_owner_node(template.Node):
         owner = self.owner.resolve(context)
 
         # get licenses for this software owned by specified owner
-        if owner is None:
+        if isinstance(owner,models.Nobody):
             licenses = models.license.objects.filter(
                 license_key__isnull=False,
                 license_key__software=software,owner__isnull=True).distinct()
@@ -237,7 +237,7 @@ class get_license_keys_by_software_owner_node(template.Node):
         software = self.software.resolve(context)
         owner = self.owner.resolve(context)
 
-        if owner is None:
+        if isinstance(owner,models.Nobody):
             license_keys = models.license_key.objects.filter(software=software,license__owner__isnull=True)
         else:
             license_keys = models.license_key.objects.filter(software=software,license__owner=owner)
@@ -263,7 +263,7 @@ class get_active_software_installations_by_software_owner_node(template.Node):
         software = self.software.resolve(context)
         owner = self.owner.resolve(context)
 
-        if owner is None:
+        if isinstance(owner,models.Nobody):
             software_installations = models.software_installation.objects.filter(
                     Q(active=True,software=software,license_key__isnull=False,license_key__license__owner__isnull=True) |
                     Q(active=True,software=software,license_key__isnull=True))

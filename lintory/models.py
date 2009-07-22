@@ -161,6 +161,33 @@ class model(models.Model):
 
 # PARTY CLASSES
 
+class Nobody:
+
+    def get_breadcrumbs(self):
+        breadcrumbs = self.type.get_breadcrumbs()
+        breadcrumbs.append(breadcrumb(reverse("party_detail",args=("none",)),"Nobody"))
+        return breadcrumbs
+
+    def __unicode__(self):
+        return "Nobody"
+
+    def __init__(self):
+        self.type = types["party"]
+        self.pk = "none"
+        self.assigned_hardware_tasks = hardware_task.objects.filter(assigned__isnull=True,
+                date_complete__isnull=True)
+        self.owns_locations = location.objects.filter(owner__isnull=True)
+        self.uses_locations = location.objects.filter(user__isnull=True)
+        self.owns_licenses = license.objects.filter(owner__isnull=True)
+        self.owns_hardware = hardware.objects.filter(owner__isnull=True,
+                date_of_disposal__isnull=True)
+        self.uses_hardware = hardware.objects.filter(user__isnull=True,
+                date_of_disposal__isnull=True)
+        self.owns_software = software.objects.filter(
+                license_key__isnull = False,
+                license_key__license__owner__isnull = True).distinct()
+
+
 class party(model):
     name     = fields.char_field(max_length=30)
     eparty   = eparty.name_model_field(null=True,blank=True,db_index=True)

@@ -282,7 +282,11 @@ def party_list(request):
     return object_list(request, list, type)
 
 def party_detail(request, object_id):
-    object = get_object_or_404(models.party, pk=object_id)
+    if object_id != "none":
+        object = get_object_or_404(models.party, pk=object_id)
+    else:
+        object = models.Nobody()
+
     return object_detail(request, object)
 
 def party_create(request):
@@ -299,7 +303,11 @@ def party_delete(request,object_id):
     return object_delete(request, object)
 
 def party_software_list(request, object_id):
-    object = get_object_or_404(models.party, pk=object_id)
+    if object_id != "none":
+        object = get_object_or_404(models.party, pk=object_id)
+    else:
+        object = models.Nobody()
+
     template='lintory/party_software_list.html'
 
     breadcrumbs = object.get_breadcrumbs()
@@ -311,7 +319,11 @@ def party_software_list(request, object_id):
             },context_instance=RequestContext(request))
 
 def party_software_detail(request, object_id, software_id):
-    object = get_object_or_404(models.party, pk=object_id)
+    if object_id != "none":
+        object = get_object_or_404(models.party, pk=object_id)
+    else:
+        object = models.Nobody()
+
     template='lintory/party_software_detail.html'
 
     software = get_object_or_404(models.software, pk=software_id)

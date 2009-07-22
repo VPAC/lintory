@@ -10,11 +10,7 @@
 <h1>{{ object }}</h1>
 
 <ul class="object-tools">
-{% if object %}
 <li><a class="viewlink" href="{% url party_software_list object.pk %}">Software</a></li>
-{% else %}
-<li><a class="viewlink" href="{% url party_software_list "none" %}">Software</a></li>
-{% endif %}
 </ul>
 
 {% if object.assigned_hardware_tasks.all %}
