@@ -19,14 +19,12 @@ class vendor_form(forms.ModelForm):
 
     class Meta:
         model = models.vendor
-        exclude = ('history')
 
 class hardware_task_form(forms.ModelForm):
     assigned     = party.fields.name_form_field(required=False)
 
     class Meta:
         model = models.hardware_task
-        exclude = ('history')
 
 class location_form(forms.ModelForm):
     owner    = party.fields.name_form_field(required=False)
@@ -34,7 +32,6 @@ class location_form(forms.ModelForm):
 
     class Meta:
         model = models.location
-        exclude = ('history')
 
 class task_form(forms.ModelForm):
 
@@ -83,19 +80,17 @@ class license_form(forms.ModelForm):
 
     class Meta:
         model = models.license
-        exclude = ('history')
 
 class license_key_form(forms.ModelForm):
 
     class Meta:
         model = models.license_key
-        exclude = ('history')
 
 class software_installation_form(forms.ModelForm):
 
     class Meta:
         model = models.software_installation
-        exclude = ('history','license_key','auto_delete','auto_license_key')
+        exclude = ('license_key','auto_delete','auto_license_key')
 
 class license_key_select_form(forms.Form):
     key = forms.ChoiceField(required=False)
