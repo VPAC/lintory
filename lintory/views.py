@@ -1,4 +1,4 @@
-# lintory - keep track of computers and licenses
+ # lintory - keep track of computers and licenses
 # Copyright (C) 2008-2009 Brian May
 #
 # This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@ import django.forms.util as util
 import lintory.models as models
 import lintory.helpers as helpers
 import lintory.forms as forms
-import lintory.party as party
+import lintory.eparty as eparty
 
 from django.template import Context, loader
 
@@ -278,100 +278,50 @@ def history_item_delete(request, history_item_id):
 
 def party_list(request):
     type = models.types["party"]
-    list = party.connection.list()
+    list = models.party.objects.all()
     return object_list(request, list, type)
 
 def party_detail(request, object_id):
-    if object_id == "none":
-        n = None
-    else:
-        try:
-            n = party.connection.lookup_id(object_id)
-        except party.Lookup_Error, e:
-            raise Http404
+    object = get_object_or_404(models.party, pk=object_id)
+    return object_detail(request, object)
 
-    breadcrumbs = [ ]
-    breadcrumbs.append(models.breadcrumb(reverse("lintory_root"),"home"))
-    breadcrumbs.append(models.breadcrumb(reverse("party_list"),"parties"))
-    breadcrumbs.append(models.breadcrumb(reverse("party_detail",args=[object_id]),smart_unicode(n)))
+def party_create(request):
+    type = models.types["party"]
+    modal_form = forms.party_form
+    return object_create(request, type, modal_form)
 
-    if object_id == "none":
-        return render_to_response('lintory/party_detail.html', {
-            'party': n,
-            'assigned_hardware_tasks':
-                models.hardware_task.objects.filter(assigned__isnull=True,
-                                                    date_complete__isnull=True),
-            'own_locations': models.location.objects.filter(owner__isnull=True),
-            'use_locations': models.location.objects.filter(user__isnull=True),
-            'own_licenses': models.license.objects.filter(owner__isnull=True),
-            'own_hardware': models.hardware.objects.filter(owner__isnull=True,
-                                date_of_disposal__isnull=True),
-            'use_hardware': models.hardware.objects.filter(user__isnull=True,
-                                date_of_disposal__isnull=True),
-            'breadcrumbs': breadcrumbs,
-            },context_instance=RequestContext(request))
-    else:
-        return render_to_response('lintory/party_detail.html', {
-            'party': n,
-            'assigned_hardware_tasks':
-                models.hardware_task.objects.filter(assigned=n,
-                                                    date_complete__isnull=True),
-            'own_locations': models.location.objects.filter(owner = n),
-            'use_locations': models.location.objects.filter(user = n),
-            'own_licenses': models.license.objects.filter(owner = n),
-            'own_hardware': models.hardware.objects.filter(owner = n,
-                                date_of_disposal__isnull=True),
-            'use_hardware': models.hardware.objects.filter(user = n,
-                                date_of_disposal__isnull=True),
-            'breadcrumbs': breadcrumbs,
-            },context_instance=RequestContext(request))
+def party_edit(request,object_id):
+    object = get_object_or_404(models.party, pk=object_id)
+    return object_edit(request, object, forms.party_form)
 
+def party_delete(request,object_id):
+    object = get_object_or_404(models.party, pk=object_id)
+    return object_delete(request, object)
 
 def party_software_list(request, object_id):
-    if object_id == "none":
-        n = None
-        own_software =  models.software.objects.filter(
-                license_key__isnull = False,
-                license_key__license__owner__isnull = True).distinct()
-    else:
-        try:
-            n = party.connection.lookup_id(object_id)
-        except party.Lookup_Error, e:
-            raise Http404
-        own_software =  models.software.objects.filter(license_key__license__owner = n).distinct()
+    object = get_object_or_404(models.party, pk=object_id)
+    template='lintory/party_software_list.html'
 
-    breadcrumbs = [ ]
-    breadcrumbs.append(models.breadcrumb(reverse("lintory_root"),"home"))
-    breadcrumbs.append(models.breadcrumb(reverse("party_list"),"parties"))
-    breadcrumbs.append(models.breadcrumb(reverse("party_detail",args=[object_id]),smart_unicode(n)))
+    breadcrumbs = object.get_breadcrumbs()
     breadcrumbs.append(models.breadcrumb(reverse("party_software_list",args=[object_id]),"software list"))
 
-    return render_to_response('lintory/party_software_list.html', {
-            'party': n,
-            'own_software': own_software,
+    return render_to_response(template, {
+            'object': object,
             'breadcrumbs': breadcrumbs,
             },context_instance=RequestContext(request))
 
 def party_software_detail(request, object_id, software_id):
-    if object_id == "none":
-        n = None
-    else:
-        try:
-            n = party.connection.lookup_id(object_id)
-        except party.Lookup_Error, e:
-            raise Http404
+    object = get_object_or_404(models.party, pk=object_id)
+    template='lintory/party_software_detail.html'
 
     software = get_object_or_404(models.software, pk=software_id)
 
-    breadcrumbs = [ ]
-    breadcrumbs.append(models.breadcrumb(reverse("lintory_root"),"home"))
-    breadcrumbs.append(models.breadcrumb(reverse("party_list"),"parties"))
-    breadcrumbs.append(models.breadcrumb(reverse("party_detail",args=[object_id]),smart_unicode(n)))
+    breadcrumbs = object.get_breadcrumbs()
     breadcrumbs.append(models.breadcrumb(reverse("party_software_list",args=[object_id]),"software list"))
     breadcrumbs.append(models.breadcrumb(reverse("party_software_detail",args=[object_id,software_id]),software))
 
-    return render_to_response('lintory/party_software_detail.html', {
-            'party': n,
+    return render_to_response(template, {
+            'party': object,
             'software': software,
             'breadcrumbs': breadcrumbs,
             },context_instance=RequestContext(request))

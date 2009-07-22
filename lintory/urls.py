@@ -54,17 +54,30 @@ urlpatterns = patterns('',
     'lintory.views.party_list',
     name='party_list'),
 
-    url(r'^party/(?P<object_id>[\w ,=]+)/$',
+    url(r'^party/(?P<object_id>\d+|none)/$',
     'lintory.views.party_detail',
     name='party_detail'),
 
-    url(r'^party/(?P<object_id>[\w ,=]+)/software/$',
+    url(r'^party/create/$',
+    'lintory.views.party_create',
+    name='party_create'),
+
+    url(r'^party/(?P<object_id>\d+)/edit/$',
+    'lintory.views.party_edit',
+    name='party_edit'),
+
+    url(r'^party/(?P<object_id>\d+)/delete/$',
+    'lintory.views.party_delete',
+    name='party_delete'),
+
+    url(r'^party/(?P<object_id>\d+)/software/$',
     'lintory.views.party_software_list',
     name='party_software_list'),
 
     url(r'^party/(?P<object_id>[\w ,=]+)/software/(?P<software_id>\d+)/$',
     'lintory.views.party_software_detail',
     name='party_software_detail'),
+
 
     url(r'^(?P<type_id>\w+)/(?P<object_id>\d+)/history/add/$',
     'lintory.views.history_item_create',

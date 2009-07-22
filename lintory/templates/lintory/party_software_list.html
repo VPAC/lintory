@@ -4,14 +4,14 @@
 
 {% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
 
-{% block title %}{{ party }} software list{% endblock %}
+{% block title %}{{ object }} software list{% endblock %}
 
 {% block content %}
-<h1>{{ party }} software list</h1>
+<h1>{{ object }} software list</h1>
 
 <h2>Owner of Software</h2>
 
-{% if own_software %}
+{% if object.owns_software %}
     <table>
       <tr>
         <th>Software</th>
@@ -22,11 +22,11 @@
         <th colspan="2">Actions</th>
 {% endif %}
       </tr>
-    {% for software in own_software %}
-    {% get_licenses_by_software_owner "licenses" software party %}
+    {% for software in object.owns_software %}
+    {% get_licenses_by_software_owner "licenses" software object %}
       <tr>
-{% if party %}
-        <td><a href="{% url party_software_detail party.get_id software.pk %}">{{ software }}</a></td>
+{% if object %}
+        <td><a href="{% url party_software_detail object.pk software.pk %}">{{ software }}</a></td>
 {% else %}
         <td><a href="{% url party_software_detail "none" software.pk %}">{{ software }}</a></td>
 {% endif %}

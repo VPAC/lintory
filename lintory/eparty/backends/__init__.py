@@ -20,8 +20,8 @@ class Name_Base:
     def get_id(self):
         return None
 
-    def get_absolute_url(self):
-        return reverse("party_detail",kwargs={'object_id': self.get_id()})
+#    def get_absolute_url(self):
+#        return reverse("eparty_detail",kwargs={'object_id': self.get_id()})
 
     def is_in_group(self,group):
         raise Lookup_Error("Method not implemented")

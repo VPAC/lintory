@@ -1,7 +1,11 @@
 from django import forms
 import lintory.fields as fields
 import lintory.models as models
-import lintory.party as party
+
+class party_form(forms.ModelForm):
+
+    class Meta:
+        model = models.party
 
 class history_item_form(forms.ModelForm):
 
@@ -21,14 +25,14 @@ class vendor_form(forms.ModelForm):
         model = models.vendor
 
 class hardware_task_form(forms.ModelForm):
-    assigned     = party.fields.name_form_field(required=False)
+    assigned     = fields.party_field(required=False)
 
     class Meta:
         model = models.hardware_task
 
 class location_form(forms.ModelForm):
-    owner    = party.fields.name_form_field(required=False)
-    user     = party.fields.name_form_field(required=False)
+    owner    = fields.party_field(required=False)
+    user     = fields.party_field(required=False)
 
     class Meta:
         model = models.location
@@ -39,8 +43,8 @@ class task_form(forms.ModelForm):
         model = models.task
 
 class hardware_form(forms.ModelForm):
-    owner    = party.fields.name_form_field(required=False)
-    user     = party.fields.name_form_field(required=False)
+    owner    = fields.party_field(required=False)
+    user     = fields.party_field(required=False)
 
     class Meta:
         model = models.hardware
@@ -76,7 +80,7 @@ class software_form(forms.ModelForm):
         model = models.software
 
 class license_form(forms.ModelForm):
-    owner    = party.fields.name_form_field(required=False)
+    owner    = fields.party_field(required=False)
 
     class Meta:
         model = models.license
@@ -108,7 +112,7 @@ class license_create_form(forms.Form):
     installations_max = forms.IntegerField(min_value=0,required=False)
     version    = fields.char_field(max_length=20,required=False)
     expires = forms.DateTimeField(required=False)
-    owner    = party.fields.name_form_field(required=False)
+    owner    = fields.party_field(required=False)
     key = fields.char_field(max_length=50)
 
 class data_form(forms.ModelForm):

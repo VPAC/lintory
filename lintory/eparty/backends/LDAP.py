@@ -1,5 +1,5 @@
 import ldap
-from lintory.party.backends import *
+from lintory.eparty.backends import *
 from django.conf import settings
 
 class Names(Names_Base):

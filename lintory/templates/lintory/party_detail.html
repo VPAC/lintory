@@ -4,47 +4,47 @@
 
 {% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
 
-{% block title %}{{ party }}{% endblock %}
+{% block title %}{{ object }}{% endblock %}
 
 {% block content %}
-<h1>{{ party }}</h1>
+<h1>{{ object }}</h1>
 
 <ul class="object-tools">
-{% if party %}
-<li><a class="viewlink" href="{% url party_software_list party.get_id %}">Software</a></li>
+{% if object %}
+<li><a class="viewlink" href="{% url party_software_list object.pk %}">Software</a></li>
 {% else %}
 <li><a class="viewlink" href="{% url party_software_list "none" %}">Software</a></li>
 {% endif %}
 </ul>
 
-{% if assigned_hardware_tasks %}
+{% if object.assigned_hardware_tasks.all %}
 <h2>Tasks</h2>
-{% show_hardware_task_list assigned_hardware_tasks %}
+{% show_hardware_task_list object.assigned_hardware_tasks.all %}
 {% endif %}
 
-{% if own_locations %}
+{% if object.owns_locations.all %}
 <h2>Owner of Locations</h2>
-{% show_location_list own_locations %}
+{% show_location_list object.owns_locations.all %}
 {% endif %}
 
-{% if use_locations %}
+{% if object.uses_locations.all %}
 <h2>User of Locations</h2>
-{% show_location_list use_locations %}
+{% show_location_list object.uses_locations.all %}
 {% endif %}
 
-{% if own_licenses %}
+{% if object.owns_licenses.all %}
 <h2> Licenses </h2>
-{% show_license_list own_licenses %}
+{% show_license_list object.owns_licenses.all %}
 {% endif %}
 
-{% if own_hardware %}
+{% if object.owns_hardware.all %}
 <h2> Owner of Hardware </h2>
-{% show_hardware_list own_hardware %}
+{% show_hardware_list object.owns_hardware.all %}
 {% endif %}
 
-{% if use_hardware %}
+{% if object.uses_hardware.all %}
 <h2> User of Hardware </h2>
-{% show_hardware_list use_hardware %}
+{% show_hardware_list object.uses_hardware.all %}
 {% endif %}
 
 {% endblock %}

@@ -16,14 +16,28 @@
 
 from django.forms.util import ValidationError
 from django import forms
+from django.utils.encoding import smart_unicode
 
 import lintory.models as models
+import lintory.eparty as eparty
 import re
+
+class object_widget(forms.widgets.TextInput):
+
+    def __init__(self, object_class, *args, **kwargs):
+        self.object_class = object_class
+        return super(object_widget,self).__init__(*args, **kwargs)
+
+    def render(self, name, value, attrs=None):
+        if isinstance(value, (int,long,)):
+            object = self.object_class.objects.get(pk=value)
+            value = smart_unicode(object)
+        return super(object_widget,self).render(name, value, attrs)
 
 class object_name_field(forms.CharField):
 
     def __init__(self, object, queryset=None, to_field_name=None, *args, **kwargs):
-        self.object = object
+        self.object_class = object_class
         super(object_name_field, self).__init__(*args, **kwargs)
 
     def clean(self, value):
@@ -33,7 +47,7 @@ class object_name_field(forms.CharField):
             return None
 
         try:
-            clean=self.object.objects.get(name=value)
+            clean=self.object_class.objects.get(name=value)
         except self.object.DoesNotExist, e:
             raise ValidationError(u"Cannot find object %s: %s" % (value,e))
 
@@ -87,6 +101,34 @@ class license_field(forms.IntegerField):
             raise ValidationError(u"Cannot find license %s: %s" % (value,e))
 
         return value
+
+class party_field(forms.CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs['widget'] = object_widget(models.party)
+        super(party_field, self).__init__(*args, **kwargs)
+
+    def clean(self, value):
+        value=super(party_field, self).clean(value)
+
+        value=super(party_field, self).clean(value)
+
+        if value in ('',None):
+            return None
+
+        try:
+            party=models.party.objects.get(name=value)
+        except models.party.DoesNotExist, e:
+            try:
+                n = eparty.connection.lookup_user_input(value)
+            except eparty.Not_Found_Error, e:
+                raise forms.util.ValidationError(u"Cannot find eparty %s: %s" % (value,e))
+
+            party = models.party()
+            party.name = smart_unicode(n)
+            party.eparty = n
+            party.save()
+
+        return party
 
 class mac_address_field(forms.CharField):
     def clean(self, value):
