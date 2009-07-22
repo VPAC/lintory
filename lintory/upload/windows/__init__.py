@@ -408,7 +408,7 @@ def sync_hardware(data_datetime, computer, data_dict):
             if na.installed_on is not None and na.installed_on.pk != computer.pk:
                 raise import_error("The network adaptor '%s' (%d) is installed on another computer"%(na,na.pk))
 
-            if s.installed_on is None:
+            if na.installed_on is None:
                 print u"Installing network adaptor for computer '%s'"%(computer)
 
             na.installed_on = computer
