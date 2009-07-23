@@ -59,6 +59,8 @@
 <dt>Comments</dt><dd>{{object.comments|linebreaks }}</dd>
 </dl>
 
+{% show_error_list object.error_list %}
+
 {% block class="body_start" %}{% endblock %}
 
 {% if object.hardware_tasks_todo %}

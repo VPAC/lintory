@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from lintory import models, party
+from lintory import models, eparty
 import sys
 import re
 
@@ -35,7 +35,7 @@ def name_check(label,name,required):
         if name is None and required:
                 log.warning(u"%s is none"%(label))
 
-        if isinstance(name,party.fields.Error_Name):
+        if isinstance(name,eparty.fields.Error_Name):
                 log.warning(u"%s illegal %s"%(label,name))
 
 # ensure r_name == l_name or r_name is in group(l_name)
@@ -44,14 +44,14 @@ def cross_check_name(l_label,l_name,r_label,r_name):
                 pass
         elif r_name is None:
                 pass
-        elif isinstance(l_name,party.fields.Error_Name):
+        elif isinstance(l_name,eparty.fields.Error_Name):
                 pass
-        elif isinstance(r_name,party.fields.Error_Name):
+        elif isinstance(r_name,eparty.fields.Error_Name):
                 pass
-        elif l_name.get_id() == u"cn=vpac,ou=group,dc=vpac,dc=org" and \
-             re.match(u"^cn=\w+,ou=group,dc=vpac,dc=org$",r_name.get_id()) is not None:
+        elif l_name.eparty.get_id() == u"cn=vpac,ou=group,dc=vpac,dc=org" and \
+             re.match(u"^cn=\w+,ou=group,dc=vpac,dc=org$",r_name.eparty.get_id()) is not None:
                 pass
-        elif not r_name.compare(l_name) and not r_name.is_in_group(l_name):
+        elif not r_name.eparty.compare(l_name.eparty) and not r_name.eparty.is_in_group(l_name.eparty):
                 log.warning(u"%s %s (group) != %s %s (account)"
                         %(l_label,l_name,
                           r_label,r_name))
@@ -66,14 +66,17 @@ def check_duplicates(d,name,id,value):
 
 
 def main():
-        print u"Checking party..."
-#        list = party.connection.list()
-#        for name in list:
-#                print u"%s"%name
+        print u"Checking eparty..."
+        list = models.party.objects.all()
+        for party in list:
+                log.set_doing(u"%d:%s"%(party.pk,party))
 
+                error_list = party.error_list()
+                for error in error_list:
+                        log.warning(error)
 
         print u""
-        print u"Checking locations..."
+        print u"Checking location..."
         for l in models.location.objects.all():
                 log.set_doing(u"%d:%s"%(l.pk,l))
 
@@ -95,51 +98,67 @@ def main():
                         cross_check_name(u"location user",l.user,
                                          u"sub location user",sl.get_user())
 
+                error_list = l.error_list()
+                for error in error_list:
+                        log.warning(error)
+
+        serial_numbers = {}
+        asset_ids = {}
         print u""
         print u"Checking hardware..."
         for h in models.hardware.objects.all():
-            log.set_doing(u"%d:%s"%(c.pk,c))
-            computer = h.get_object()
+            log.set_doing(u"%d:%s"%(h.pk,h))
+            c = h.get_object()
+
+            error_list = c.error_list()
+            for error in error_list:
+                    log.warning(error)
+
+            name_check(u"owner",c.owner,False)
+            name_check(u"user",c.user,False)
+            cross_check_name(u"owner",c.owner,u"user",c.user)
+
+            log.set_doing(u"%d:%s:duplicates"%(c.pk,c))
+            check_duplicates(serial_numbers,u"serial number",c.pk,c.serial_number)
+            check_duplicates(asset_ids,u"asset id",c.pk,c.asset_id)
+
+        name = {}
+        print u""
+        print u"Checking computer..."
+        for h in models.computer.objects.all():
+            log.set_doing(u"%d:%s"%(h.pk,h))
+            c = h.get_object()
+            check_duplicates(name,u"name",c.pk,c.name)
 
         print u""
-        print u"Checking computers..."
-        party = {}
-        serial_numbers = {}
-        asset_ids = {}
-        for c in models.computer.objects.all():
-                log.set_doing(u"%d:%s"%(c.pk,c))
+        print u"Checking os..."
+        for os in models.os.objects.all():
+            log.set_doing(u"%d:%s"%(os.pk,os))
 
-                name_check(u"owner",c.owner,True)
-                name_check(u"user",c.user,False)
-                cross_check_name(u"owner",c.owner,u"user",c.user)
+            error_list = os.error_list()
+            for error in error_list:
+                    log.warning(error)
 
-                if c.location is None:
-                        log.warning(u"No location defined")
+            c = os.storage.used_by
 
+            for i in os.active_software_installations():
+                    log.set_doing(u"%d:%s:software installations:%d:%s"%(os.pk,os,i.pk,i.software))
 
-                log.set_doing(u"%d:%s:duplicates"%(c.pk,c))
-                check_duplicates(party,u"name",c.pk,c.name)
-                check_duplicates(serial_numbers,u"serial number",c.pk,c.serial_number)
-                check_duplicates(asset_ids,u"asset id",c.pk,c.asset_id)
+                    if i.license_key is not None:
+                            i_owner = i.license_key.license.get_owner()
+                    else:
+                            i_owner = None
 
-                for i in c.active_software_installations():
-                        log.set_doing(u"%d:%s:software installations:%d:%s"%(c.pk,c,i.pk,i.software))
+                    if i_owner is not None and c is not None and c.owner is not None:
+                            done = False
+                            if i_owner.eparty.get_id() == u"cn=systems,ou=group,dc=vpac,dc=org":
+                                    m = re.match(u"^cn=\w+,ou=group,dc=vpac,dc=org$",c.owner.eparty.get_id())
+                                    if m is not None:
+                                            done = True
 
-                        if i.license_key is not None:
-                                i_owner = i.license_key.license.get_owner()
-                        else:
-                                i_owner = None
-
-                        if i_owner is not None and c.owner is not None:
-                                done = False
-                                if i_owner.get_id() == u"cn=systems,ou=group,dc=vpac,dc=org":
-                                        m = re.match(u"^cn=\w+,ou=group,dc=vpac,dc=org$",c.owner.get_id())
-                                        if m is not None:
-                                                done = True
-
-                                if not done and not i_owner.compare(c.owner):
-                                        log.warning(u"License owner %s does not match computer owner %s "
-                                                %(i_owner,c.owner))
+                            if not done and not i_owner.eparty.compare(c.owner.eparty):
+                                    log.warning(u"License owner %s does not match computer owner %s "
+                                            %(i_owner,c.owner))
 
         print u""
         print u"Checking license..."
@@ -155,7 +174,7 @@ def main():
                                 good = False
                         elif l.owner is None:
                                 good = False
-                        elif not c_owner.compare(l.owner):
+                        elif not c_owner.eparty.compare(l.owner.eparty):
                                 good = False
                         else:
                                 good = True
@@ -179,18 +198,18 @@ def main():
 
         si_software = {}
         print u""
-        print u"Checking software installations..."
+        print u"Checking software installation..."
         for si in models.software_installation.objects.filter(active=True):
-                log.set_doing(u"%d:%s(%s,%s)"%(si.pk,si,si.software,si.computer))
+                log.set_doing(u"%d:%s(%s,%d)"%(si.pk,si,si.software,si.os.pk))
 
                 error_list = si.error_list()
                 for error in error_list:
                         log.warning(error)
 
-                if si.computer.pk not in si_software:
-                        si_software[si.computer.pk] = {}
+                if si.os.pk not in si_software:
+                        si_software[si.os.pk] = {}
 
-                check_duplicates(si_software[si.computer.pk],u"software",si.pk,si.software)
+                check_duplicates(si_software[si.os.pk],u"software",si.pk,si.software)
 
 if __name__ == u"__main__":
     sys.exit(main())

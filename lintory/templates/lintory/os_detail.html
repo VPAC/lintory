@@ -33,6 +33,8 @@
 {% endif %}
 </dl>
 
+{% show_error_list object.error_list %}
+
 {% if object.active_software_installations %}
 <h2>Active Software Installations</h2>
 {% show_software_installation_list object.active_software_installations %}

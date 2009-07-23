@@ -1,3 +1,4 @@
+{% load inventory %}
 {% if object_list %}
 <table>
   <tr>
@@ -10,6 +11,9 @@
   </tr>
 
   {% for location in object_list %}
+      {% with location.error_list as error_list %}{% if error_list %}
+      <tr><td colspan='5'>{% show_error_list error_list %}</td></tr>
+      {% endif %}{% endwith %}
   <tr>
     <td><a href="{{ location.get_absolute_url }}">{{ location }}</a></td>
 {% if location.get_owner %}

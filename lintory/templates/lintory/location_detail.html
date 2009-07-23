@@ -37,6 +37,8 @@
 <dt>Comments</dt><dd>{{ object.comments|linebreaks }}</dd>
 </dl>
 
+{% show_error_list object.error_list %}
+
 {% if object.children.all %}
 <h2>Sublocations</h2>
 {% show_location_list object.children.all %}

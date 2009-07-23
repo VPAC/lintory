@@ -13,6 +13,14 @@
 <li><a class="viewlink" href="{% url party_software_list object.pk %}">Software</a></li>
 </ul>
 
+<dl class="infobox">
+<dt>Party</dt><dd>{{ object }}</dd>
+<dt>E-Party</dt><dd>{{ object.eparty }}</dd>
+<dt>Comments</dt><dd>{{object.comments|linebreaks }}</dd>
+</dl>
+
+{% show_error_list object.error_list %}
+
 {% if object.assigned_hardware_tasks.all %}
 <h2>Tasks</h2>
 {% show_hardware_task_list object.assigned_hardware_tasks.all %}

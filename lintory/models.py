@@ -102,6 +102,10 @@ class model(models.Model):
         ct = ContentType.objects.get_for_model(self)
         return history_item.objects.filter(content_type=ct, object_pk=self.pk)
 
+    def error_list(self):
+        error_list = []
+        return error_list
+
     # VIEW ACTION
 
     # get the URL to display this object
@@ -187,6 +191,9 @@ class Nobody:
                 license_key__isnull = False,
                 license_key__license__owner__isnull = True).distinct()
 
+    def error_list(self):
+        error_list = []
+        return error_list
 
 class party(model):
     name     = fields.char_field(max_length=30)
@@ -198,6 +205,12 @@ class party(model):
 
     def __unicode__(self):
         return self.name
+
+    def error_list(self):
+        error_list = super(party,self).error_list()
+        if isinstance(self.eparty,eparty.Error_Name):
+            error_list.append("E-Party entry does not exist")
+        return error_list
 
 class party_type(generic_type):
     def plural_name(self):
@@ -379,6 +392,17 @@ class location(model):
         hardware = self.get_self_or_children_hardware()
         return task.objects.filter(hardware_task__hardware__in=hardware,hardware_task__date_complete__isnull=True).distinct()
 
+    def error_list(self):
+        error_list = super(location,self).error_list()
+
+        if self.owner is None:
+            error_list.append("Owner not defined")
+
+        if self.user is None:
+            error_list.append("User not defined")
+
+        return error_list
+
 class location_type(generic_type):
 
     def get_breadcrumbs(self, parent):
@@ -505,6 +529,23 @@ class hardware(model):
         else:
             return super(hardware,self).get_breadcrumbs()
 
+    def error_list(self):
+        error_list = super(hardware,self).error_list()
+        if self.installed_on is not None:
+            if self.location is not None:
+                error_list.append("Location defined when hardware is installed")
+            if self.user is not None:
+                error_list.append("User defined when hardware is installed")
+        else:
+            if self.location is None:
+                error_list.append("Location not defined")
+            if self.owner is None:
+                error_list.append("Owner not defined")
+            if self.user is None:
+                error_list.append("User not defined")
+
+        return error_list
+
 class hardware_base_type(generic_type):
     def plural_name(self):
         return "hardware"
@@ -571,6 +612,15 @@ class storage(hardware):
 
         return u"%d %s harddisk"%(size, units)
 
+    def error_list(self):
+        error_list = super(storage,self).error_list()
+        if self.installed_on is not None:
+            if self.used_by is None:
+                error_list.append("Storage is installed but not marked in use")
+            elif self.installed_on.pk != self.used_by.pk:
+                # Not an error really, but just in case
+                error_list.append("Storage is installed but in use by different machine")
+        return error_list
 
 class storage_type(hardware_type):
     def plural_name(self):
@@ -658,7 +708,7 @@ class network_adaptor(hardware):
         return self.name
 
     def error_list(self):
-        error_list = []
+        error_list = super(network_adaptor,self).error_list()
 
         g = u"[A-F0-9][A-F0-9]";
         m = re.match(u"^(%s):(%s):(%s):(%s):(%s):(%s)$"
@@ -848,7 +898,7 @@ class license(model):
         return self.owner
 
     def error_list(self):
-        error_list = []
+        error_list = super(license,self).error_list()
 
         if self.name is not None:
             duplicates = license.objects.filter(name=self.name).exclude(pk=self.pk)
@@ -908,7 +958,7 @@ class license_key(model):
         return list.count()
 
     def error_list(self):
-        error_list = []
+        error_list = super(license_key,self).error_list()
 
         duplicates = license_key.objects.filter(
                 models.Q(software=self.software,key=self.key) |
@@ -970,7 +1020,7 @@ class software_installation(model):
         ordering = ('os','software','license_key')
 
     def error_list(self):
-        error_list = []
+        error_list = super(software_installation,self).error_list()
 
         if self.license_key != None:
             if self.software != self.license_key.software:
@@ -988,8 +1038,10 @@ class software_installation(model):
                     error_list.append(u"version %s is not allowed by license"%(self.software_version))
 
             if license.computer is not None:
-                if self.computer.pk != license.computer.pk:
-                    error_list.append(u"installation on %s is not allowed by license"%(self.computer))
+                computer = self.os.storage.used_by
+                if computer is not None:
+                    if computer.pk != license.computer.pk:
+                        error_list.append(u"installation on %s is not allowed by license"%(computer))
 
             if license.expires is not None and license.expires < datetime.now():
                 error_list.append(u"license has expired")

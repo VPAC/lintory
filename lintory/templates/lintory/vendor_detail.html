@@ -37,6 +37,8 @@
 {% endif %}
 </dl>
 
+{% show_error_list object.error_list %}
+
 {% if object.software_set.all %}
 <h2>Software</h2>
 {% show_software_list object.software_set.all %}

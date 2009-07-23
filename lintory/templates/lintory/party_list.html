@@ -19,6 +19,9 @@
         <th>Name</th>
       </tr>
     {% for person in page_obj.object_list %}
+      {% with person.error_list as error_list %}{% if error_list %}
+      <tr><td colspan='1'>{% show_error_list error_list %}</td></tr>
+      {% endif %}{% endwith %}
       <tr>
         <td><a href="{{ person.get_absolute_url }}">{{ person }}</a></td>
       </tr>

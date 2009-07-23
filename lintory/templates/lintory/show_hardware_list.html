@@ -13,6 +13,9 @@
 {% endif %}
       </tr>
     {% for object in object_list %}{% with object.get_object as hardware %}
+      {% with object.error_list as error_list %}{% if error_list %}
+      <tr><td colspan='7'>{% show_error_list error_list %}</td></tr>
+      {% endif %}{% endwith %}
       <tr>
         <td><a href="{{ hardware.get_absolute_url }}">{{ hardware }}</a></td>
         <td>{{ hardware.manufacturer }}</td>
