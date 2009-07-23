@@ -11,6 +11,7 @@
 
 <ul class="object-tools">
 <li><a class="viewlink" href="{% url party_software_list object.pk %}">Software</a></li>
+{% ifnotequal object.pk "none" %}
 {% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user object.type %}
 {% if perms.lintory.change_hardware and edit_perm %}
     <li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
@@ -18,6 +19,7 @@
 {% if perms.lintory.delete_hardware and delete_perm %}
     <li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a></li>
 {% endif %}
+{% endifnotequal %}
 </ul>
 
 <dl class="infobox">

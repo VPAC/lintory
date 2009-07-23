@@ -178,6 +178,7 @@ class Nobody:
     def __init__(self):
         self.type = types["party"]
         self.pk = "none"
+        self.eparty = None
         self.assigned_hardware_tasks = hardware_task.objects.filter(assigned__isnull=True,
                 date_complete__isnull=True)
         self.owns_locations = location.objects.filter(owner__isnull=True)
@@ -195,6 +196,13 @@ class Nobody:
         error_list = []
         return error_list
 
+    # are there any reasons why this object should not be deleted?
+    def check_delete(self):
+        error_list = []
+        error_list.append("Cannot delete nobody as nobody is somebody")
+        return error_list
+
+
 class party(model):
     name     = fields.char_field(max_length=30)
     eparty   = eparty.name_model_field(null=True,blank=True,db_index=True)
@@ -210,6 +218,23 @@ class party(model):
         error_list = super(party,self).error_list()
         if isinstance(self.eparty,eparty.Error_Name):
             error_list.append("E-Party entry does not exist")
+        return error_list
+
+    # are there any reasons why this object should not be deleted?
+    def check_delete(self):
+        error_list = []
+        if self.assigned_hardware_task.all().count() > 0:
+            errorlist.append("Cannot delete party that is assigned a task")
+        if self.owns_locations.all().count() > 0:
+            errorlist.append("Cannot delete party that owns locations")
+        if self.uses_locations.all().count() > 0:
+            errorlist.append("Cannot delete party that uses locations")
+        if self.owns_licenses.all().count() > 0:
+            errorlist.append("Cannot delete party that owns licenses")
+        if self.owns_hardware.all().count() > 0:
+            errorlist.append("Cannot delete party that owns hardware")
+        if self.uses_hardware.all().count() > 0:
+            errorlist.append("Cannot delete party that uses hardware")
         return error_list
 
 class party_type(generic_type):
