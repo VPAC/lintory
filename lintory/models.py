@@ -308,8 +308,6 @@ types['vendor'] = generic_type('vendor')
 class location(model):
     name    = fields.char_field(max_length=30)
     address = fields.text_field(null=True,blank=True)
-    old_owner   = eparty.name_model_field(null=True,blank=True,db_index=True)
-    old_user    = eparty.name_model_field(null=True,blank=True,db_index=True)
     owner   = models.ForeignKey(party,null=True,blank=True, related_name='owns_locations')
     user    = models.ForeignKey(party,null=True,blank=True, related_name='uses_locations')
     parent  = models.ForeignKey('self',related_name='children',null=True,blank=True)
@@ -427,8 +425,6 @@ class hardware(model):
     date_of_manufacture = models.DateTimeField(null=True,blank=True)
     date_of_disposal    = models.DateTimeField(null=True,blank=True)
     asset_id = fields.char_field(max_length=10,null=True,blank=True)
-    old_owner    = eparty.name_model_field(null=True,blank=True,db_index=True)
-    old_user     = eparty.name_model_field(null=True,blank=True,db_index=True)
     owner   = models.ForeignKey(party,null=True,blank=True, related_name='owns_hardware')
     user    = models.ForeignKey(party,null=True,blank=True, related_name='uses_hardware')
     location = models.ForeignKey(location,null=True,blank=True)
@@ -857,7 +853,6 @@ class license(model):
     version    = fields.char_field(max_length=20,null=True,blank=True)
     computer = models.ForeignKey(computer,null=True,blank=True)
     expires = models.DateTimeField(null=True,blank=True)
-    old_owner    = eparty.name_model_field(null=True,blank=True,db_index=True)
     owner   = models.ForeignKey(party,null=True,blank=True, related_name='owns_licenses')
     text = fields.text_field(null=True,blank=True)
     comments = fields.text_field(null=True,blank=True)
@@ -1136,7 +1131,6 @@ class hardware_task(model):
     hardware = models.ForeignKey(hardware)
 
     date_complete = models.DateTimeField(null=True,blank=True)
-    old_assigned      = eparty.name_model_field(null=True,blank=True,db_index=True)
     assigned   = models.ForeignKey(party,null=True,blank=True, related_name='assigned_hardware_tasks')
 
     comments = fields.text_field(null=True,blank=True)
