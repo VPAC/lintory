@@ -421,9 +421,6 @@ class location(model):
         if self.owner is None:
             error_list.append("Owner not defined")
 
-        if self.user is None:
-            error_list.append("User not defined")
-
         return error_list
 
 class location_type(generic_type):
