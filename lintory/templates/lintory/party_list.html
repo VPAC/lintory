@@ -11,6 +11,13 @@
 {% block content %}
 <h1>Parties</h1>
 
+{% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user type %}
+{% if add_perm %}
+<ul class="object-tools">
+<li><a class="addlink" href="{{ type.get_create_url }}">Create</a></li>
+</ul>
+{% endif %}
+
 <p>List details for objects where <a href="{% url party_detail "none" %}">no party</a> is defined.</p>
 
 {% if page_obj.object_list %}
