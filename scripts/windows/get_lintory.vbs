@@ -220,6 +220,7 @@ For Each objSoftware in colSoftware
     WriteProperties objSoftware
 Next
 
+Wscript.StdOut.WriteLine ""
 Wscript.StdOut.WriteLine "# end"
 
 Sub WriteProperties(obj)
