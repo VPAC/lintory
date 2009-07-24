@@ -50,9 +50,19 @@ class hardware_form(forms.ModelForm):
         model = models.hardware
         exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
-class computer_form(hardware_form):
+class motherboard_form(hardware_form):
     class Meta:
-        model = models.computer
+        model = models.motherboard
+        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
+
+class processor_form(hardware_form):
+    class Meta:
+        model = models.processor
+        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
+
+class video_controller_form(hardware_form):
+    class Meta:
+        model = models.video_controller
         exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class network_adaptor_form(hardware_form):
@@ -63,6 +73,16 @@ class network_adaptor_form(hardware_form):
 class storage_form(hardware_form):
     class Meta:
         model = models.storage
+        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
+
+class power_supply_form(hardware_form):
+    class Meta:
+        model = models.power_supply
+        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
+
+class computer_form(hardware_form):
+    class Meta:
+        model = models.computer
         exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class monitor_form(hardware_form):

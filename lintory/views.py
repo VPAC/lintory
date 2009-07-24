@@ -546,21 +546,37 @@ class type_data:
         self.type_class = type_class
 
 type_dict = {
-    'computer': type_data(
-        modal_form = forms.computer_form,
-        type_class = models.computer,
+    'motherboard': type_data(
+        modal_form = forms.motherboard_form,
+        type_class = models.motherboard,
+    ),
+    'processor': type_data(
+        modal_form = forms.processor_form,
+        type_class = models.processor,
+    ),
+    'video_controller': type_data(
+        modal_form = forms.video_controller_form,
+        type_class = models.video_controller,
+    ),
+    'network_adaptor': type_data(
+        modal_form = forms.network_adaptor_form,
+        type_class = models.network_adaptor,
     ),
     'storage': type_data(
         modal_form = forms.storage_form,
         type_class = models.storage,
     ),
+    'computer': type_data(
+        modal_form = forms.computer_form,
+        type_class = models.computer,
+    ),
+    'power_supply': type_data(
+        modal_form = forms.power_supply_form,
+        type_class = models.power_supply,
+    ),
     'monitor': type_data(
         modal_form = forms.monitor_form,
         type_class = models.monitor,
-    ),
-    'network_adaptor': type_data(
-        modal_form = forms.network_adaptor_form,
-        type_class = models.network_adaptor,
     ),
 }
 

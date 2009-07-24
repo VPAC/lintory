@@ -546,14 +546,22 @@ class hardware(base_model):
             return self
 
         # Get type data by our type
-        if self.type_id == "computer":
-            return self.computer
-        elif self.type_id == "storage":
-            return self.storage
-        elif self.type_id == "monitor":
-            return self.monitor
+        if self.type_id == "motherboard":
+            return self.motherboard
+        elif self.type_id == "processor":
+            return self.processor
+        elif self.type_id == "video_controller":
+            return self.video_controller
         elif self.type_id == "network_adaptor":
             return self.network_adaptor
+        elif self.type_id == "storage":
+            return self.storage
+        elif self.type_id == "power_supply":
+            return self.power_supply
+        elif self.type_id == "computer":
+            return self.computer
+        elif self.type_id == "monitor":
+            return self.monitor
         else:
             raise RuntimeError("Unknown hardware type %s"%(self.type))
 
@@ -623,6 +631,85 @@ class hardware_type(base_model.type):
     def get_create_url(cls):
         return("hardware_type_create", [ cls.type_id ])
 
+class motherboard(hardware):
+    type = fields.char_field(max_length=20)
+
+    def __unicode__(self):
+        return "'%s' compatable motherboard"%(self.type)
+
+    class type(hardware_type):
+        type_id = "motherboard"
+
+types['motherboard'] = motherboard.type
+
+class processor(hardware):
+    number_of_cores = models.PositiveIntegerField()
+    cur_speed = models.PositiveIntegerField()
+    max_speed = models.PositiveIntegerField()
+    version   = fields.char_field(max_length=20)
+
+    def __unicode__(self):
+        return "%d MHz processor"%(self.max_speed)
+
+    class type(hardware_type):
+        type_id = "processor"
+
+types['processor'] = processor.type
+
+class video_controller(hardware):
+    max_width = models.PositiveIntegerField()
+    max_height = models.PositiveIntegerField()
+    max_colours = models.DecimalField(max_digits=12,decimal_places=0)
+
+    def __unicode__(self):
+        return "'%s' video controller"%(self.manufacturer)
+
+    class type(hardware_type):
+        type_id = "video_controller"
+
+types['video_controller'] = video_controller.type
+
+class network_adaptor(hardware):
+    name = fields.char_field(max_length=100)
+    network_type = fields.char_field(max_length=20)
+    mac_address = fields.mac_address_field(db_index=True)
+    IPv4_address = models.IPAddressField(null=True,blank=True)
+
+    def inet6_host_id(self):
+        mac = self.mac_address.split(':')
+        mac[3:3] = ['ff', 'fe']
+        mac = [ int(i,16) for i in mac ]
+        mac[0] = mac[0] | 2
+
+        addr = []
+        for i in range(0,4):
+                addr.append(mac[i*2] << 8 | mac[i*2+1])
+
+        return u"%x:%x:%x:%x"%(addr[0],addr[1],addr[2],addr[3])
+
+    def __unicode__(self):
+        return self.name
+
+    def error_list(self):
+        error_list = super(network_adaptor,self).error_list()
+
+        g = u"[A-F0-9][A-F0-9]";
+        m = re.match(u"^(%s):(%s):(%s):(%s):(%s):(%s)$"
+                     %(g,g,g,g,g,g),self.mac_address)
+        if m is None:
+            error_list.append(u"Mac address %s not in required format"%(self.mac_address))
+
+        duplicates = network_adaptor.objects.filter(mac_address=self.mac_address).exclude(pk=self.pk)
+        if duplicates.count() > 0:
+            error_list.append(u"Ethernet address %s is duplicated"%(self.mac_address))
+
+        return error_list
+
+    class type(hardware_type):
+        type_id = "network_adaptor"
+
+types['network_adaptor'] = network_adaptor.type
+
 class storage(hardware):
     used_by  = models.ForeignKey('computer',related_name='used_storage',null=True,blank=True)
     total_size = models.DecimalField(max_digits=12,decimal_places=0,null=True,blank=True)
@@ -688,21 +775,18 @@ class storage(hardware):
 
 types['storage'] = storage.type
 
-class monitor(hardware):
-    size = models.FloatField(null=True,blank=True)
-    width = models.PositiveIntegerField(null=True,blank=True)
-    height = models.PositiveIntegerField(null=True,blank=True)
+
+class power_supply(hardware):
+    is_portable = models.BooleanField()
+    watts = models.PositiveIntegerField()
 
     def __unicode__(self):
-        if self.size is None:
-            return "monitor"
-        else:
-            return "%s\" inch monitor"%(self.size)
+        return "%d watts power supply"%(self.watts)
 
     class type(hardware_type):
-        type_id = "monitor"
+        type_id = "power_supply"
 
-types['monitor'] = monitor.type
+types['power_supply'] = power_supply.type
 
 class computer(hardware):
     name = fields.char_field(max_length=20)
@@ -752,46 +836,21 @@ class computer(hardware):
 
 types['computer'] = computer.type
 
-class network_adaptor(hardware):
-    name = fields.char_field(max_length=100)
-    network_type = fields.char_field(max_length=20)
-    mac_address = fields.mac_address_field(db_index=True)
-    IPv4_address = models.IPAddressField(null=True,blank=True)
-
-    def inet6_host_id(self):
-        mac = self.mac_address.split(':')
-        mac[3:3] = ['ff', 'fe']
-        mac = [ int(i,16) for i in mac ]
-        mac[0] = mac[0] | 2
-
-        addr = []
-        for i in range(0,4):
-                addr.append(mac[i*2] << 8 | mac[i*2+1])
-
-        return u"%x:%x:%x:%x"%(addr[0],addr[1],addr[2],addr[3])
+class monitor(hardware):
+    size = models.FloatField(null=True,blank=True)
+    width = models.PositiveIntegerField(null=True,blank=True)
+    height = models.PositiveIntegerField(null=True,blank=True)
 
     def __unicode__(self):
-        return self.name
-
-    def error_list(self):
-        error_list = super(network_adaptor,self).error_list()
-
-        g = u"[A-F0-9][A-F0-9]";
-        m = re.match(u"^(%s):(%s):(%s):(%s):(%s):(%s)$"
-                     %(g,g,g,g,g,g),self.mac_address)
-        if m is None:
-            error_list.append(u"Mac address %s not in required format"%(self.mac_address))
-
-        duplicates = network_adaptor.objects.filter(mac_address=self.mac_address).exclude(pk=self.pk)
-        if duplicates.count() > 0:
-            error_list.append(u"Ethernet address %s is duplicated"%(self.mac_address))
-
-        return error_list
+        if self.size is None:
+            return "monitor"
+        else:
+            return "%s\" inch monitor"%(self.size)
 
     class type(hardware_type):
-        type_id = "network_adaptor"
+        type_id = "monitor"
 
-types['network_adaptor'] = network_adaptor.type
+types['monitor'] = monitor.type
 
 ######
 # OS #

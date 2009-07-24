@@ -1,0 +1,10 @@
+{% extends "lintory/hardware_detail.html" %}
+
+{% block class="infobox" %}
+{% if object.is_portable %}
+<dt>Portable</dt><dd>is portable and may be moved to compatable computers.</dd>
+{% else %}
+<dt>Portable</dt><dd>is installed inside a computer.</dd>
+{% endif %}
+<dt>Watts</dt><dd>{{ object.atts }}</a></dd>
+{% endblock %}

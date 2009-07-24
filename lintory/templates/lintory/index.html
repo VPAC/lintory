@@ -14,8 +14,13 @@
 <li><a href="{% url location_detail 1 %}">locations</a></li>
 <li><a href="{% url software_list %}">software</a></li>
 <li><a href="{% url hardware_list %}">hardware</a><ul>
-    <li><a href="{% url hardware_type_list "computer" %}">computers</a></li>
+    <li><a href="{% url hardware_type_list "motherboard" %}">motherboards</a></li>
+    <li><a href="{% url hardware_type_list "processor" %}">processors</a></li>
+    <li><a href="{% url hardware_type_list "video_controller" %}">video controllers</a></li>
+    <li><a href="{% url hardware_type_list "network_adaptor" %}">network adaptors</a></li>
     <li><a href="{% url hardware_type_list "storage" %}">storage</a></li>
+    <li><a href="{% url hardware_type_list "power_supply" %}">power supplys</a></li>
+    <li><a href="{% url hardware_type_list "computer" %}">computers</a></li>
     <li><a href="{% url hardware_type_list "monitor" %}">monitors</a></li>
 </ul></li>
 <li><a href="{% url license_list %}">licenses</a></li>
