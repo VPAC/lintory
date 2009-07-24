@@ -29,7 +29,7 @@
 <dt>Number computers total</dt><dd>{{object.hardware_tasks_all.count}}</dd>
 <dt>Number computers done</dt><dd>{{object.hardware_tasks_done.count}}</dd>
 <dt>Number computers todo</dt><dd>{{object.hardware_tasks_todo.count}}</dd>
-<dt>Comments</dt><dd>{{object.comments|linebreaks }}</dd>
+<dt>Comments</dt><dd>{{object.comments|urlizetrunc:40|linebreaks }}</dd>
 </dl>
 
 {% show_error_list object.error_list %}

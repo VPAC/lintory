@@ -42,7 +42,7 @@
     / left {{licenses_left}}
     {% endifnotequal %}
 </dd>
-<dt>Comments</dt><dd>{{software.comments|linebreaks }}</dd>
+<dt>Comments</dt><dd>{{software.comments|urlizetrunc:40|linebreaks }}</dd>
 </dl>
 
 {% show_error_list software.error_list %}

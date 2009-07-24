@@ -24,7 +24,7 @@
 <dl class="infobox">
 <dt>License key</dt><dd>{{ object }}</dd>
 <dt>Num installations</dt><dd>{{object.software_installations_found}}</dd>
-<dt>Comments</dt><dd>{{object.comments|linebreaks }}</dd>
+<dt>Comments</dt><dd>{{object.comments|urlizetrunc:40|linebreaks }}</dd>
 </dl>
 
 {% show_error_list object.error_list %}

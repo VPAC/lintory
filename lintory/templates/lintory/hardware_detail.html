@@ -56,7 +56,7 @@
 <dt>Installed on</dt><dd><a href="{{ installed_on.get_absolute_url }}">{{ installed_on }}</a></dd>
 {% endwith %}
 {% endif %}
-<dt>Comments</dt><dd>{{object.comments|linebreaks }}</dd>
+<dt>Comments</dt><dd>{{object.comments|urlizetrunc:40|linebreaks }}</dd>
 </dl>
 
 {% show_error_list object.error_list %}

@@ -55,7 +55,7 @@
 <dt>Last attempt</dt><dd>{{ object.last_attempt }}</dd>
 
 {% if object.comments %}
-<dt>Comments</dt><dd>{{object.comments|linebreaks }}</dd>
+<dt>Comments</dt><dd>{{object.comments|urlizetrunc:40|linebreaks }}</dd>
 {% endif %}
 </dl>
 
