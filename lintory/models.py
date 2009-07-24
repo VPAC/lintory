@@ -608,8 +608,6 @@ class hardware(base_model):
                 error_list.append("Location not defined")
             if self.owner is None:
                 error_list.append("Owner not defined")
-            if self.user is None:
-                error_list.append("User not defined")
 
         return error_list
 
