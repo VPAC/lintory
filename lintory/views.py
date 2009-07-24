@@ -579,7 +579,7 @@ def hardware_detail(request, object_id):
 
 def hardware_edit(request, object_id):
     object = get_object_or_404(models.hardware, pk=object_id)
-    type_id = object.type.type_id
+    type_id = object.type_id
 
     if type_id not in type_dict:
         raise Http404(u"Hardware type '%s' not found"%(type_id))
@@ -600,7 +600,7 @@ def hardware_delete(request,object_id):
 
 def hardware_type_list(request, type_id):
     if type_id not in type_dict:
-        raise Http404(u"Hardware type '%s' not found"%(type))
+        raise Http404(u"Hardware type '%s' not found"%(type_id))
 
     type = models.types[type_id]
     type_class = type_dict[type_id].type_class
@@ -609,7 +609,7 @@ def hardware_type_list(request, type_id):
 
 def hardware_type_create(request, type_id):
     if type_id not in type_dict:
-        raise Http404(u"Hardware type '%s' not found"%(type))
+        raise Http404(u"Hardware type '%s' not found"%(type_id))
 
     type = models.types[type_id]
     type_class = type_dict[type_id].type_class
