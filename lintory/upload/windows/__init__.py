@@ -365,7 +365,7 @@ def sync_hardware_item(hardware, type, created, computer,
 
     # Ensure same hardware not installed on same computer multiple times
     if not created and hardware.pk in seen_hardware:
-        raise import_error("We have already seen this %s on this computer"%(type.single_name(),hardware.pk))
+        raise import_error("We have already seen the %s '%s' (%d) on this computer"%(type.single_name(),hardware,hardware.pk))
     else:
         seen_hardware[hardware.pk] = True
 
@@ -374,13 +374,13 @@ def sync_hardware_item(hardware, type, created, computer,
         raise import_error("The %s '%s' (%d) is installed on another computer"%(type.single_name(),hardware,hardware.pk))
 
     if created:
-        print u"Creating %s for computer"%(type.single_name())
+        print u"Creating %s"%(type.single_name())
         hardware.seen_first = data_datetime
 
     if hardware.installed_on is None:
-        print u"Installing %s on computer"%(type.single_name())
+        print u"Installing %s"%(type.single_name())
 
-    print u"Doing %s for computer"%(type.single_name())
+    print u"Updating %s"%(type.single_name())
 
     # Update values
     hardware.auto_delete  = True
