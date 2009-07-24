@@ -690,8 +690,8 @@ types['storage'] = storage.type
 
 class monitor(hardware):
     size = models.FloatField(null=True,blank=True)
-    width = models.FloatField(null=True,blank=True)
-    height = models.FloatField(null=True,blank=True)
+    width = models.PositiveIntegerField(null=True,blank=True)
+    height = models.PositiveIntegerField(null=True,blank=True)
 
     def __unicode__(self):
         if self.size is None:
