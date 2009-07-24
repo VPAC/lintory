@@ -655,9 +655,7 @@ class processor(hardware):
 types['processor'] = processor.type
 
 class video_controller(hardware):
-    max_width = models.PositiveIntegerField()
-    max_height = models.PositiveIntegerField()
-    max_colours = models.DecimalField(max_digits=12,decimal_places=0)
+    memory = models.DecimalField(max_digits=12,decimal_places=0,null=True,blank=True)
 
     def __unicode__(self):
         return "'%s' video controller"%(self.manufacturer)
