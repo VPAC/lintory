@@ -171,7 +171,6 @@ def get_computer(data_dict):
             try:
                 # did we get any results?
                 first_item = nas[0]
-                print first_item.mac_address
                 query = query.filter(installed_hardware__network_adaptor__in=nas)
             except IndexError, e:
                 # no network adaptors found
