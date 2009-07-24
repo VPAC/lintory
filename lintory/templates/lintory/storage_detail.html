@@ -5,6 +5,9 @@
 {% if object.used_by %}
 <dt>Used by</dt><dd><a href="{{ object.used_by.get_absolute_url }}">{{ object.used_by }}</a></dd>
 {% endif %}
+{% if object.memory %}
+<dt>Memory</dt><dd>{{ object.memory|bytes }}</dd>
+{% endif %}
 {% endblock %}
 
 {% block class="body_start" %}

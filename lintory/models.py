@@ -730,11 +730,16 @@ class storage(hardware):
             errorlist.append("Cannot delete storage with OS")
         return errorlist
 
+    def memory(self):
+        if self.total_size is not None:
+            if self.sector_size is not None:
+                return self.total_size*self.sector_size
+
     def __unicode__(self):
-        if self.total_size is None or self.sector_size is None:
+        size = self.memory()
+        if size is None:
             return u"harddisk"
 
-        size = self.total_size*self.sector_size
         units = "bytes"
 
         if size > 1000:
