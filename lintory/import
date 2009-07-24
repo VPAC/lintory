@@ -28,7 +28,21 @@ from django.conf import settings
 def main():
 
         parser = OptionParser()
+        parser.add_option("-r", "--redo",
+                  action="store_true", dest="redo", default=False,
+                  help="Import latest data files with known computer even if already imported")
         (options, args) = parser.parse_args()
+
+        if options.redo:
+            for computer in models.computer.objects.all():
+                data_list = models.data.objects.filter(computer=computer, format="windows").order_by("-datetime")
+                try:
+                    data = data_list[0]
+                    print "--- %s ---"%(data.file)
+                    load(data)
+                    print
+                except IndexError, e:
+                    pass
 
         for data in models.data.objects.filter(imported__isnull=True, format="windows"):
             print "--- %s ---"%(data.file)
