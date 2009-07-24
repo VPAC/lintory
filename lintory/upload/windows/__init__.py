@@ -167,10 +167,14 @@ def get_computer(data_dict):
     for network in data_dict['NetworkAdapter']:
         if is_physical_network_adapter(network):
             mac_address = helpers.fix_mac_address(network['MACAddress'])
+            nas = models.network_adaptor.objects.filter(mac_address=mac_address)
             try:
-                na = models.network_adaptor.objects.get(mac_address=mac_address)
-                query = query.filter(installed_hardware__network_adaptor=na)
-            except models.network_adaptor.DoesNotExist, e:
+                # did we get any results?
+                first_item = nas[0]
+                print first_item.mac_address
+                query = query.filter(installed_hardware__network_adaptor__in=nas)
+            except IndexError, e:
+                # no network adaptors found
                 pass
 
     # Check - did we get a valid result?
