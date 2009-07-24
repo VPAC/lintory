@@ -839,12 +839,18 @@ class monitor(hardware):
     size = models.FloatField(null=True,blank=True)
     width = models.PositiveIntegerField(null=True,blank=True)
     height = models.PositiveIntegerField(null=True,blank=True)
+    widescreen = models.BooleanField()
 
     def __unicode__(self):
-        if self.size is None:
-            return "monitor"
-        else:
-            return "%s\" monitor"%(self.size)
+        text = ""
+        if self.size is not None:
+            text += "%s\" "%(self.size)
+
+        if self.widescreen:
+            text += "widescreen "
+
+        text += "monitor"
+        return text
 
     class type(hardware_type):
         type_id = "monitor"

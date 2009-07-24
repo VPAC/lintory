@@ -10,4 +10,9 @@
 {% if object.height %}
 <dt>Height</dt><dd>{{ object.height }} pixels</a></dd>
 {% endif %}
+{% if object.widescreen %}
+<dt>Ratio</dt><dd>Widescreen</dd>
+{% else %}
+<dt>Ratio</dt><dd>Standard</dd>
+{% endif %}
 {% endblock %}
