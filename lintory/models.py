@@ -578,7 +578,7 @@ class hardware(base_model):
 
     # We need to make sure that type_id is set before saving
     def save(self, *args,**kwargs):
-        self.type_id = self.get_type_id()
+        self.type_id = self.get_object_type_id()
         super(hardware,self).save(*args, **kwargs)
     save.alters_data = True
 
