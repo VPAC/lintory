@@ -358,6 +358,57 @@ def has_changed(auto,old,new,paranoid=True):
     # checks. Weird. No choice but to return the value of ...
     return True
 
+# sync hardware item with database
+def sync_hardware_item(hardware, type, created, computer,
+                        data_datetime, seen_hardware, remove_list,
+                        manufacturer, model, serial_number):
+
+    # Ensure same hardware not installed on same computer multiple times
+    if not created and hardware.pk in seen_hardware:
+        raise import_error("We have already seen this %s on this computer"%(type.single_name(),hardware.pk))
+    else:
+        seen_hardware[hardware.pk] = True
+
+    # sanity checks
+    if hardware.installed_on is not None and hardware.installed_on.pk != computer.pk:
+        raise import_error("The %s '%s' (%d) is installed on another computer"%(type.single_name(),hardware,hardware.pk))
+
+    if created:
+        print u"Creating %s for computer"%(type.single_name())
+        hardware.seen_first = data_datetime
+
+    if hardware.installed_on is None:
+        print u"Installing %s on computer"%(type.single_name())
+
+    print u"Doing %s for computer"%(type.single_name())
+
+    # Update values
+    hardware.auto_delete  = True
+    hardware.installed_on = computer
+    hardware.seen_last    = data_datetime
+
+    # Update manufacturer, if required
+    value = manufacturer
+    if created or has_changed(hardware.auto_manufacturer,hardware.manufacturer,value):
+        hardware.manufacturer = value
+    hardware.auto_manufacturer = value
+
+    # Update model, if required
+    value = model
+    if created or has_changed(hardware.auto_model,hardware.model,value):
+        hardware.model = value
+    hardware.auto_model = value
+
+    # Update serial number, if required
+    value = serial_number
+    if created or has_changed(hardware.auto_serial_number,hardware.serial_number,value):
+        hardware.serial_number = value
+    hardware.auto_serial_number = value
+
+    # Remove hardware from to-remove list
+    if hardware.pk in remove_list:
+        remove_list.remove(hardware.pk)
+
 def sync_hardware(data_datetime, computer, data_dict):
     # Update computer details
     computer.name         = son(data_dict['ComputerSystem'][0]['Name'])
@@ -402,45 +453,31 @@ def sync_hardware(data_datetime, computer, data_dict):
                         mac_address=mac_address,
                 )
             except models.network_adaptor.DoesNotExist, e:
-                print u"Creating network adaptor for computer '%s'"%(computer)
                 c = True
                 na = models.network_adaptor()
-                na.mac_address = mac_address
-                na.seen_first  = data_datetime
-                na.seen_last   = data_datetime
 
-            # Ensure same hardware not installed on same computer multiple times
-            if na.pk is not None and na.pk in seen_hardware:
-                raise import_error("We have already seen this network adaptor '%s' on this computer"%(na.pk))
-            else:
-                seen_hardware[na.pk] = True
+            # synchronise hardware values
+            sync_hardware_item(
+                        hardware=na,
+                        type=models.network_adaptor.type,
+                        created=c,
+                        computer=computer,
+                        data_datetime=data_datetime,
+                        seen_hardware=seen_hardware,
+                        remove_list=hardware,
+                        manufacturer=son(network['Manufacturer']),
+                        model=None,
+                        serial_number=None,
+            )
 
-            # sanity check
-            if na.installed_on is not None and na.installed_on.pk != computer.pk:
-                raise import_error("The network adaptor '%s' (%d) is installed on another computer"%(na,na.pk))
-
-            if na.installed_on is None:
-                print u"Installing network adaptor for computer '%s'"%(computer)
-
-            na.installed_on = computer
+            na.mac_address = mac_address
             na.name         = son(network['Name'])
             na.network_type = son(network['AdapterType'])
             # FIXME
             # na.IPv4_address = son(network['NetworkAdapterConfig'][0]['IPAddress'])
-            na.seen_last    = data_datetime
-            na.auto_delete  = True
-
-            # Update manufacturer, if required
-            value = son(network['Manufacturer'])
-            if c or has_changed(na.auto_manufacturer,na.manufacturer,value):
-                na.manufacturer = value
-            na.auto_manufacturer = value
 
             # Save values
             na.save()
-
-            if na.pk in hardware:
-                hardware.remove(na.pk)
 
     for disk_drive in data_dict['DiskDrive']:
             if disk_drive['Manufacturer'] == "":
@@ -456,8 +493,8 @@ def sync_hardware(data_datetime, computer, data_dict):
             if s is None and serial_number is not None:
                 try:
                     s = models.storage.objects.get(
-                            auto_manufacturer=disk_drive['Manufacturer'],
-                            auto_model=disk_drive['Model'],
+                            auto_manufacturer=son(disk_drive['Manufacturer']),
+                            auto_model=son(disk_drive['Model']),
                             auto_serial_number=serial_number,
                             total_size=son(disk_drive['TotalSectors']),
                             sector_size=son(disk_drive['BytesPerSector']),
@@ -498,26 +535,26 @@ def sync_hardware(data_datetime, computer, data_dict):
 
             # Forth try, just create a new one
             if s is None:
-                print u"Creating storage for computer '%s'"%(computer)
                 s = models.storage()
                 c = True
-                s.seen_first=data_datetime
 
-            # Ensure same hardware not installed on same computer multiple times
-            if s.pk is not None and s.pk in seen_hardware:
-                raise import_error("We have already seen this storage '%s' on this computer"%(s.pk))
-            else:
-                seen_hardware[s.pk] = True
+            # synchronise hardware values
+            sync_hardware_item(
+                        hardware=s,
+                        type=models.storage.type,
+                        created=c,
+                        computer=computer,
+                        data_datetime=data_datetime,
+                        seen_hardware=seen_hardware,
+                        remove_list=hardware,
+                        manufacturer=son(disk_drive['Manufacturer']),
+                        model=son(disk_drive['Model']),
+                        serial_number=serial_number,
+            )
 
             # sanity checks
-            if s.installed_on is not None and s.installed_on.pk != computer.pk:
-                raise import_error("The storage device '%s' (%d) is installed on another computer"%(s,s.pk))
-
-            if s.used_by is not None and s.used_by.pk != computer.pk:
+            if not c and s.used_by.pk != computer.pk:
                 raise import_error("The storage device '%s' (%d) is in use by another computer"%(s,s.pk))
-
-            if s.installed_on is None:
-                print u"Installing storage for computer '%s'"%(computer)
 
             if s.used_by is None:
                 print u"Marking storage as used by computer '%s'"%(computer)
@@ -525,28 +562,7 @@ def sync_hardware(data_datetime, computer, data_dict):
             # Update values
             s.total_size   = son(disk_drive['TotalSectors'])
             s.sector_size  = son(disk_drive['BytesPerSector'])
-            s.seen_last    = data_datetime
-            s.auto_delete  = True
-            s.installed_on = computer
             s.used_by      = computer
-
-            # Update manufacturer, if required
-            value = son(disk_drive['Manufacturer'])
-            if c or has_changed(s.auto_manufacturer,s.manufacturer,value):
-                s.manufacturer = value
-            s.auto_manufacturer = value
-
-            # Update model, if required
-            value = son(disk_drive['Model'])
-            if c or has_changed(s.auto_model,s.model,value):
-                s.model = value
-            s.auto_model = value
-
-            # Update serial number, if required
-            value = serial_number
-            if c or has_changed(s.auto_serial_number,s.serial_number,value):
-                s.serial_number = value
-            s.auto_serial_number = value
 
             # Save values
             s.save()
@@ -556,6 +572,51 @@ def sync_hardware(data_datetime, computer, data_dict):
 
             if s.pk in used_storage:
                 used_storage.remove(s.pk)
+
+    for processor in data_dict['Processor']:
+            c = False
+            p = None
+
+            # first try
+            if p is None:
+                try:
+                    p = models.processor.objects.get(
+                            installed_on=computer,
+                            auto_manufacturer=son(processor['Manufacturer']),
+                            auto_model=son(processor['Name']),
+                            auto_serial_number=son(processor['ProcessorId']),
+                            max_speed=son(processor['MaxClockSpeed']),
+                    )
+                except models.processor.DoesNotExist, e:
+                    pass
+
+            # if not found, just create a new one
+            if p is None:
+                p = models.processor()
+                c = True
+
+            # synchronise hardware values
+            sync_hardware_item(
+                        hardware=p,
+                        type=models.processor.type,
+                        created=c,
+                        computer=computer,
+                        data_datetime=data_datetime,
+                        seen_hardware=seen_hardware,
+                        remove_list=hardware,
+                        manufacturer=son(processor['Manufacturer']),
+                        model=son(processor['Name']),
+                        serial_number=son(processor['ProcessorId']),
+            )
+
+            # Update custom values
+            p.number_of_cores = processor['NumberOfCores']
+            p.cur_speed = processor['CurrentClockSpeed']
+            p.max_speed = processor['MaxClockSpeed']
+            p.version = processor['Version']
+
+            # Save values
+            p.save()
 
     # delete old hardware
     models.hardware.objects.filter(pk__in=hardware,auto_delete=True).update(installed_on=None)
@@ -703,6 +764,8 @@ def load(data):
                     print "creating computer"
                 else:
                     raise
+        else:
+            print "computer %s (%d)"%(data.computer,data.computer.pk)
 
 
         # Check data is recent
@@ -724,6 +787,8 @@ def load(data):
                     print "creating os"
                 else:
                     raise
+        else:
+            print "os %s (%d)"%(data.os,data.os.pk)
 
         print "os is on storage %s (%d)"%(data.os.storage,data.os.storage.pk)
 
