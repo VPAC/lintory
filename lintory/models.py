@@ -844,7 +844,7 @@ class monitor(hardware):
         if self.size is None:
             return "monitor"
         else:
-            return "%s\" inch monitor"%(self.size)
+            return "%s\" monitor"%(self.size)
 
     class type(hardware_type):
         type_id = "monitor"
