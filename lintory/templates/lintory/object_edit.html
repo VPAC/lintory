@@ -5,7 +5,7 @@
 {% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
 
 {% block title %}
-  {% if object %}Edit {{ object }}{% else %}Create {{ type }}{% endif %}
+  {% if object %}Edit {{ object }}{% else %}Create {{ type.single_name }}{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -13,7 +13,7 @@
 {% if object %}
 <h1>Edit {{ object }}</h1>
 {% else %}
-<h1>Create {{ type }}</h1>
+<h1>Create {{ type.single_name }}</h1>
 {% endif %}
 
 <form method="post">
