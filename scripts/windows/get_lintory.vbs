@@ -14,6 +14,7 @@ Set col = wmiServices.ExecQuery _
     ("Select * from Win32_ComputerSystem")
 
 For Each obj in col
+    Wscript.StdOut.WriteLine ""
     Wscript.StdOut.WriteLine "# ComputerSystem"
     WriteProperties obj
 Next
@@ -22,6 +23,7 @@ Set col = wmiServices.ExecQuery _
     ("Select * from Win32_SystemEnclosure")
 
 For Each obj in col
+    Wscript.StdOut.WriteLine ""
     Wscript.StdOut.WriteLine "# SystemEnclosure"
     WriteProperties obj
 Next
@@ -30,6 +32,7 @@ Set col = wmiServices.ExecQuery _
     ("Select * from Win32_BaseBoard")
 
 For Each obj in col
+    Wscript.StdOut.WriteLine ""
     Wscript.StdOut.WriteLine "# BaseBoard"
     WriteProperties obj
 Next
@@ -38,6 +41,7 @@ Set col = wmiServices.ExecQuery _
     ("Select * from Win32_Processor")
 
 For Each obj in col
+    Wscript.StdOut.WriteLine ""
     Wscript.StdOut.WriteLine "# Processor"
     WriteProperties obj
 Next
@@ -46,6 +50,7 @@ Set col = wmiServices.ExecQuery _
     ("Select * from Win32_OperatingSystem")
 
 For Each obj in col
+    Wscript.StdOut.WriteLine ""
     Wscript.StdOut.WriteLine "# OperatingSystem"
     WriteProperties obj
 Next
@@ -56,6 +61,7 @@ Set col = wmiServices.ExecQuery _
     ("Select * from Win32_VideoController")
 
 For Each obj in col
+    Wscript.StdOut.WriteLine ""
     Wscript.StdOut.WriteLine "# VideoController"
     WriteProperties obj
 Next
@@ -64,6 +70,7 @@ Set col = wmiServices.ExecQuery _
     ("Select * from Win32_DesktopMonitor")
 
 For Each obj in col
+    Wscript.StdOut.WriteLine ""
     Wscript.StdOut.WriteLine "# DesktopMonitor"
     WriteProperties obj
 Next
@@ -74,6 +81,7 @@ Set colNic = wmiServices.ExecQuery _
     ("Select * from Win32_NetworkAdapter")
 
 For Each objNic in colNic
+    Wscript.StdOut.WriteLine ""
     Wscript.StdOut.WriteLine "# NetworkAdapter"
     WriteProperties objNic
 
@@ -95,6 +103,7 @@ Set col = wmiServices.ExecQuery _
     ("Select * from Win32_CDROMDrive")
 
 For Each obj in col
+    Wscript.StdOut.WriteLine ""
     Wscript.StdOut.WriteLine "# CDROMDrive"
     WriteProperties obj
 Next
@@ -103,6 +112,7 @@ Set wmiDiskDrives =  wmiServices.ExecQuery ( _
     "SELECT * FROM Win32_DiskDrive")
 
 For Each wmiDiskDrive In wmiDiskDrives
+    Wscript.StdOut.WriteLine ""
     WScript.StdOut.WriteLine "# DiskDrive"
     WriteProperties wmiDiskDrive
 
@@ -193,6 +203,7 @@ Function decodeKey(iValues, strProduct)
   Next
   ReDim Preserve foundKeys( UBound(foundKeys) + 1 )
   foundKeys( UBound(foundKeys) ) = strProductKey
+  Wscript.StdOut.WriteLine ""
   Wscript.StdOut.WriteLine "# license key"
   Wscript.StdOut.WriteLine "Name:" & strProduct
   Wscript.StdOut.WriteLine "Product Key:" & strProductKey
@@ -204,6 +215,7 @@ Set colSoftware = wmiServices.ExecQuery _
     ("Select * from Win32_Product")
 
 For Each objSoftware in colSoftware
+    Wscript.StdOut.WriteLine ""
     Wscript.StdOut.WriteLine "# Product"
     WriteProperties objSoftware
 Next
@@ -213,7 +225,7 @@ Wscript.StdOut.WriteLine "# end"
 Sub WriteProperties(obj)
 
     For each Prop in obj.Properties_
-        WScript.StdOut.Write Prop.Name & ":"
+        WScript.StdOut.Write Prop.Name & ": "
         If isArray(Prop.Value) Then
             sep = ""
             For each value in Prop.Value

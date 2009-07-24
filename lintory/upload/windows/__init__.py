@@ -63,7 +63,10 @@ def parse_file(file):
         # string non-ASCII characters and terminating white space
         line = line.translate(t,d).rstrip()
 
-        if len(line)>0 and line[0] == '#':
+        if line == "":
+            # Ignore blank line
+            pass
+        elif len(line)>0 and line[0] == '#':
             level = 1
             while line[level] == '#':
                 level = level + 1
@@ -88,6 +91,8 @@ def parse_file(file):
             pass
         elif line.find(":") != -1:
             (tag,sep,value) = line.partition(":")
+            tag = tag.rstrip()
+            value = value.lstrip()
             this_section[tag] = value
         else:
             raise import_error("Cannot parse line")
