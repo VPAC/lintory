@@ -783,6 +783,7 @@ class power_supply(hardware):
 
     class type(hardware_type):
         type_id = "power_supply"
+        verbose_name_plural = "power supplies"
 
 types['power_supply'] = power_supply.type
 
