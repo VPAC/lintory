@@ -318,8 +318,8 @@ class history_item(base_model):
 
         @classmethod
         def get_create_breadcrumbs(cls, **kwargs):
-            breadcrumbs = self.get_breadcrumbs(**kwargs)
-            breadcrumbs.append(breadcrumb(self.get_create_url(**kwargs),"create history"))
+            breadcrumbs = cls.get_breadcrumbs(**kwargs)
+            breadcrumbs.append(breadcrumb(cls.get_create_url(**kwargs),"create history"))
             return breadcrumbs
 
 types['history_item'] = history_item.type
