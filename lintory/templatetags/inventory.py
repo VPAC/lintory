@@ -115,9 +115,9 @@ def show_hardware_task_list(context, object_list):
     return dict
 
 @register.inclusion_tag('lintory/show_history.html', takes_context=True)
-def show_history(context, type_id, object):
+def show_history(context, object):
     dict = defaults(context)
-    dict['type_id'] = type_id
+    dict['type_id'] = object.type.type_id
     dict['object'] = object
     return dict
 

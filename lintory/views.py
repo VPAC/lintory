@@ -24,6 +24,7 @@ from django.http import HttpResponseRedirect
 from django.http import Http404, HttpResponseForbidden
 from django.utils.html import escape
 from django.contrib.auth.decorators import login_required, permission_required
+from django.db.models import get_model
 import django.views.generic.list_detail
 import django.forms.util as util
 
@@ -34,32 +35,21 @@ import lintory.eparty as eparty
 
 import datetime
 
+def lintory_root(request):
+    breadcrumbs = [ ]
+    breadcrumbs.append(models.breadcrumb(reverse("lintory_root"),"home"))
+
+    return render_to_response('lintory/index.html', {
+                                'breadcrumbs': breadcrumbs,
+                                },
+                        context_instance=RequestContext(request))
+
 def get_object_by_string(type_id,object_id):
-    if type_id == "software":
-        return get_object_or_404(models.software, pk=object_id)
-    elif type_id == "hardware":
-        object = get_object_or_404(models.hardware, pk=object_id)
-        return object.get_object()
-    elif type_id == "software_installation":
-        return get_object_or_404(models.software_installation, pk=object_id)
-    elif type_id == "location":
-        return get_object_or_404(models.location, pk=object_id)
-    elif type_id == "license":
-        return get_object_or_404(models.license, pk=object_id)
-    elif type_id == "license_key":
-        return get_object_or_404(models.license_key, pk=object_id)
-    elif type_id == "task":
-        return get_object_or_404(models.task, pk=object_id)
-    elif type_id == "vendor":
-        return get_object_or_404(models.vendor, pk=object_id)
-    elif type_id == "hardware_task":
-        return get_object_or_404(models.hardware_task, pk=object_id)
-    elif type_id == "os":
-        return get_object_or_404(models.os, pk=object_id)
-    elif type_id == "data":
-        return get_object_or_404(models.data, pk=object_id)
-    else:
-        raise Http404
+    model = get_model("lintory",type_id)
+    if model is None:
+        raise Http404("Bad model type '%s'"%(type_id))
+
+    return get_object_or_404(model, pk=object_id)
 
 #####################
 # PERMISSION CHECKS #
