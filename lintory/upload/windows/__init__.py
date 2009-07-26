@@ -592,7 +592,6 @@ def sync_hardware(data_datetime, computer, data_dict):
 
             # if not found, just create a new one
             if p is None:
-                raise RuntimeError("MEOW")
                 p = models.processor()
                 c = True
 
