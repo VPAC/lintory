@@ -19,7 +19,7 @@ from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.utils.encoding import smart_unicode
 from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
-from django.template import RequestContext
+from django.template import RequestContext, loader
 from django.http import HttpResponseRedirect
 from django.http import Http404, HttpResponseForbidden
 from django.utils.html import escape
@@ -32,18 +32,7 @@ import lintory.helpers as helpers
 import lintory.forms as forms
 import lintory.eparty as eparty
 
-from django.template import Context, loader
-
 import datetime
-
-def lintory_root(request):
-    breadcrumbs = [ ]
-    breadcrumbs.append(models.breadcrumb(reverse("lintory_root"),"home"))
-
-    return render_to_response('lintory/index.html', {
-                                'breadcrumbs': breadcrumbs,
-                                },
-                        context_instance=RequestContext(request))
 
 def get_object_by_string(type_id,object_id):
     if type_id == "software":
@@ -72,7 +61,9 @@ def get_object_by_string(type_id,object_id):
     else:
         raise Http404
 
-# PERMISSION CHECKS
+#####################
+# PERMISSION CHECKS #
+#####################
 
 def HttpErrorResponse(request, breadcrumbs, error_list):
     t = loader.get_template('lintory/error.html')
@@ -87,7 +78,7 @@ def check_add_perms(request, breadcrumbs, types):
     error_list = []
     for type in types:
         if not type.has_add_perms(request.user):
-            error_list.append("You cannot create a %s object"%(type))
+            error_list.append("You cannot create a %s object"%(type.single_name()))
 
     if len(error_list) > 0:
         return HttpErrorResponse(request, breadcrumbs, error_list)
@@ -98,7 +89,7 @@ def check_edit_perms(request, breadcrumbs, types):
     error_list = []
     for type in types:
         if not type.has_edit_perms(request.user):
-            error_list.append("You cannot create a %s object"%(type))
+            error_list.append("You cannot create a %s object"%(type.single_name()))
 
     if len(error_list) > 0:
         return HttpErrorResponse(request, breadcrumbs, error_list)
@@ -109,14 +100,16 @@ def check_delete_perms(request, breadcrumbs, types):
     error_list = []
     for type in types:
         if not type.has_delete_perms(request.user):
-            error_list.append("You cannot create a %s object"%(type))
+            error_list.append("You cannot create a %s object"%(type.single_name()))
 
     if len(error_list) > 0:
         return HttpErrorResponse(request, breadcrumbs, error_list)
     else:
         return None
 
-# GENERIC FUNCTIONS
+#####################
+# GENERIC FUNCTIONS #
+#####################
 
 def object_list(request, object_list, type, template=None, kwargs={}):
     breadcrumbs = type.get_breadcrumbs(**kwargs)
@@ -252,7 +245,7 @@ def object_delete(request, object, template=None, additional_perms=()):
 ###########
 
 def history_item_create(request, type_id, object_id):
-    type = models.types["history_item"]
+    type = models.history_item.type
     object = get_object_by_string(type_id,object_id)
     modal_form = forms.history_item_form
 
@@ -277,7 +270,7 @@ def history_item_delete(request, history_item_id):
 #########
 
 def party_list(request):
-    type = models.types["party"]
+    type = models.party.type
     list = models.party.objects.all()
     return object_list(request, list, type)
 
@@ -290,7 +283,7 @@ def party_detail(request, object_id):
     return object_detail(request, object)
 
 def party_create(request):
-    type = models.types["party"]
+    type = models.party.type
     modal_form = forms.party_form
     return object_create(request, type, modal_form)
 
@@ -344,7 +337,7 @@ def party_software_detail(request, object_id, software_id):
 ##########
 
 def vendor_list(request):
-    type = models.types["vendor"]
+    type = models.vendor.type
     list = models.vendor.objects.all()
     return object_list(request, list, type)
 
@@ -353,7 +346,7 @@ def vendor_detail(request, object_id):
     return object_detail(request, object)
 
 def vendor_create(request):
-    type = models.types["vendor"]
+    type = models.vendor.type
     modal_form = forms.vendor_form
     return object_create(request, type, modal_form)
 
@@ -370,7 +363,7 @@ def vendor_delete(request,object_id):
 ########
 
 def task_list(request):
-    type = models.types["task"]
+    type = models.task.type
     list = models.task.objects.all()
     return object_list(request, list, type)
 
@@ -379,7 +372,7 @@ def task_detail(request, object_id):
     return object_detail(request, object)
 
 def task_create(request):
-    type = models.types["task"]
+    type = models.task.type
     modal_form = forms.task_form
     return object_create(request, type, modal_form)
 
@@ -396,7 +389,7 @@ def task_delete(request,object_id):
 #################
 
 def task_add_computer(request, object_id):
-    type = models.types["hardware_task"]
+    type = models.hardware_task.type
     task = get_object_or_404(models.task, pk=object_id)
     modal_form = forms.hardware_task_form
 
@@ -457,7 +450,7 @@ def location_redirect(request,object_id):
     return HttpResponseRedirect(object.get_absolute_url())
 
 def location_create(request, object_id):
-    type = models.types["location"]
+    type = models.location.type
     parent = get_object_or_404(models.location, pk=object_id)
     modal_form = forms.location_form
 
@@ -583,7 +576,7 @@ type_dict = {
 # HARDWARE OBJECTS
 
 def hardware_list(request):
-    type = models.types["hardware"]
+    type = models.hardware.type
     list = models.hardware.objects.all()
     return object_list(request, list, type)
 
@@ -602,13 +595,13 @@ def hardware_edit(request, object_id):
 
     object = object.get_object()
     modal_form = type_dict[type_id].modal_form
-    additional = ( models.types["hardware"], )
+    additional = ( models.hardware.type, )
     return object_edit(request, object, modal_form, additional_perms=additional)
 
 def hardware_delete(request,object_id):
     object = get_object_or_404(models.hardware, pk=object_id)
     object = object.get_object()
-    additional = ( models.types["hardware"], )
+    additional = ( models.hardware.type, )
     return object_delete(request, object, additional_perms=additional)
 
 # GENERIC HARDWARE TYPE FUNCTIONS
@@ -618,8 +611,8 @@ def hardware_type_list(request, type_id):
     if type_id not in type_dict:
         raise Http404(u"Hardware type '%s' not found"%(type_id))
 
-    type = models.types[type_id]
     type_class = type_dict[type_id].type_class
+    type = type_class.type
     list = type_class.objects.all()
     return object_list(request, list, type, template="lintory/hardware_list.html")
 
@@ -627,8 +620,8 @@ def hardware_type_create(request, type_id):
     if type_id not in type_dict:
         raise Http404(u"Hardware type '%s' not found"%(type_id))
 
-    type = models.types[type_id]
     type_class = type_dict[type_id].type_class
+    type = type_class.type
     modal_form = type_dict[type_id].modal_form
 
     def get_defaults():
@@ -637,11 +630,11 @@ def hardware_type_create(request, type_id):
         instance.seen_last = datetime.datetime.now()
         return instance
 
-    additional = ( models.types["hardware"], )
+    additional = ( models.hardware.type, )
     return object_create(request, type, modal_form, get_defaults, additional_perms=additional)
 
 def hardware_by_mac_address(request, mac_address):
-    type = models.types["network_adaptor"]
+    type = models.network_adaptor.type
     mac_address=helpers.fix_mac_address(mac_address)
     list = models.network_adaptor.objects.filter(mac_address=mac_address)
     count = list.count()
@@ -656,7 +649,7 @@ def hardware_by_mac_address(request, mac_address):
 ############
 
 def software_list(request):
-    type = models.types["software"]
+    type = models.software.type
     list = models.software.objects.all()
     return object_list(request, list, type)
 
@@ -665,7 +658,7 @@ def software_detail(request, object_id):
     return object_detail(request, object)
 
 def software_create(request):
-    type = models.types["software"]
+    type = models.software.type
     modal_form = forms.software_form
     return object_create(request, type, modal_form)
 
@@ -682,7 +675,7 @@ def software_delete(request,object_id):
 ###########
 
 def license_list(request):
-    type = models.types["license"]
+    type = models.license.type
     list = models.license.objects.all()
     return object_list(request, list, type)
 
@@ -691,7 +684,7 @@ def license_detail(request, object_id):
     return object_detail(request, object)
 
 def license_create(request):
-    type = models.types["license"]
+    type = models.license.type
     modal_form = forms.license_form
     return object_create(request, type, modal_form)
 
@@ -704,7 +697,7 @@ def software_add_license(request,object_id):
     breadcrumbs = object.get_breadcrumbs()
     breadcrumbs.append(models.breadcrumb(object.get_add_license_url(),"add software license"))
 
-    type = models.types["license"]
+    type = models.license.type
     error = check_add_perms(request, breadcrumbs, [ type ])
     if error is not None:
         return error
@@ -776,7 +769,7 @@ def license_key_detail(request, object_id):
     return object_detail(request, object)
 
 def license_add_license_key(request, object_id):
-    type = models.types["license_key"]
+    type = models.license_key.type
     license = get_object_or_404(models.license, pk=object_id)
     modal_form = forms.license_key_form
 
@@ -800,7 +793,7 @@ def license_key_delete(request,object_id):
 #########################
 
 def software_add_software_installation(request, object_id):
-    type = models.types["software_installation"]
+    type = models.software_installation.type
     software = get_object_or_404(models.software, pk=object_id)
     modal_form = forms.software_installation_form
 
@@ -818,7 +811,7 @@ def software_installation_edit_license_key(request,object_id):
     breadcrumbs = object.software.get_breadcrumbs()
     breadcrumbs.append(models.breadcrumb(object.get_edit_license_key_url(),"edit license key"))
 
-    type = models.types["software_installation"]
+    type = models.software_installation.type
     error = check_edit_perms(request, breadcrumbs, [ type ])
     if error is not None:
         return error
@@ -878,7 +871,7 @@ def os_detail(request, object_id):
     return object_detail(request, object)
 
 def os_create(request, object_id):
-    type = models.types["os"]
+    type = models.os.type
     storage = get_object_or_404(models.storage, pk=object_id)
     modal_form = forms.os_form
 
@@ -905,7 +898,7 @@ def os_delete(request,object_id):
 ########
 
 def data_list(request):
-    type = models.types["data"]
+    type = models.data.type
     list = models.data.objects.all()
     return object_list(request, list, type)
 
@@ -914,7 +907,7 @@ def data_detail(request, object_id):
     return object_detail(request, object)
 
 def data_create(request):
-    type = models.types["data"]
+    type = models.data.type
     modal_form = forms.data_form
     template = 'lintory/object_file_edit.html'
 

@@ -30,14 +30,12 @@ from datetime import *
 import random
 import re
 
-# META INFORMATION FOR TYPES
+# META INFORMATION FOR MODELS
 
 class breadcrumb:
     def __init__(self,url,name):
         self.url = url
         self.name = name
-
-types = {}
 
 # BASE ABSTRACT MODEL CLASS
 
@@ -214,8 +212,6 @@ class party(base_model):
         type_id = "party"
         verbose_name_plural = "parties"
 
-types['party'] = party.type
-
 class Nobody:
 
     def get_breadcrumbs(self):
@@ -227,7 +223,6 @@ class Nobody:
         return "Nobody"
 
     def __init__(self):
-        self.type = types["party"]
         self.pk = "none"
         self.eparty = None
         self.assigned_hardware_tasks = hardware_task.objects.filter(assigned__isnull=True,
@@ -276,7 +271,7 @@ class history_item(base_model):
         return u"history item %s"%(self.title)
 
     def get_breadcrumbs(self):
-        breadcrumbs = types['history_item'].get_breadcrumbs(self.content_object)
+        breadcrumbs = history_item.type.get_breadcrumbs(self.content_object)
         return breadcrumbs
 
     def get_edit_breadcrumbs(self):
@@ -322,8 +317,6 @@ class history_item(base_model):
             breadcrumbs.append(breadcrumb(cls.get_create_url(**kwargs),"create history"))
             return breadcrumbs
 
-types['history_item'] = history_item.type
-
 ##########
 # VENDOR #
 ##########
@@ -354,8 +347,6 @@ class vendor(base_model):
 
     class type(base_model.type):
         type_id = "vendor"
-
-types['vendor'] = vendor.type
 
 ############
 # LOCATION #
@@ -466,8 +457,6 @@ class location(base_model):
         @models.permalink
         def get_create_url(cls, parent):
             return(cls.type_id+"_create", [ parent.pk ] )
-
-types['location'] = location.type
 
 ############
 # HARDWARE #
@@ -615,8 +604,6 @@ class hardware(base_model):
         type_id = "hardware"
         verbose_name_plural = "hardware"
 
-types['hardware'] = hardware.type
-
 class hardware_type(base_model.type):
     @classmethod
     def get_breadcrumbs(cls):
@@ -638,8 +625,6 @@ class motherboard(hardware):
     class type(hardware_type):
         type_id = "motherboard"
 
-types['motherboard'] = motherboard.type
-
 class processor(hardware):
     number_of_cores = models.PositiveIntegerField()
     cur_speed = models.PositiveIntegerField()
@@ -652,8 +637,6 @@ class processor(hardware):
     class type(hardware_type):
         type_id = "processor"
 
-types['processor'] = processor.type
-
 class video_controller(hardware):
     memory = models.DecimalField(max_digits=12,decimal_places=0,null=True,blank=True)
 
@@ -662,8 +645,6 @@ class video_controller(hardware):
 
     class type(hardware_type):
         type_id = "video_controller"
-
-types['video_controller'] = video_controller.type
 
 class network_adaptor(hardware):
     name = fields.char_field(max_length=100)
@@ -703,8 +684,6 @@ class network_adaptor(hardware):
 
     class type(hardware_type):
         type_id = "network_adaptor"
-
-types['network_adaptor'] = network_adaptor.type
 
 class storage(hardware):
     used_by  = models.ForeignKey('computer',related_name='used_storage',null=True,blank=True)
@@ -774,9 +753,6 @@ class storage(hardware):
         type_id = "storage"
         verbose_name_plural = "storage"
 
-types['storage'] = storage.type
-
-
 class power_supply(hardware):
     is_portable = models.BooleanField()
     watts = models.PositiveIntegerField()
@@ -787,8 +763,6 @@ class power_supply(hardware):
     class type(hardware_type):
         type_id = "power_supply"
         verbose_name_plural = "power supplies"
-
-types['power_supply'] = power_supply.type
 
 class computer(hardware):
     name = fields.char_field(max_length=20)
@@ -836,8 +810,6 @@ class computer(hardware):
     class type(hardware_type):
         type_id = "computer"
 
-types['computer'] = computer.type
-
 class monitor(hardware):
     size = models.FloatField(null=True,blank=True)
     width = models.PositiveIntegerField(null=True,blank=True)
@@ -857,8 +829,6 @@ class monitor(hardware):
 
     class type(hardware_type):
         type_id = "monitor"
-
-types['monitor'] = monitor.type
 
 ######
 # OS #
@@ -917,8 +887,6 @@ class os(base_model):
         @models.permalink
         def get_create_url(cls, storage):
             return(cls.type_id+"_create", [ storage.pk ] )
-
-types['os'] = os.type
 
 ############
 # SOFTWARE #
@@ -986,8 +954,6 @@ class software(base_model):
     class type(base_model.type):
         type_id = "software"
         verbose_name_plural = "software"
-
-types['software'] = software.type
 
 ###########
 # LICENSE #
@@ -1072,8 +1038,6 @@ class license(base_model):
     class type(base_model.type):
         type_id = "license"
 
-types['license'] = license.type
-
 ###############
 # LICENSE KEY #
 ###############
@@ -1145,8 +1109,6 @@ class license_key(base_model):
         @models.permalink
         def get_create_url(cls, license):
             return("license_add_"+cls.type_id, [ license.pk ] )
-
-types['license_key'] = license_key.type
 
 #########################
 # SOFTWARE_INSTALLATION #
@@ -1261,8 +1223,6 @@ class software_installation(base_model):
             breadcrumbs.append(breadcrumb(self.get_create_url(**kwargs),"create installation"))
             return breadcrumbs
 
-types['software_installation'] = software_installation.type
-
 ########
 # TASK #
 ########
@@ -1298,8 +1258,6 @@ class task(base_model):
 
     class type(base_model.type):
         type_id = "task"
-
-types['task'] = task.type
 
 #################
 # HARDWARE_TASK #
@@ -1344,8 +1302,6 @@ class hardware_task(base_model):
     class type(base_model.type):
         type_id = "hardware_task"
 
-types['hardware_task'] = hardware_task.type
-
 ########
 # DATA #
 ########
@@ -1381,5 +1337,3 @@ class data(base_model):
 
     class type(base_model.type):
         type_id = "data"
-
-types['data'] = data.type
