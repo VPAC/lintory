@@ -585,7 +585,6 @@ def sync_hardware(data_datetime, computer, data_dict):
                             auto_manufacturer=son(processor['Manufacturer']),
                             auto_model=son(processor['Name']),
                             auto_serial_number=son(processor['ProcessorId']),
-                            max_speed=son(processor['MaxClockSpeed']),
                     )
                 except models.processor.DoesNotExist, e:
                     pass
