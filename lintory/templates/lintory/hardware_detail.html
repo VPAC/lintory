@@ -62,6 +62,26 @@
 {% show_error_list object.error_list %}
 
 {% block class="body_start" %}{% endblock %}
+{% if object.network_adaptors.all %}
+<h2>Network adaptors</h2>
+<table>
+  <tr>
+    <th></th>
+    <th>Mac Address</th>
+    <th>IP Address</th>
+  </tr>
+{% for na in object.network_adaptors.all %}
+    {% with na.error_list as error_list %}{% if error_list %}
+    <tr><td colspan='5'>{% show_error_list error_list %}</td></tr>
+    {% endif %}{% endwith %}
+    <tr>
+      <td><a href="{{ na.get_absolute_url }}">{{na.name}}</a></td>
+      <td><a href="{% url hardware_by_mac_address na.mac_address %}">{{na.mac_address}}</a></td>
+      <td>{{na.IPv4_address}}</td>
+    </tr>
+{% endfor %}
+</table>
+{% endif %}
 
 {% if object.hardware_tasks_todo %}
 <h2>Todo tasks</h2>

@@ -576,6 +576,9 @@ class hardware(base_model):
             errorlist.append("Cannot delete hardware that is installed")
         return errorlist
 
+    def network_adaptors(self):
+        return network_adaptor.objects.filter(installed_on=self)
+
     @models.permalink
     def get_deleted_url(self):
         return("hardware_type_list", [self.type_id])
@@ -672,7 +675,7 @@ class network_adaptor(hardware):
         return u"%x:%x:%x:%x"%(addr[0],addr[1],addr[2],addr[3])
 
     def __unicode__(self):
-        return self.name
+        return "%s network adaptor"%(self.manufacturer)
 
     def error_list(self):
         error_list = super(network_adaptor,self).error_list()
@@ -800,9 +803,6 @@ class computer(hardware):
     def inactive_software_installations(self):
         os_list = self.os_list()
         return software_installation.objects.filter(active=False, os__in=os_list)
-
-    def network_adaptors(self):
-        return network_adaptor.objects.filter(installed_on=self)
 
     def check_delete(self):
         errorlist = super(computer,self).check_delete()
