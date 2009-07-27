@@ -323,6 +323,7 @@ class history_item(base_model):
 
 class vendor(base_model):
     name     = fields.char_field(max_length=30)
+    url      = models.URLField(null=True, blank=True)
     address  = fields.text_field(null=True, blank=True)
     telephone = fields.char_field(max_length=20, null=True, blank=True)
     email    = fields.email_field(null=True, blank=True)
