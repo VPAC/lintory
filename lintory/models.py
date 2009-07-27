@@ -194,7 +194,7 @@ class party(base_model):
     # are there any reasons why this object should not be deleted?
     def check_delete(self):
         error_list = []
-        if self.assigned_hardware_task.all().count() > 0:
+        if self.assigned_hardware_tasks.all().count() > 0:
             errorlist.append("Cannot delete party that is assigned a task")
         if self.owns_locations.all().count() > 0:
             errorlist.append("Cannot delete party that owns locations")
