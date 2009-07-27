@@ -170,6 +170,7 @@ def object_create(request, type, modal_form, get_defaults=None, pre_save=None, t
             'object': None, 'type': type,
             'breadcrumbs': breadcrumbs,
             'form' : form,
+            'media' : form.media,
             },context_instance=RequestContext(request))
 
 def object_edit(request, object, modal_form, pre_save=None, template=None, additional_perms=()):
@@ -203,6 +204,7 @@ def object_edit(request, object, modal_form, pre_save=None, template=None, addit
             'object': object,
             'breadcrumbs': breadcrumbs,
             'form' : form,
+            'media' : form.media,
             },context_instance=RequestContext(request))
 
 def object_delete(request, object, template=None, additional_perms=()):
@@ -613,6 +615,7 @@ def hardware_create(request, object_id, type_id=None):
     return render_to_response("lintory/hardware_type.html", {
             'breadcrumbs': breadcrumbs,
             'form' : form,
+            'media' : form.media,
             },context_instance=RequestContext(request))
 
 def hardware_edit(request, object_id):
@@ -788,6 +791,7 @@ def software_add_license(request,object_id):
             'object': None, 'type': 'software license',
             'breadcrumbs': breadcrumbs,
             'form' : form,
+            'media' : form.media,
             },context_instance=RequestContext(request))
 
 def license_delete(request,object_id):
@@ -876,6 +880,7 @@ def software_installation_edit_license_key(request,object_id):
             'object': object,
             'breadcrumbs': breadcrumbs,
             'form' : form,
+            'media' : form.media,
             },context_instance=RequestContext(request))
 
 def software_installation_edit(request, object_id):

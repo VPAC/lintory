@@ -8,6 +8,10 @@
   {% if object %}Edit {{ object }}{% else %}Create {{ type.single_name }}{% endif %}
 {% endblock %}
 
+{% block extrahead %}{{ block.super }}
+{{ media }}
+{% endblock %}
+
 {% block content %}
 
 {% if object %}

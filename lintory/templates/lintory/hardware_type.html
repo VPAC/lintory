@@ -8,6 +8,10 @@
 
 {% block content %}
 
+{% block extrahead %}{{ block.super }}
+{{ media }}
+{% endblock %}
+
 <h1>Create hardware</h1>
 
 <form method="post">
