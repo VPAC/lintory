@@ -656,9 +656,13 @@ class video_controller(hardware):
     class type(hardware_type):
         type_id = "video_controller"
 
+NETWORK_TYPE = (
+    ('Ethernet 802.3', 'Ethernet 802.3'),
+)
+
 class network_adaptor(hardware):
     name = fields.char_field(max_length=100)
-    network_type = fields.char_field(max_length=20)
+    network_type = models.CharField(max_length=20, choices=NETWORK_TYPE)
     mac_address = fields.mac_address_field(db_index=True)
     IPv4_address = models.IPAddressField(null=True,blank=True)
 
@@ -817,21 +821,31 @@ class computer(hardware):
     class type(hardware_type):
         type_id = "computer"
 
+MONITOR_TECHNOLOGY = (
+    ('CRT', 'Cathode Ray Tube'),
+    ('LCD', 'Liquid Crystal Display'),
+    ('Plasma', 'Plasma'),
+)
+
 class monitor(hardware):
     size = models.FloatField(null=True,blank=True)
     width = models.PositiveIntegerField(null=True,blank=True)
     height = models.PositiveIntegerField(null=True,blank=True)
     widescreen = models.BooleanField()
+    technology = models.CharField(max_length=10, choices=MONITOR_TECHNOLOGY)
 
     def __unicode__(self):
         text = ""
         if self.size is not None:
-            text += "%s\" "%(self.size)
+            text += u"%s\" "%(self.size)
 
         if self.widescreen:
-            text += "widescreen "
+            text += u"widescreen "
 
-        text += "monitor"
+        if self.technology:
+            text += u"%s "%(self.technology)
+
+        text += u"monitor"
         return text
 
     class type(hardware_type):
@@ -852,8 +866,13 @@ class multifunction(hardware):
     class type(hardware_type):
         type_id = "multifunction"
 
+PRINTER_TECHNOLOGY = (
+    ('Inkjet', 'Inkjet'),
+    ('Laser', 'Laser'),
+    ('LED', 'LED'),
+)
 class printer(hardware):
-    technology = fields.char_field(max_length=20)
+    technology = models.CharField(max_length=10, choices=PRINTER_TECHNOLOGY)
     colour = models.BooleanField()
     double_sided = models.BooleanField()
     supports_Postscript = models.BooleanField()
