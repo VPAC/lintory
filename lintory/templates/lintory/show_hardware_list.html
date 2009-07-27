@@ -4,6 +4,7 @@
     <table>
       <tr>
         <th></th>
+        <th>Vendor</th>
         <th>Make</th>
         <th>Model</th>
         <th>Type</th>
@@ -18,13 +19,18 @@
       {% endif %}{% endwith %}
       <tr>
         <td><a href="{{ hardware.get_absolute_url }}">{{ hardware }}</a></td>
+{% if hardware.vendor %}
+        <td><a href="{{ hardware.vendor.get_absolute_url }}">{{ hardware.vendor }}</a></td>
+{% else %}
+        <td>-</td>
+{% endif %}
         <td>{{ hardware.manufacturer }}</td>
         <td>{{ hardware.model }}</td>
         <td><a href="{% url hardware_type_list hardware.type.type_id %}">{{ hardware.type.single_name }}</a></td>
 {% if  hardware.installed_on %}{% with hardware.installed_on.get_object as installed_on %}
         <td><a href="{{ installed_on.get_absolute_url }}">{{ installed_on }}</a></td>
 {% endwith %}{% else %}
-        <td></td>
+        <td>-</td>
 {% endif %}
 {% if perms.lintory.change_hardware or perms.inventory.delete_hardware %}
 {% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user hardware.type %}
