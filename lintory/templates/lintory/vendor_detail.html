@@ -22,7 +22,11 @@
 {% endif %}
 
 <dl class="infobox">
+{% if object.url %}
+<dt>Vendor</dt><dd><a href="{{ object.url }}">{{object}}</a></dd>
+{% else %}
 <dt>Vendor</dt><dd>{{object}}</dd>
+{% endif %}
 {% if object.address %}
 <dt>Address</dt><dd>{{object.address|linebreaks }}</dd>
 {% endif %}
