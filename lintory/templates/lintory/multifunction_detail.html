@@ -1,0 +1,25 @@
+{% extends "lintory/hardware_detail.html" %}
+
+{% block class="infobox" %}
+<dt>Capabilities</dt><dd>
+  {% if object.can_send_fax %}Send FAX{% if object.can_receive_fax %}, {% endif %}{% endif %}
+  {% if object.can_receive_fax %}Receive FAX{% endif %}
+</dd>
+
+<dt>Accessible</dt><dd>
+{% if object.accessible_on_network %}
+    Via network
+{% else %}
+    Local computer only
+{% endif %}
+{% if object.admin_url or object.user_url %}
+<dt>URLs</dt><dd>
+    {% if object.admin_url %} <a href="{{object.admin_url}}">Admin</a>{% endif %}
+    {% if object.user_url %} <a href="{{object.user_url}}">User</a>{% endif %}
+</dd>
+{% endif %}
+
+{% if object.windows_path %}
+<dt>Windows Path</dt><dd>{{ object.windows_path }}</dd>
+{% endif %}
+{% endblock %}

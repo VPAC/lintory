@@ -1,0 +1,29 @@
+{% extends "lintory/hardware_detail.html" %}
+
+{% block class="infobox" %}
+<dt>Technology</dt><dd>{{ object.technology }}</dd>
+
+<dt>Capabilities</dt><dd>
+  {% if object.colour %}Colour{% if object.double_sided %}, {% endif %}{% endif %}
+  {% if object.double_sided %}Double sided{% if object.supports_Postscript %}, {% endif %}{% endif %}
+  {% if object.supports_Postscript %}Postscript{% if object.supports_PCL %}, {% endif %}{% endif %}
+  {% if object.supports_PCL %}PCL{% endif %}
+</dd>
+
+<dt>Accessible</dt><dd>
+{% if object.accessible_on_network %}
+    Via network
+{% else %}
+    Local computer only
+{% endif %}
+{% if object.admin_url or object.user_url %}
+<dt>URLs</dt><dd>
+    {% if object.admin_url %} <a href="{{object.admin_url}}">Admin</a>{% endif %}
+    {% if object.cups_url %} <a href="{{object.cups_url}}">Cups</a>{% endif %}
+</dd>
+{% endif %}
+
+{% if object.windows_path %}
+<dt>Windows Path</dt><dd>{{ object.windows_path }}</dd>
+{% endif %}
+{% endblock %}

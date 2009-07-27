@@ -323,7 +323,7 @@ class history_item(base_model):
 
 class vendor(base_model):
     name     = fields.char_field(max_length=30)
-    url      = models.URLField(null=True, blank=True)
+    url      = models.URLField(null=True,blank=True)
     address  = fields.text_field(null=True, blank=True)
     telephone = fields.char_field(max_length=20, null=True, blank=True)
     email    = fields.email_field(null=True, blank=True)
@@ -489,7 +489,7 @@ class hardware(base_model):
     comments = fields.text_field(null=True,blank=True)
 
     def __unicode__(self):
-        return "%s - %s %s"%(self.type.single_name(),self.manufacturer,self.model)
+        return "%s - %s %s"%(self.type_id,self.manufacturer,self.model)
 
     class Meta:
         ordering = ('type_id', 'manufacturer','model')
@@ -552,6 +552,12 @@ class hardware(base_model):
             return self.computer
         elif self.type_id == "monitor":
             return self.monitor
+        elif self.type_id == "multifunction":
+            return self.multifunction
+        elif self.type_id == "printer":
+            return self.printer
+        elif self.type_id == "scanner":
+            return self.scanner
         else:
             raise RuntimeError("Unknown hardware type %s"%(self.type))
 
@@ -642,7 +648,7 @@ class video_controller(hardware):
     memory = models.DecimalField(max_digits=12,decimal_places=0,null=True,blank=True)
 
     def __unicode__(self):
-        return "'%s' video controller"%(self.manufacturer)
+        return "%s video controller"%(self.manufacturer)
 
     class type(hardware_type):
         type_id = "video_controller"
@@ -830,6 +836,58 @@ class monitor(hardware):
 
     class type(hardware_type):
         type_id = "monitor"
+
+class multifunction(hardware):
+    can_send_fax = models.BooleanField()
+    can_receive_fax = models.BooleanField()
+
+    accessible_on_network = models.BooleanField()
+    admin_url = models.URLField(null=True,blank=True)
+    user_url = models.URLField(null=True,blank=True)
+    windows_path = fields.char_field(max_length=100,null=True,blank=True)
+
+    def __unicode__(self):
+        return "%s %s"%(self.manufacturer,self.model)
+
+    class type(hardware_type):
+        type_id = "multifunction"
+
+class printer(hardware):
+    technology = fields.char_field(max_length=20)
+    colour = models.BooleanField()
+    double_sided = models.BooleanField()
+    supports_Postscript = models.BooleanField()
+    supports_PCL = models.BooleanField()
+
+    accessible_on_network = models.BooleanField()
+    admin_url = models.URLField(null=True,blank=True)
+    cups_url = models.URLField(null=True,blank=True)
+    windows_path = fields.char_field(max_length=100,null=True,blank=True)
+
+    def __unicode__(self):
+        return "%s %s printer"%(self.manufacturer,self.model)
+
+    class type(hardware_type):
+        type_id = "printer"
+
+class scanner(hardware):
+    colour = models.BooleanField()
+    OCR = models.BooleanField()
+    auto_feeder = models.BooleanField()
+    supports_paper = models.BooleanField()
+    supports_tranparencies = models.BooleanField()
+    supports_film = models.BooleanField()
+
+    accessible_on_network = models.BooleanField()
+    admin_url = models.URLField(null=True,blank=True)
+    user_url = models.URLField(null=True,blank=True)
+    windows_path = fields.char_field(max_length=100,null=True,blank=True)
+
+    def __unicode__(self):
+        return "%s %s scanner"%(self.manufacturer,self.model)
+
+    class type(hardware_type):
+        type_id = "scanner"
 
 ######
 # OS #

@@ -90,6 +90,21 @@ class monitor_form(hardware_form):
         model = models.monitor
         exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
+class multifunction_form(hardware_form):
+    class Meta:
+        model = models.multifunction
+        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
+
+class printer_form(hardware_form):
+    class Meta:
+        model = models.printer
+        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
+
+class scanner_form(hardware_form):
+    class Meta:
+        model = models.scanner
+        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
+
 class os_form(forms.ModelForm):
     class Meta:
         model = models.os

@@ -561,6 +561,18 @@ type_dict = {
         modal_form = forms.monitor_form,
         type_class = models.monitor,
     ),
+    'multifunction': type_data(
+        modal_form = forms.multifunction_form,
+        type_class = models.multifunction,
+    ),
+    'printer': type_data(
+        modal_form = forms.printer_form,
+        type_class = models.printer,
+    ),
+    'scanner': type_data(
+        modal_form = forms.scanner_form,
+        type_class = models.scanner,
+    ),
 }
 
 # HARDWARE OBJECTS
