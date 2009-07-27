@@ -51,59 +51,48 @@ class hardware_form(forms.ModelForm):
         exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class motherboard_form(hardware_form):
-    class Meta:
+    class Meta(hardware_form.Meta):
         model = models.motherboard
-        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class processor_form(hardware_form):
-    class Meta:
+    class Meta(hardware_form.Meta):
         model = models.processor
-        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class video_controller_form(hardware_form):
-    class Meta:
+    class Meta(hardware_form.Meta):
         model = models.video_controller
-        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class network_adaptor_form(hardware_form):
-    class Meta:
+    class Meta(hardware_form.Meta):
         model = models.network_adaptor
-        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class storage_form(hardware_form):
-    class Meta:
+    class Meta(hardware_form.Meta):
         model = models.storage
-        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class power_supply_form(hardware_form):
-    class Meta:
+    class Meta(hardware_form.Meta):
         model = models.power_supply
-        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class computer_form(hardware_form):
-    class Meta:
+    class Meta(hardware_form.Meta):
         model = models.computer
-        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class monitor_form(hardware_form):
-    class Meta:
+    class Meta(hardware_form.Meta):
         model = models.monitor
-        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class multifunction_form(hardware_form):
-    class Meta:
+    class Meta(hardware_form.Meta):
         model = models.multifunction
-        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class printer_form(hardware_form):
-    class Meta:
+    class Meta(hardware_form.Meta):
         model = models.printer
-        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class scanner_form(hardware_form):
-    class Meta:
+    class Meta(hardware_form.Meta):
         model = models.scanner
-        exclude = ('type_id', 'auto_delete', 'auto_manufacturer', 'auto_model', 'auto_serial_number' )
 
 class os_form(forms.ModelForm):
     class Meta:
