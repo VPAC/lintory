@@ -123,10 +123,13 @@ class party_field(forms.CharField):
             except eparty.Not_Found_Error, e:
                 raise forms.util.ValidationError(u"Cannot find eparty %s: %s" % (value,e))
 
-            party = models.party()
-            party.name = smart_unicode(n)
-            party.eparty = n
-            party.save()
+            try:
+                party=models.party.objects.get(eparty=n)
+            except models.party.DoesNotExist, e:
+                party = models.party()
+                party.name = smart_unicode(n)
+                party.eparty = n
+                party.save()
 
         return party
 
