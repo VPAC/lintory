@@ -113,9 +113,9 @@ urlpatterns = patterns('',
 
     url(r'^task/(?P<object_id>\d+)/add_computer/$',
     'lintory.views.task_add_computer',
-        name='task_add_computer'),
+    name='task_add_computer'),
 
-        url(r'^hardware_task/(?P<object_id>\d+)/edit/$',
+    url(r'^hardware_task/(?P<object_id>\d+)/edit/$',
     'lintory.views.hardware_task_edit',
     name='hardware_task_edit'),
 
