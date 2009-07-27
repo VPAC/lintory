@@ -1285,6 +1285,9 @@ class hardware_task(base_model):
         breadcrumbs.append(breadcrumb(self.get_edit_url(),"edit hardware todo"))
         return breadcrumbs
 
+    def get_edited_url(self):
+        return self.task.get_absolute_url()
+
     def get_delete_breadcrumbs(self):
         breadcrumbs = self.get_breadcrumbs()
         breadcrumbs.append(breadcrumb(self.get_delete_url(),"delete hardware todo"))
