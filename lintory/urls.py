@@ -248,6 +248,14 @@ urlpatterns = patterns('',
     'lintory.views.hardware_edit',
     name='hardware_edit'),
 
+    url(r'^hardware/(?P<object_id>\d+)/create/$',
+    'lintory.views.hardware_create',
+    name='hardware_create'),
+
+    url(r'^hardware/(?P<object_id>\d+)/create/(?P<type_id>\w+)/$',
+    'lintory.views.hardware_type_create',
+    name='hardware_create'),
+
     url(r'^hardware/(?P<object_id>\d+)/delete/$',
     'lintory.views.hardware_delete',
     name='hardware_delete'),

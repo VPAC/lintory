@@ -463,6 +463,20 @@ class location(base_model):
 # HARDWARE #
 ############
 
+hardware_types = {
+    'motherboard': True,
+    'processor': True,
+    'video_controller': True,
+    'network_adaptor': True,
+    'storage': True,
+    'power_supply': True,
+    'computer': True,
+    'monitor':True,
+    'multifunction': True,
+    'printer': True,
+    'scanner': True,
+}
+
 class hardware(base_model):
     type_id       = fields.char_field(max_length=20)
     seen_first    = models.DateTimeField()
@@ -497,6 +511,13 @@ class hardware(base_model):
     @models.permalink
     def get_absolute_url(self):
         return('hardware_detail', [ str(self.pk) ])
+
+    @models.permalink
+    def get_create_url(self, type_id=None):
+        if type_id is None:
+            return('hardware_create', [ str(self.pk) ])
+        else:
+            return('hardware_create', [ str(self.pk), str(type_id) ])
 
     @models.permalink
     def get_edit_url(self):
@@ -535,29 +556,8 @@ class hardware(base_model):
         if self.type.type_id == type_id:
             return self
 
-        # Get type data by our type
-        if self.type_id == "motherboard":
-            return self.motherboard
-        elif self.type_id == "processor":
-            return self.processor
-        elif self.type_id == "video_controller":
-            return self.video_controller
-        elif self.type_id == "network_adaptor":
-            return self.network_adaptor
-        elif self.type_id == "storage":
-            return self.storage
-        elif self.type_id == "power_supply":
-            return self.power_supply
-        elif self.type_id == "computer":
-            return self.computer
-        elif self.type_id == "monitor":
-            return self.monitor
-        elif self.type_id == "multifunction":
-            return self.multifunction
-        elif self.type_id == "printer":
-            return self.printer
-        elif self.type_id == "scanner":
-            return self.scanner
+        if type_id in hardware_types:
+            return getattr(self,type_id)
         else:
             raise RuntimeError("Unknown hardware type %s"%(self.type))
 

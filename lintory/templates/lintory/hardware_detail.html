@@ -13,8 +13,11 @@
 {% block tools %}
 {% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user object.type %}
 {% if perms.lintory.change_hardware or perms.inventory.delete_hardware %}
-{% if edit_perm or delete_perm %}
+{% if add_perm or edit_perm or delete_perm %}
     <ul class="object-tools">
+    {% if perms.lintory.add_hardware %}
+        <li><a class="addlink" href="{{ object.get_create_url }}">Create</a></li>
+    {% endif %}
     {% if perms.lintory.change_hardware and edit_perm %}
         <li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
     {% endif %}

@@ -42,6 +42,9 @@ class task_form(forms.ModelForm):
     class Meta:
         model = models.task
 
+class hardware_type_form(forms.Form):
+    type = fields.char_field(max_length=20)
+
 class hardware_form(forms.ModelForm):
     owner    = fields.party_field(required=False)
     user     = fields.party_field(required=False)

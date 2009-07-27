@@ -588,6 +588,33 @@ def hardware_detail(request, object_id):
     object = object.get_object()
     return object_detail(request, object)
 
+def hardware_create(request, object_id, type_id=None):
+    object = get_object_or_404(models.hardware, pk=object_id)
+    breadcrumbs = object.get_breadcrumbs()
+    breadcrumbs.append(models.breadcrumb(object.get_create_url(),"create hardware"))
+
+    if request.method == 'POST':
+        form = forms.hardware_type_form(request.POST, request.FILES)
+
+        if form.is_valid():
+            valid = True
+            type = form.cleaned_data['type'].strip()
+            if type not in models.hardware_types:
+                msg = u"Unknown type '%s'"%(type)
+                form._errors["type"] = util.ErrorList([msg])
+                valid = False
+
+            if valid:
+                url=object.get_create_url(type)
+                return HttpResponseRedirect(url)
+    else:
+        form = forms.hardware_type_form()
+
+    return render_to_response("lintory/hardware_type.html", {
+            'breadcrumbs': breadcrumbs,
+            'form' : form,
+            },context_instance=RequestContext(request))
+
 def hardware_edit(request, object_id):
     object = get_object_or_404(models.hardware, pk=object_id)
     type_id = object.type_id
@@ -618,9 +645,12 @@ def hardware_type_list(request, type_id):
     list = type_class.objects.all()
     return object_list(request, list, type, template="lintory/hardware_list.html")
 
-def hardware_type_create(request, type_id):
+def hardware_type_create(request, type_id, object_id=None):
     if type_id not in type_dict:
         raise Http404(u"Hardware type '%s' not found"%(type_id))
+
+    if object_id is not None:
+        object = get_object_or_404(models.hardware, pk=object_id)
 
     type_class = type_dict[type_id].type_class
     type = type_class.type
@@ -628,6 +658,8 @@ def hardware_type_create(request, type_id):
 
     def get_defaults():
         instance = type_class()
+        if object_id is not None:
+            instance.installed_on = object
         instance.seen_first = datetime.datetime.now()
         instance.seen_last = datetime.datetime.now()
         return instance

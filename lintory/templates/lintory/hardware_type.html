@@ -1,0 +1,18 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}Create hardware{% endblock %}
+
+{% block content %}
+
+<h1>Create hardware</h1>
+
+<form method="post">
+<table>{{ form.as_table }}</table>
+<input type="submit" />
+</form>
+
+{% endblock %}
