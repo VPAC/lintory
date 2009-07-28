@@ -114,6 +114,9 @@ class software(tables.ModelTable):
     id = tables.Column(sortable=False, visible=False)
     name = tables.Column(data=link_row)
     vendor = tables.Column(data=lambda row: link_field(row, "vendor"))
+    max = tables.Column(data="software_installations_max", sortable=False)
+    found = tables.Column(data="software_installations_found", sortable=False)
+    left = tables.Column(data="software_installations_left", sortable=False)
 
     class Meta:
         model = models.software
@@ -125,6 +128,9 @@ class license(tables.ModelTable):
     computer = tables.Column(data=lambda row: link_field(row, "computer"))
     expires = tables.Column()
     owner = tables.Column(data=lambda row: link_field(row, "owner"))
+    max = tables.Column(data="installations_max", sortable=False)
+    found = tables.Column(data="software_installations_found", sortable=False)
+    left = tables.Column(data="software_installations_left", sortable=False)
     comments = tables.Column()
 
     class Meta:
