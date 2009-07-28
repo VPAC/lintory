@@ -24,12 +24,10 @@ from django.utils.http import urlquote
 def link_row(row):
     return mark_safe(u"<a href='%s'>%s</a>"%(row.data.get_absolute_url(),conditional_escape(row.data)))
 
-def link_field(row, name):
-    data = row.data
-
+def resolve_field(object, name):
     # try to resolve relationships spanning attributes
     bits = name.split('__')
-    current = row.data
+    current = object
     for bit in bits:
         # note the difference between the attribute being None and not
         # existing at all; assume "value doesn't exist" in the former
@@ -49,6 +47,11 @@ def link_field(row, name):
         # next iteration, instead of defaulting.
         if current is None:
             break
+
+    return current
+
+def link_field(row, name):
+    current = resolve_field(row.data, name)
 
     if current is not None:
         return mark_safe(u"<a href='%s'>%s</a>"%(current.get_absolute_url(),conditional_escape(current)))
