@@ -1,0 +1,48 @@
+{% load inventory %}
+{% if rows %}
+{% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user type %}
+<table>
+<tr>
+    {% for column in table.columns %}
+    <th>
+    {% if column.sortable %}
+        <a href="?{{sort}}={{ column.name_toggled }}">{{ column }}</a>
+        {% if column.is_ordered_straight %}<img src="{{ MEDIA_URL }}img/admin/arrow-down.gif" />{% endif %}
+        {% if column.is_ordered_reverse %}<img src="{{ MEDIA_URL }}img/admin/arrow-up.gif" />{% endif %}
+        </a>
+    {% else %}
+        {{ column }}
+    {% endif %}
+    </th>
+    {% endfor %}
+{% if edit_perm or delete_perm %}
+    <th colspan="2">Actions</th>
+{% endif %}
+</tr>
+{% for row in rows %}
+    {% with row.data.error_list as error_list %}{% if error_list %}
+    <tr><td colspan='20'>{% show_error_list error_list %}</td></tr>
+    {% endif %}{% endwith %}
+    <tr>
+    {% for value in row %}
+        <td>{{ value }}</td>
+    {% endfor %}
+{% get_permissions_from_type "object_add_perm" "object_edit_perm" "object_delete_perm" user row.data.type %}
+{% if edit_perm or delete_perm %}
+{% if object_edit_perm %}
+        <td><a class="changelink" href="{{ row.data.get_edit_url }}">edit</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% if object_delete_perm %}
+        <td><a class="deletelink" href="{{ row.data.get_delete_url }}">delete</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% endif %}
+    </tr>
+{% endfor %}
+</table>
+{% else %}
+No {{ type.plural_name }} available.
+{% endif %}

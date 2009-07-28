@@ -1,0 +1,26 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block stylesheet %}{{ MEDIA_URL }}css/changelists.css{% endblock %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{{ type.plural_name }}{% endblock %}
+
+{% block content %}
+
+<h1>{{ type.plural_name }}</h1>
+
+{% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user type %}
+{% if add_perm %}
+<ul class="object-tools">
+<li><a class="addlink" href="{{ type.get_create_url }}">Create</a></li>
+</ul>
+{% endif %}
+
+{% show_list table page_obj.object_list type %}
+
+{% pagination page_obj %}
+
+{% endblock %}

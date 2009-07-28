@@ -28,10 +28,7 @@ from django.db.models import get_model
 import django.views.generic.list_detail
 import django.forms.util as util
 
-import lintory.models as models
-import lintory.helpers as helpers
-import lintory.forms as forms
-import lintory.eparty as eparty
+from lintory import models, helpers, forms, eparty, tables
 
 import datetime
 
@@ -101,12 +98,12 @@ def check_delete_perms(request, breadcrumbs, types):
 # GENERIC FUNCTIONS #
 #####################
 
-def object_list(request, object_list, type, template=None, kwargs={}):
+def object_list(request, table, type, template=None, kwargs={}):
     breadcrumbs = type.get_breadcrumbs(**kwargs)
     if template is None:
-        template='lintory/'+type.type_id+'_list.html'
+        template='lintory/object_list.html'
 
-    paginator = Paginator(object_list, 50) # Show 50 objects per page
+    paginator = Paginator(table.rows, 50) # Show 50 objects per page
 
     # Make sure page request is an int. If not, deliver first page.
     try:
@@ -122,6 +119,7 @@ def object_list(request, object_list, type, template=None, kwargs={}):
 
     return render_to_response(template, {
             'type': type,
+            'table': table,
             'page_obj': page_obj,
             'breadcrumbs': breadcrumbs,
             },context_instance=RequestContext(request))
@@ -264,7 +262,8 @@ def history_item_delete(request, history_item_id):
 def party_list(request):
     type = models.party.type
     list = models.party.objects.all()
-    return object_list(request, list, type)
+    table = tables.party(list, order_by=request.GET.get('sort'))
+    return object_list(request, table, type)
 
 def party_detail(request, object_id):
     if object_id != "none":
@@ -331,7 +330,8 @@ def party_software_detail(request, object_id, software_id):
 def vendor_list(request):
     type = models.vendor.type
     list = models.vendor.objects.all()
-    return object_list(request, list, type)
+    table = tables.vendor(list, order_by=request.GET.get('sort'))
+    return object_list(request, table, type)
 
 def vendor_detail(request, object_id):
     object = get_object_or_404(models.vendor, pk=object_id)
@@ -357,7 +357,8 @@ def vendor_delete(request,object_id):
 def task_list(request):
     type = models.task.type
     list = models.task.objects.all()
-    return object_list(request, list, type)
+    table = tables.task(list, order_by=request.GET.get('sort'))
+    return object_list(request, table, type)
 
 def task_detail(request, object_id):
     object = get_object_or_404(models.task, pk=object_id)
@@ -582,8 +583,8 @@ type_dict = {
 def hardware_list(request):
     type = models.hardware.type
     list = models.hardware.objects.all()
-    return object_list(request, list, type)
-
+    table = tables.hardware(list, order_by=request.GET.get('sort'))
+    return object_list(request, table, type)
 
 def hardware_detail(request, object_id):
     object = get_object_or_404(models.hardware, pk=object_id)
@@ -646,7 +647,8 @@ def hardware_type_list(request, type_id):
     type_class = type_dict[type_id].type_class
     type = type_class.type
     list = type_class.objects.all()
-    return object_list(request, list, type, template="lintory/hardware_list.html")
+    table = tables.hardware(list, order_by=request.GET.get('sort'))
+    return object_list(request, table, type)
 
 def hardware_type_create(request, type_id, object_id=None):
     if type_id not in type_dict:
@@ -679,7 +681,8 @@ def hardware_by_mac_address(request, mac_address):
     if count == 0:
         raise Http404
 
-    return object_list(request, list, type, template="lintory/hardware_list.html")
+    table = tables.hardware(list, order_by=request.GET.get('sort'))
+    return object_list(request, table, type, template="lintory/hardware_list.html")
 
 ############
 # SOFTWARE #
@@ -688,7 +691,8 @@ def hardware_by_mac_address(request, mac_address):
 def software_list(request):
     type = models.software.type
     list = models.software.objects.all()
-    return object_list(request, list, type)
+    table = tables.software(list, order_by=request.GET.get('sort'))
+    return object_list(request, table, type)
 
 def software_detail(request, object_id):
     object = get_object_or_404(models.software, pk=object_id)
@@ -714,7 +718,8 @@ def software_delete(request,object_id):
 def license_list(request):
     type = models.license.type
     list = models.license.objects.all()
-    return object_list(request, list, type)
+    table = tables.license(list, order_by=request.GET.get('sort'))
+    return object_list(request, table, type)
 
 def license_detail(request, object_id):
     object = get_object_or_404(models.license, pk=object_id)
@@ -939,7 +944,8 @@ def os_delete(request,object_id):
 def data_list(request):
     type = models.data.type
     list = models.data.objects.all()
-    return object_list(request, list, type)
+    table = tables.data(list, order_by=request.GET.get('sort'))
+    return object_list(request, table, type)
 
 def data_detail(request, object_id):
     object = get_object_or_404(models.data, pk=object_id)

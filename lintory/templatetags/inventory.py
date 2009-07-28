@@ -18,7 +18,7 @@ from django import template
 from django.utils.safestring import mark_safe
 from django.utils.http import urlquote
 
-from lintory import models
+from lintory import models, tables
 
 from django.db.models import Q
 
@@ -52,6 +52,7 @@ def defaults(context):
     return {
         'user': context['user'],
         'perms': context['perms'],
+        'MEDIA_URL': context['MEDIA_URL'],
     }
 
 @register.inclusion_tag('lintory/show_error_list.html')
@@ -60,58 +61,93 @@ def show_error_list(error_list):
         'error_list': error_list,
     };
 
-@register.inclusion_tag('lintory/show_vendor_list.html', takes_context=True)
-def show_vendor_list(context, object_list):
+@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+def show_list(context, table, rows, type, sort="sort"):
     dict = defaults(context)
-    dict['object_list'] = object_list
+    dict['table'] = table
+    dict['type'] = type
+    dict['rows'] = rows
+    dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_hardware_list.html', takes_context=True)
-def show_hardware_list(context, object_list):
+@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+def show_hardware_list(context, object_list, sort="sort"):
+    request = context['request']
     dict = defaults(context)
-    dict['object_list'] = object_list
+    dict['table'] = tables.hardware(object_list,request.GET.get(sort))
+    dict['type'] = models.hardware.type
+    dict['rows'] = dict['table'].rows
+    dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_location_list.html', takes_context=True)
-def show_location_list(context, object_list):
+@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+def show_location_list(context, object_list, sort="sort"):
+    request = context['request']
     dict = defaults(context)
-    dict['object_list'] = object_list
+    dict['table'] = tables.location(object_list,request.GET.get(sort))
+    dict['type'] = models.location.type
+    dict['rows'] = dict['table'].rows
+    dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_license_list.html', takes_context=True)
-def show_license_list(context, object_list):
+@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+def show_license_list(context, object_list, sort="sort"):
+    request = context['request']
     dict = defaults(context)
-    dict['object_list'] = object_list
+    dict['table'] = tables.license(object_list,request.GET.get(sort))
+    dict['type'] = models.license.type
+    dict['rows'] = dict['table'].rows
+    dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_license_key_list.html', takes_context=True)
-def show_license_key_list(context, object_list):
+@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+def show_license_key_list(context, object_list, sort="sort"):
+    request = context['request']
     dict = defaults(context)
-    dict['object_list'] = object_list
+    dict['table'] = tables.license_key(object_list,request.GET.get(sort))
+    dict['type'] = models.license_key.type
+    dict['rows'] = dict['table'].rows
+    dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_software_list.html', takes_context=True)
-def show_software_list(context, object_list):
+@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+def show_software_list(context, object_list, sort="sort"):
+    request = context['request']
     dict = defaults(context)
-    dict['object_list'] = object_list
+    dict['table'] = tables.software(object_list,request.GET.get(sort))
+    dict['type'] = models.software.type
+    dict['rows'] = dict['table'].rows
+    dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_software_installation_list.html', takes_context=True)
-def show_software_installation_list(context, object_list):
+@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+def show_software_installation_list(context, object_list, sort="sort"):
+    request = context['request']
     dict = defaults(context)
-    dict['object_list'] = object_list
+    dict['table'] = tables.software_installation(object_list,request.GET.get(sort))
+    dict['type'] = models.software_installation.type
+    dict['rows'] = dict['table'].rows
+    dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_task_list.html', takes_context=True)
-def show_task_list(context, object_list):
+@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+def show_task_list(context, object_list, sort="sort"):
+    request = context['request']
     dict = defaults(context)
-    dict['object_list'] = object_list
+    dict['table'] = tables.task(object_list,request.GET.get(sort))
+    dict['type'] = models.task.type
+    dict['rows'] = dict['table'].rows
+    dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_hardware_task_list.html', takes_context=True)
-def show_hardware_task_list(context, object_list):
+@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+def show_hardware_task_list(context, object_list, sort="sort"):
+    request = context['request']
     dict = defaults(context)
-    dict['object_list'] = object_list
+    dict['table'] = tables.hardware_task(object_list,request.GET.get(sort))
+    dict['type'] = models.hardware_task.type
+    dict['rows'] = dict['table'].rows
+    dict['sort'] = sort
     return dict
 
 @register.inclusion_tag('lintory/show_history.html', takes_context=True)
@@ -121,22 +157,24 @@ def show_history(context, object):
     dict['object'] = object
     return dict
 
-@register.inclusion_tag("lintory/show_license_key.html", takes_context=True)
-def show_license_key(context, license_key):
+@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+def show_os_list(context, object_list, sort="sort"):
+    request = context['request']
     dict = defaults(context)
-    dict['license_key'] = license_key
+    dict['table'] = tables.os(object_list,request.GET.get(sort))
+    dict['type'] = models.os.type
+    dict['rows'] = dict['table'].rows
+    dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_os_list.html', takes_context=True)
-def show_os_list(context, object_list):
+@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+def show_data_list(context, object_list, sort="sort"):
+    request = context['request']
     dict = defaults(context)
-    dict['object_list'] = object_list
-    return dict
-
-@register.inclusion_tag('lintory/show_data_list.html', takes_context=True)
-def show_data_list(context, object_list):
-    dict = defaults(context)
-    dict['object_list'] = object_list
+    dict['table'] = tables.data(object_list,request.GET.get(sort))
+    dict['type'] = models.data.type
+    dict['rows'] = dict['table'].rows
+    dict['sort'] = sort
     return dict
 
 @register.inclusion_tag('lintory/show_breadcrumbs.html')
