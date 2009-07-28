@@ -614,6 +614,14 @@ class hardware(base_model):
         type_id = "hardware"
         verbose_name_plural = "hardware"
 
+        @classmethod
+        @models.permalink
+        def get_create_url(cls,type_id=None):
+            if type_id==None:
+                return(cls.type_id+"_create",)
+            else:
+                return(cls.type_id+"_create",[ type_id ])
+
 class hardware_type(base_model.type):
     @classmethod
     def get_breadcrumbs(cls):

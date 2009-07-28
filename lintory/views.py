@@ -591,24 +591,31 @@ def hardware_detail(request, object_id):
     object = object.get_object()
     return object_detail(request, object)
 
-def hardware_create(request, object_id, type_id=None):
-    object = get_object_or_404(models.hardware, pk=object_id)
-    breadcrumbs = object.get_breadcrumbs()
-    breadcrumbs.append(models.breadcrumb(object.get_create_url(),"create hardware"))
+def hardware_create(request, type_id=None, object_id=None):
+    if object_id is None:
+        type = models.hardware.type
+        breadcrumbs = type.get_create_breadcrumbs()
+    else:
+        object = get_object_or_404(models.hardware, pk=object_id)
+        breadcrumbs = object.get_breadcrumbs()
+        breadcrumbs.append(models.breadcrumb(object.get_create_url(),"create hardware"))
 
     if request.method == 'POST':
         form = forms.hardware_type_form(request.POST, request.FILES)
 
         if form.is_valid():
             valid = True
-            type = form.cleaned_data['type'].strip()
-            if type not in models.hardware_types:
-                msg = u"Unknown type '%s'"%(type)
+            new_type = form.cleaned_data['type'].strip()
+            if new_type not in models.hardware_types:
+                msg = u"Unknown type '%s'"%(new_type)
                 form._errors["type"] = util.ErrorList([msg])
                 valid = False
 
             if valid:
-                url=object.get_create_url(type)
+                if object_id is None:
+                    url = type.get_create_url(new_type)
+                else:
+                    url = object.get_create_url(new_type)
                 return HttpResponseRedirect(url)
     else:
         form = forms.hardware_type_form()
