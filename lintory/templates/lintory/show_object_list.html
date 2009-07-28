@@ -31,8 +31,10 @@
 {% if edit_perm or delete_perm %}
 {% if object_edit_perm %}
         <td><a class="changelink" href="{{ row.data.get_edit_url }}">edit</a></td>
+        {% ifequal type.typeid software_installation %}<td><a class="changelink" href="{{ row.data.get_edit_license_key_url }}">key</a></td>{% endifequal %}
 {% else %}
         <td></td>
+        {% ifequal type.typeid software_installation %}<td></td>{% endifequal %}
 {% endif %}
 {% if object_delete_perm %}
         <td><a class="deletelink" href="{{ row.data.get_delete_url }}">delete</a></td>
