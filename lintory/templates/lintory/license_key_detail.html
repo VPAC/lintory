@@ -4,11 +4,11 @@
 
 {% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
 
-{% block title %}{% if perms.lintory.can_see_key %}{{ object }}{% else %}LK{{ object.pk }}{% endif %}{% endblock %}
+{% block title %}{% if perms.lintory.can_see_key %}{{ object.key }}{% else %}LK{{ object.pk }}{% endif %}{% endblock %}
 
 {% block content %}
 
-<h1>{% if perms.lintory.can_see_key %}{{ object }}{% else %}LK{{ object.pk }}{% endif %}</h1>
+<h1>{% if perms.lintory.can_see_key %}{{ object.key }}{% else %}LK{{ object.pk }}{% endif %}</h1>
 
 {% if perms.lintory.change_license_key or perms.inventory.delete_license_key %}
 <ul class="object-tools">
@@ -22,7 +22,7 @@
 {% endif %}
 
 <dl class="infobox">
-<dt>License key</dt><dd>{{ object }}</dd>
+<dt>License key</dt><dd>{% if perms.lintory.can_see_key %}{{ object.key }}{% else %}LK{{ object.pk }}{% endif %}</dd>
 <dt>Num installations</dt><dd>{{object.software_installations_found}}</dd>
 <dt>Comments</dt><dd>{{object.comments|urlizetrunc:40|linebreaks }}</dd>
 </dl>

@@ -1134,10 +1134,7 @@ class license_key(base_model):
 
 
     def __unicode__(self):
-        if self.key is not None:
-                return self.key
-        else:
-                return "N/A"
+        return "LK%d"%(self.pk)
 
     def active_software_installations(self):
         return software_installation.objects.filter(active=True,license_key=self)
