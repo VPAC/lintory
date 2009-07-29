@@ -126,7 +126,7 @@ def is_physical_network_adapter(network_adaptor_data):
     if network_adaptor_data['Manufacturer'] == "Symantec":
         return False
 
-    if network_adaptor_data['Manufacturer'] == "TAP-Win32 Provider":
+    if network_adaptor_data['Manufacturer'].startswith("TAP-Win32 "):
         return False
 
     if network_adaptor_data['Manufacturer'] == "VMware, Inc.":
