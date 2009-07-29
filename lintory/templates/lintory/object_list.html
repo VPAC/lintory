@@ -19,6 +19,11 @@
 </ul>
 {% endif %}
 
+<form method="get">
+<table>{{ filter.form.as_table }}</table>
+<input type="submit" />
+</form>
+
 {% show_list table page_obj.object_list type %}
 
 {% pagination page_obj %}
