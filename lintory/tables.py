@@ -88,7 +88,7 @@ class location(tables.ModelTable):
 
 class hardware(tables.ModelTable):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_row)
+    name = tables.Column(data=lambda row: link_field(row, "get_object"))
     type_id = tables.Column()
     manufacturer = tables.Column()
     model = tables.Column()

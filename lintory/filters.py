@@ -24,6 +24,9 @@ class party_filter(filter.ModelChoiceFilter):
 class hardware_type_filter(filter.CharFilter):
     field_class = fields.hardware_type_field
 
+class mac_address_filter(filter.CharFilter):
+    field_class = fields.mac_address_field
+
 class boolean_filter(filter.BooleanFilter):
     def filter(self, qs, value):
         lookup = self.lookup_type
@@ -55,7 +58,9 @@ class vendor(filter.FilterSet):
         model = models.vendor
 
 class hardware(filter.FilterSet):
-    type_id = hardware_type_filter(name="type_id",label="type")
+    type_id = hardware_type_filter(label="type")
+    computer = filter.CharFilter(name="computer__name",lookup_type='icontains')
+    mac_address = mac_address_filter(name="network_adaptor__mac_address")
     manufacturer = filter.CharFilter(lookup_type='icontains')
     model = filter.CharFilter(lookup_type='icontains')
     serial_number = filter.CharFilter(lookup_type='icontains')
