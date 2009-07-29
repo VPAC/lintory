@@ -8,7 +8,8 @@ Lintory is Alpha software. As such these limitations may be removed if there is 
 * Curl for Win32.
 * LDAP server for retrieving parties that may own or use things.
 * Linux server for central server. Other platforms may work, but not supported.
-* [django-tables](https://code.launchpad.net/~miracle2k/django-tables/trunk) - must be downloaded and placed within Python path.
+* [django-tables](https://code.launchpad.net/~miracle2k/django-tables/trunk).
+* [django-filter](http://github.com/alex/django-filter/tree/master).
 
 Warning: Database schema is also experimental and subject to change.
 
@@ -16,9 +17,16 @@ Warning: Database schema is also experimental and subject to change.
 
 How to download Lintory.
 
-1. Download/install [monotone](http://www.monotone.ca/). If you use a recent version of Debian or Ubuntu:
+1. Download/install required packages
 
-        sudo apt-get install monotone
+        sudo apt-get install monotone bzr git-core
+        bzr branch lp:django-tables django-tables
+
+    Need to put django-tables/django_tables in python path.
+
+        git clone git://github.com/alex/django-filter.git django-filter
+
+    Need to put django-filter/filter in python path.
 
 2. Use monotone to download the source code:
 
