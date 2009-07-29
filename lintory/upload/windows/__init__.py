@@ -668,9 +668,14 @@ def install_software(data_datetime, os, name, version, license_keys):
         si.auto_delete = True
         si.seen_last = data_datetime
 
+        # what is the current license key?
+        current_key = None
+        if si.license_key is not None:
+            current_key = si.license_key.key
+
         # Where we given a license key?
-        if c or has_changed(si.auto_license_key,si.license_key,key):
-            print "Updating license key of '%s' from '%s' to '%s'"%(new_name,si.license_key,key)
+        if c or has_changed(si.auto_license_key,current_key,key):
+            print "Updating license key of '%s' from '%s' to '%s'"%(new_name,current_key,key)
             if key is not None:
                 try:
                     si.license_key = models.license_key.objects.get(
