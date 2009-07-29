@@ -2,10 +2,23 @@
 {% load i18n %}
 {% if pagination_required %}
 <p class="paginator">
-{% paginator_prev page_obj %}
-{% paginator_next page_obj %}
+{% if page_prev %}
+<a href='{% url_with_param "page"=page_prev %}'>&lt;</a>
+{% endif %}
+{% if page_next %}
+<a href='{% url_with_param "page"=page_next %}'>&gt;</a>
+{% endif %}
+
 {% for i in page_range %}
-    {% paginator_number page_obj i %}
+{% ifequal page_obj.number i %}
+    <span class="this-page">{{ i }}</span>
+{% else %}
+{% if forloop.last %}
+    <a href='{% url_with_param "page"=i %}' class='end'>{{ i }}</a>
+{% else %}
+    <a href='{% url_with_param "page"=i %}'>{{ i }}</a>
+{% endif %}
+{% endifequal %}
 {% endfor %}
 </p>
 {% endif %}

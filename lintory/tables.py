@@ -19,7 +19,6 @@ import django_tables as tables
 
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
-from django.utils.http import urlquote
 
 def link_row(row):
     return mark_safe(u"<a href='%s'>%s</a>"%(row.data.get_absolute_url(),conditional_escape(row.data)))

@@ -17,6 +17,7 @@
 from django import template
 from django.utils.safestring import mark_safe
 from django.utils.http import urlquote
+from django.utils.html import conditional_escape
 
 from lintory import models, tables
 
@@ -52,6 +53,7 @@ def defaults(context):
     return {
         'user': context['user'],
         'perms': context['perms'],
+        'request': context['request'],
         'MEDIA_URL': context['MEDIA_URL'],
     }
 
@@ -71,7 +73,7 @@ def show_list(context, table, rows, type, sort="sort"):
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
-def show_hardware_list(context, object_list, sort="sort"):
+def show_hardware_list(context, object_list, sort="hardware_sort"):
     request = context['request']
     dict = defaults(context)
     dict['table'] = tables.hardware(object_list,request.GET.get(sort))
@@ -81,7 +83,7 @@ def show_hardware_list(context, object_list, sort="sort"):
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
-def show_location_list(context, object_list, sort="sort"):
+def show_location_list(context, object_list, sort="location_sort"):
     request = context['request']
     dict = defaults(context)
     dict['table'] = tables.location(object_list,request.GET.get(sort))
@@ -91,7 +93,7 @@ def show_location_list(context, object_list, sort="sort"):
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
-def show_license_list(context, object_list, sort="sort"):
+def show_license_list(context, object_list, sort="license_sort"):
     request = context['request']
     dict = defaults(context)
     dict['table'] = tables.license(object_list,request.GET.get(sort))
@@ -101,7 +103,7 @@ def show_license_list(context, object_list, sort="sort"):
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
-def show_license_key_list(context, object_list, sort="sort"):
+def show_license_key_list(context, object_list, sort="license_key_sort"):
     request = context['request']
     dict = defaults(context)
     dict['table'] = tables.license_key(object_list,request.GET.get(sort))
@@ -111,7 +113,7 @@ def show_license_key_list(context, object_list, sort="sort"):
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
-def show_software_list(context, object_list, sort="sort"):
+def show_software_list(context, object_list, sort="software_sort"):
     request = context['request']
     dict = defaults(context)
     dict['table'] = tables.software(object_list,request.GET.get(sort))
@@ -121,7 +123,7 @@ def show_software_list(context, object_list, sort="sort"):
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
-def show_software_installation_list(context, object_list, sort="sort"):
+def show_software_installation_list(context, object_list, sort="software_installation_sort"):
     request = context['request']
     dict = defaults(context)
     dict['table'] = tables.software_installation(object_list,request.GET.get(sort))
@@ -131,7 +133,7 @@ def show_software_installation_list(context, object_list, sort="sort"):
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
-def show_task_list(context, object_list, sort="sort"):
+def show_task_list(context, object_list, sort="task_sort"):
     request = context['request']
     dict = defaults(context)
     dict['table'] = tables.task(object_list,request.GET.get(sort))
@@ -141,7 +143,7 @@ def show_task_list(context, object_list, sort="sort"):
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
-def show_hardware_task_list(context, object_list, sort="sort"):
+def show_hardware_task_list(context, object_list, sort="hardware_task_sort"):
     request = context['request']
     dict = defaults(context)
     dict['table'] = tables.hardware_task(object_list,request.GET.get(sort))
@@ -158,7 +160,7 @@ def show_history(context, object):
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
-def show_os_list(context, object_list, sort="sort"):
+def show_os_list(context, object_list, sort="os_sort"):
     request = context['request']
     dict = defaults(context)
     dict['table'] = tables.os(object_list,request.GET.get(sort))
@@ -168,7 +170,7 @@ def show_os_list(context, object_list, sort="sort"):
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
-def show_data_list(context, object_list, sort="sort"):
+def show_data_list(context, object_list, sort="data_sort"):
     request = context['request']
     dict = defaults(context)
     dict['table'] = tables.data(object_list,request.GET.get(sort))
@@ -341,36 +343,10 @@ class get_permissions_from_type_node(template.Node):
         context[delete_tag] = type.has_delete_perms(user)
         return ''
 
-def _get_link(i):
-    return u"?page=%d"%(i)
-
-@register.simple_tag
-def paginator_prev(page_obj):
-    if page_obj.number <= 1:
-        return mark_safe(u'')
-    else:
-        return mark_safe(u"<a href='%s'>&lt;</a>" % (_get_link(page_obj.number-1)))
-
-@register.simple_tag
-def paginator_next(page_obj):
-    if page_obj.number >= page_obj.paginator.num_pages:
-        return mark_safe(u'')
-    else:
-        return mark_safe(u"<a href='%s'>&gt;</a>" % (_get_link(page_obj.number+1)))
-
-@register.simple_tag
-def paginator_number(page_obj,i):
-    if i == DOT:
-        return mark_safe(u'... ')
-    elif i == page_obj.number:
-        return mark_safe(u'<span class="this-page">%d</span> ' % (i))
-    else:
-        return mark_safe(u'<a href="%s"%s>%d</a> ' % (_get_link(i), (i == page_obj.paginator.num_pages and ' class="end"' or ''), i))
-
 DOT='.'
 
-@register.inclusion_tag('lintory/pagination.html')
-def pagination(page_obj):
+@register.inclusion_tag('lintory/pagination.html', takes_context=True)
+def pagination(context, page_obj):
     paginator, page_num = page_obj.paginator, page_obj.number
 
     if paginator.num_pages <= 1:
@@ -404,9 +380,62 @@ def pagination(page_obj):
             else:
                 page_range.extend(range(page_num, paginator.num_pages + 1))
 
+    if page_obj.number <= 1:
+        page_prev = None
+    else:
+        page_prev = page_obj.number-1
+
+    if page_obj.number >= page_obj.paginator.num_pages:
+        page_next = None
+    else:
+        page_next = page_obj.number+1
+
     return {
         'pagination_required': pagination_required,
+        'page_prev': page_prev,
+        'page_next': page_next,
         'page_obj': page_obj,
         'page_range': page_range,
+        'request': context['request'],
     }
 
+class url_with_param_node(template.Node):
+    def __init__(self, changes):
+        self.changes = []
+        for key, newvalue in changes:
+            key = template.Variable(key)
+            newvalue = template.Variable(newvalue)
+            self.changes.append( (key,newvalue,) )
+
+    def render(self, context):
+        if 'request' not in context:
+            raise template.TemplateSyntaxError, "request not in context"
+
+        request = context['request']
+
+        result = {}
+        for key, newvalue in request.GET.items():
+            result[key] = newvalue
+
+        for key, newvalue in self.changes:
+            key = key.resolve(context)
+            newvalue = newvalue.resolve(context)
+            result[key] = newvalue
+
+        quoted = []
+        for key, newvalue in result.items():
+            quoted.append("%s=%s"%(urlquote(key),urlquote(newvalue)))
+
+        return conditional_escape('?'+"&".join(quoted))
+
+@register.tag
+def url_with_param(parser, token):
+    bits = token.split_contents()
+    qschanges = []
+    for i in bits[1:]:
+        try:
+            key, newvalue = i.split('=', 1);
+            qschanges.append( (key,newvalue,) )
+        except ValueError:
+            raise template.TemplateSyntaxError, "Argument syntax wrong: should be key=value"
+    return url_with_param_node(qschanges)
