@@ -661,19 +661,6 @@ def hardware_type_create(request, type_id, object_id=None):
     additional = ( models.hardware.type, )
     return object_create(request, type, modal_form, get_defaults, additional_perms=additional)
 
-def hardware_by_mac_address(request, mac_address):
-    type = models.network_adaptor.type
-    mac_address=helpers.fix_mac_address(mac_address)
-    list = models.network_adaptor.objects.filter(mac_address=mac_address)
-    filter = filters.hardware(request.GET or None, list)
-    count = list.count()
-
-    if count == 0:
-        raise Http404
-
-    table = tables.hardware(filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, type, template="lintory/hardware_list.html")
-
 ############
 # SOFTWARE #
 ############

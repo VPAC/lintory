@@ -79,7 +79,7 @@
     {% endif %}{% endwith %}
     <tr>
       <td><a href="{{ na.get_absolute_url }}">{{na.name}}</a></td>
-      <td><a href="{% url hardware_by_mac_address na.mac_address %}">{{na.mac_address}}</a></td>
+      <td><a href="{% url hardware_list %}?mac_address={{ na.mac_address }}">{{na.mac_address}}</a></td>
       <td>{{na.IPv4_address}}</td>
     </tr>
 {% endfor %}

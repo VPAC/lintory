@@ -268,10 +268,6 @@ urlpatterns = patterns('',
     'lintory.views.hardware_delete',
     name='hardware_delete'),
 
-    url(r'^hardware/(?P<mac_address>[0-9A-Fa-f][0-9A-Fa-f][:-][0-9A-Fa-f][0-9A-Fa-f][:-][0-9A-Fa-f][0-9A-Fa-f][:-][0-9A-Fa-f][0-9A-Fa-f][:-][0-9A-Fa-f][0-9A-Fa-f][:-][0-9A-Fa-f][0-9A-Fa-f])/$',
-    'lintory.views.hardware_by_mac_address',
-    name='hardware_by_mac_address'),
-
 
     url(r'^os/(?P<object_id>\d+)/$',
     'lintory.views.os_detail',
