@@ -639,20 +639,6 @@ def hardware_delete(request,object_id):
     additional = ( models.hardware.type, )
     return object_delete(request, object, additional_perms=additional)
 
-# GENERIC HARDWARE TYPE FUNCTIONS
-
-
-def hardware_type_list(request, type_id):
-    if type_id not in type_dict:
-        raise Http404(u"Hardware type '%s' not found"%(type_id))
-
-    type_class = type_dict[type_id].type_class
-    type = type_class.type
-    list = type_class.objects.all()
-    filter = filters.hardware(request.GET or None, list)
-    table = tables.hardware(filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, type)
-
 def hardware_type_create(request, type_id, object_id=None):
     if type_id not in type_dict:
         raise Http404(u"Hardware type '%s' not found"%(type_id))

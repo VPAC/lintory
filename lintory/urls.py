@@ -250,7 +250,7 @@ urlpatterns = patterns('',
 
     url(r'^hardware/create/(?P<type_id>\w+)/$',
     'lintory.views.hardware_type_create',
-    name='hardware_create'),
+    name='hardware_type_create'),
 
     url(r'^hardware/(?P<object_id>\d+)/edit/$',
     'lintory.views.hardware_edit',
@@ -267,14 +267,6 @@ urlpatterns = patterns('',
     url(r'^hardware/(?P<object_id>\d+)/delete/$',
     'lintory.views.hardware_delete',
     name='hardware_delete'),
-
-    url(r'^hardware/(?P<type_id>\w+)/$',
-    'lintory.views.hardware_type_list',
-    name='hardware_type_list'),
-
-    url(r'^hardware/(?P<type_id>\w+)/create/$',
-    'lintory.views.hardware_type_create',
-    name='hardware_type_create'),
 
     url(r'^hardware/(?P<mac_address>[0-9A-Fa-f][0-9A-Fa-f][:-][0-9A-Fa-f][0-9A-Fa-f][:-][0-9A-Fa-f][0-9A-Fa-f][:-][0-9A-Fa-f][0-9A-Fa-f][:-][0-9A-Fa-f][0-9A-Fa-f][:-][0-9A-Fa-f][0-9A-Fa-f])/$',
     'lintory.views.hardware_by_mac_address',

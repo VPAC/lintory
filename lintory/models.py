@@ -581,7 +581,7 @@ class hardware(base_model):
 
     @models.permalink
     def get_deleted_url(self):
-        return("hardware_type_list", [self.type_id])
+        return("hardware_list")
 
     # We need to make sure that type_id is set before saving
     def save(self, *args,**kwargs):
@@ -620,13 +620,12 @@ class hardware(base_model):
             if type_id==None:
                 return(cls.type_id+"_create",)
             else:
-                return(cls.type_id+"_create",[ type_id ])
+                return(cls.type_id+"_type_create",[ type_id ])
 
 class hardware_type(base_model.type):
     @classmethod
     def get_breadcrumbs(cls):
         breadcrumbs = hardware.type.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(reverse("hardware_type_list",args=[cls.type_id]),cls.plural_name()))
         return breadcrumbs
 
     @classmethod
