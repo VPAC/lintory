@@ -58,7 +58,7 @@ class vendor(filter.FilterSet):
         model = models.vendor
 
 class hardware(filter.FilterSet):
-    type_id = hardware_type_filter(label="type")
+    type_id = hardware_type_filter(label="Type")
     computer = filter.CharFilter(name="computer__name",lookup_type='icontains')
     mac_address = mac_address_filter(name="network_adaptor__mac_address")
     manufacturer = filter.CharFilter(lookup_type='icontains')
