@@ -132,25 +132,23 @@ class base_model(models.Model):
             return cls.single_name() + 's'
 
         @classmethod
-        def has_add_perms(cls,user):
-            if user.is_authenticated() and user.has_perm('inventory.add_'+cls.type_id):
+        def has_name_perms(cls, user, name):
+            if user.is_authenticated() and user.has_perm('inventory.%s_%s'%(name,cls.type_id)):
                 return True
             else:
                 return False
+
+        @classmethod
+        def has_add_perms(cls, user):
+            return cls.has_name_perms(user, "add")
 
         @classmethod
         def has_edit_perms(cls,user):
-            if user.is_authenticated() and user.has_perm('inventory.edit_'+cls.type_id):
-                return True
-            else:
-                return False
+            return cls.has_name_perms(user, "edit")
 
         @classmethod
         def has_delete_perms(cls,user):
-            if user.is_authenticated() and user.has_perm('inventory.delete_'+cls.type_id):
-                return True
-            else:
-                return False
+            return cls.has_name_perms(user, "delete")
 
         @classmethod
         def get_breadcrumbs(cls):

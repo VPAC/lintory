@@ -263,7 +263,7 @@ def history_item_delete(request, history_item_id):
 def party_list(request):
     type = models.party.type
     filter = filters.party(request.GET or None)
-    table = tables.party(filter.qs, order_by=request.GET.get('sort'))
+    table = tables.party(request.user, type, filter.qs, order_by=request.GET.get('sort'))
     return object_list(request, filter, table, type)
 
 def party_detail(request, object_id):
@@ -331,7 +331,7 @@ def party_software_detail(request, object_id, software_id):
 def vendor_list(request):
     type = models.vendor.type
     filter = filters.vendor(request.GET or None)
-    table = tables.vendor(filter.qs, order_by=request.GET.get('sort'))
+    table = tables.vendor(request.user, type, filter.qs, order_by=request.GET.get('sort'))
     return object_list(request, filter, table, type)
 
 def vendor_detail(request, object_id):
@@ -358,7 +358,7 @@ def vendor_delete(request,object_id):
 def task_list(request):
     type = models.task.type
     filter = filters.task(request.GET or None)
-    table = tables.task(filter.qs, order_by=request.GET.get('sort'))
+    table = tables.task(request.user, type, filter.qs, order_by=request.GET.get('sort'))
     return object_list(request, filter, table, type)
 
 def task_detail(request, object_id):
@@ -584,7 +584,7 @@ type_dict = {
 def hardware_list(request):
     type = models.hardware.type
     filter = filters.hardware(request.GET or None)
-    table = tables.hardware(filter.qs, order_by=request.GET.get('sort'))
+    table = tables.hardware(request.user, type, filter.qs, order_by=request.GET.get('sort'))
     return object_list(request, filter, table, type)
 
 def hardware_detail(request, object_id):
@@ -668,7 +668,7 @@ def hardware_type_create(request, type_id, object_id=None):
 def software_list(request):
     type = models.software.type
     filter = filters.software(request.GET or None)
-    table = tables.software(filter.qs, order_by=request.GET.get('sort'))
+    table = tables.software(request.user, type, filter.qs, order_by=request.GET.get('sort'))
     return object_list(request, filter, table, type)
 
 def software_detail(request, object_id):
@@ -695,7 +695,7 @@ def software_delete(request,object_id):
 def license_list(request):
     type = models.license.type
     filter = filters.license(request.GET or None)
-    table = tables.license(filter.qs, order_by=request.GET.get('sort'))
+    table = tables.license(request.user, type, filter.qs, order_by=request.GET.get('sort'))
     return object_list(request, filter, table, type)
 
 def license_detail(request, object_id):
@@ -921,7 +921,7 @@ def os_delete(request,object_id):
 def data_list(request):
     type = models.data.type
     filter = filters.data(request.GET or None)
-    table = tables.data(filter.qs, order_by=request.GET.get('sort'))
+    table = tables.data(request.user, type, filter.qs, order_by=request.GET.get('sort'))
     return object_list(request, filter, table, type)
 
 def data_detail(request, object_id):

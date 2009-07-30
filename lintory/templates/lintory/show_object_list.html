@@ -15,9 +15,6 @@
     {% endif %}
     </th>
     {% endfor %}
-{% if edit_perm or delete_perm %}
-    <th colspan="2">Actions</th>
-{% endif %}
 </tr>
 {% for row in rows %}
     {% with row.data.error_list as error_list %}{% if error_list %}
@@ -27,21 +24,6 @@
     {% for value in row %}
         <td>{{ value }}</td>
     {% endfor %}
-{% get_permissions_from_type "object_add_perm" "object_edit_perm" "object_delete_perm" user row.data.type %}
-{% if edit_perm or delete_perm %}
-{% if object_edit_perm %}
-        <td><a class="changelink" href="{{ row.data.get_edit_url }}">edit</a></td>
-        {% ifequal type.typeid software_installation %}<td><a class="changelink" href="{{ row.data.get_edit_license_key_url }}">key</a></td>{% endifequal %}
-{% else %}
-        <td></td>
-        {% ifequal type.typeid software_installation %}<td></td>{% endifequal %}
-{% endif %}
-{% if object_delete_perm %}
-        <td><a class="deletelink" href="{{ row.data.get_delete_url }}">delete</a></td>
-{% else %}
-        <td></td>
-{% endif %}
-{% endif %}
     </tr>
 {% endfor %}
 </table>

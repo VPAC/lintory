@@ -20,8 +20,37 @@ import django_tables as tables
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
-def link_row(row):
-    return mark_safe(u"<a href='%s'>%s</a>"%(row.data.get_absolute_url(),conditional_escape(row.data)))
+def edit_link(user, object):
+    if object.type.has_edit_perms(user):
+        return mark_safe("<a class='changelink' href='%s'>%s</a>"%(
+                object.get_edit_url(),
+                "edit"))
+    else:
+        return "-"
+
+def edit_license_key_link(user, object):
+    if object.type.has_edit_perms(user):
+        return mark_safe("<a class='changelink' href='%s'>%s</a>"%(
+                object.get_edit_license_key_url(),
+                "key"))
+    else:
+        return "-"
+
+def delete_link(user, object):
+    if object.type.has_edit_perms(user):
+        return mark_safe("<a class='deletelink' href='%s'>%s</a>"%(
+                object.get_edit_url(),
+                "delete"))
+    else:
+        return "-"
+
+class action_table(tables.ModelTable):
+    def __init__(self, user, type, *args, **kwargs):
+        super(action_table,self).__init__(*args, **kwargs)
+        if type.has_edit_perms(user):
+            self.base_columns["Edit"] = tables.Column(data=lambda row: edit_link(user, row.data),sortable=False)
+        if type.has_delete_perms(user):
+            self.base_columns["Delete"] = tables.Column(data=lambda row: delete_link(user, row.data),sortable=False)
 
 def resolve_field(object, name):
     # try to resolve relationships spanning attributes
@@ -49,35 +78,43 @@ def resolve_field(object, name):
 
     return current
 
-def link_field(row, name):
-    current = resolve_field(row.data, name)
+def link_field(row, name=None, label=None):
+    if name is None:
+        current = row.data
+    else:
+        current = resolve_field(row.data, name)
+
+    if label is None:
+        label = current
+    else:
+        label = resolve_field(row.data, label)
 
     if current is not None:
-        return mark_safe(u"<a href='%s'>%s</a>"%(current.get_absolute_url(),conditional_escape(current)))
+        return mark_safe(u"<a href='%s'>%s</a>"%(current.get_absolute_url(),conditional_escape(label)))
     else:
         return mark_safe(u"-")
 
-class party(tables.ModelTable):
+class party(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_row)
+    name = tables.Column(data=link_field)
 
     class Meta:
         model = models.party
         exclude = ('eparty', 'comments', )
 
-class vendor(tables.ModelTable):
+class vendor(action_table):
     id = tables.Column(sortable=False, visible=False)
     telephone = tables.Column(sortable=False)
     email = tables.Column(sortable=False)
-    name = tables.Column(data=link_row)
+    name = tables.Column(data=link_field)
 
     class Meta:
         model = models.vendor
         exclude = ('url', 'address', 'comments', )
 
-class location(tables.ModelTable):
+class location(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_row)
+    name = tables.Column(data=link_field)
     owner = tables.Column(data=lambda row: link_field(row, "owner"))
     user = tables.Column(data=lambda row: link_field(row, "user"))
 
@@ -86,7 +123,7 @@ class location(tables.ModelTable):
 
         exclude = ('address', 'parent', 'comments', )
 
-class hardware(tables.ModelTable):
+class hardware(action_table):
     id = tables.Column(sortable=False, visible=False)
     name = tables.Column(data=lambda row: link_field(row, "get_object"), sortable=False)
     type_id = tables.Column(name="Type")
@@ -99,12 +136,19 @@ class hardware(tables.ModelTable):
     location = tables.Column(data=lambda row: link_field(row, "location"))
     installed_on = tables.Column(data=lambda row: link_field(row, "installed_on"))
 
+    def __init__(self, user, type, *args, **kwargs):
+        super(action_table,self).__init__(*args, **kwargs)
+        if type.has_edit_perms(user):
+            self.base_columns["Edit"] = tables.Column(data=lambda row: edit_link(user, row.data.get_object()),sortable=False)
+        if type.has_delete_perms(user):
+            self.base_columns["Delete"] = tables.Column(data=lambda row: delete_link(user, row.data.get_object()),sortable=False)
+
     class Meta:
         pass
 
-class os(tables.ModelTable):
+class os(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_row)
+    name = tables.Column(data=link_field)
     computer = tables.Column(data=lambda row: link_field(row, "storage__used_by"))
     storage = tables.Column(data=lambda row: link_field(row, "storage"))
 
@@ -112,9 +156,9 @@ class os(tables.ModelTable):
         model = models.os
         exclude = ( "seen_first", "seen_last", "comments", )
 
-class software(tables.ModelTable):
+class software(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_row)
+    name = tables.Column(data=link_field)
     vendor = tables.Column(data=lambda row: link_field(row, "vendor"))
     max = tables.Column(data="software_installations_max", sortable=False)
     found = tables.Column(data="software_installations_found", sortable=False)
@@ -123,9 +167,9 @@ class software(tables.ModelTable):
     class Meta:
         model = models.software
 
-class license(tables.ModelTable):
+class license(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_row)
+    name = tables.Column(data=link_field)
     vendor = tables.Column(data=lambda row: link_field(row, "vendor"))
     computer = tables.Column(data=lambda row: link_field(row, "computer"))
     expires = tables.Column()
@@ -138,17 +182,22 @@ class license(tables.ModelTable):
     class Meta:
         pass
 
-class license_key(tables.ModelTable):
+class license_key(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_row)
+    key = tables.Column(data=link_field)
     software = tables.Column(data=lambda row: link_field(row, "software"))
     license = tables.Column(data=lambda row: link_field(row, "license"))
     comments = tables.Column()
 
+    def __init__(self, user, type, *args, **kwargs):
+        super(license_key,self).__init__(user, type, *args, **kwargs)
+        if type.has_name_perms(user,"can_see_key"):
+            self.base_columns['key'] = tables.Column(data=lambda row: link_field(row, None, "key"))
+
     class Meta:
         pass
 
-class software_installation(tables.ModelTable):
+class software_installation(action_table):
     id = tables.Column(sortable=False, visible=False)
     software = tables.Column(data=lambda row: link_field(row, "software"))
     computer = tables.Column(data=lambda row: link_field(row, "os__storage__used_by"))
@@ -157,12 +206,19 @@ class software_installation(tables.ModelTable):
     license_key = tables.Column(data=lambda row: link_field(row, "license_key"))
     comments = tables.Column()
 
+    def __init__(self, user, type, *args, **kwargs):
+        super(software_installation,self).__init__(user, type, *args, **kwargs)
+        if type.has_edit_perms(user):
+            self.base_columns["Key"] = tables.Column(data=lambda row: edit_license_key_link(user, row.data),sortable=False)
+        if type.has_name_perms(user,"can_see_key"):
+            self.base_columns['license_key'] = tables.Column(data=lambda row: link_field(row, "license_key", "license_key__key"))
+
     class Meta:
         pass
 
-class task(tables.ModelTable):
+class task(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_row)
+    name = tables.Column(data=link_field)
     total = tables.Column(data=lambda row: row.data.hardware_tasks_all().count(),sortable=False)
     done = tables.Column(data=lambda row: row.data.hardware_tasks_done().count(),sortable=False)
     todo = tables.Column(data=lambda row: row.data.hardware_tasks_todo().count(),sortable=False)
@@ -170,7 +226,7 @@ class task(tables.ModelTable):
     class Meta:
         model = models.task
 
-class hardware_task(tables.ModelTable):
+class hardware_task(action_table):
     id = tables.Column(sortable=False, visible=False)
     task = tables.Column(data=lambda row: link_field(row, "task"))
     hardware = tables.Column(data=lambda row: link_field(row, "hardware"))
@@ -179,9 +235,9 @@ class hardware_task(tables.ModelTable):
     class Meta:
         model = models.hardware_task
 
-class data(tables.ModelTable):
+class data(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_row)
+    name = tables.Column(data=link_field)
     datetime = tables.Column()
     format = tables.Column()
     computer = tables.Column(data=lambda row: link_field(row, "computer"))
