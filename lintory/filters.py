@@ -40,7 +40,6 @@ class inverted_boolean_filter(boolean_filter):
     def filter(self, qs, value):
         if value is not None:
             value = not value
-        print value
         return super(inverted_boolean_filter,self).filter(qs, value)
 
 class party(filter.FilterSet):
@@ -60,6 +59,7 @@ class vendor(filter.FilterSet):
 class hardware(filter.FilterSet):
     type_id = hardware_type_filter(label="Type")
     computer = filter.CharFilter(name="computer__name",lookup_type='icontains')
+    is_installed = inverted_boolean_filter(lookup_type='isnull', name="installed_on")
     mac_address = mac_address_filter(name="network_adaptor__mac_address")
     manufacturer = filter.CharFilter(lookup_type='icontains')
     model = filter.CharFilter(lookup_type='icontains')

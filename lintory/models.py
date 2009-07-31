@@ -521,6 +521,11 @@ class hardware(base_model):
     def get_edit_url(self):
         return('hardware_edit', [ str(self.pk) ])
 
+    # get the URL to edit this object
+    @models.permalink
+    def get_install_url(self):
+        return('hardware_install', [ str(self.pk) ])
+
     @models.permalink
     def get_delete_url(self):
         return('hardware_delete', [ str(self.pk) ])

@@ -98,7 +98,7 @@ def check_delete_perms(request, breadcrumbs, types):
 # GENERIC FUNCTIONS #
 #####################
 
-def object_list(request, filter, table, type, template=None, kwargs={}):
+def object_list(request, filter, table, type, template=None, kwargs={}, context={}):
     breadcrumbs = type.get_breadcrumbs(**kwargs)
     if template is None:
         template='lintory/object_list.html'
@@ -117,13 +117,16 @@ def object_list(request, filter, table, type, template=None, kwargs={}):
     except (EmptyPage, InvalidPage):
         page_obj = paginator.page(paginator.num_pages)
 
-    return render_to_response(template, {
+    defaults = {
             'type': type,
             'filter': filter,
             'table': table,
             'page_obj': page_obj,
             'breadcrumbs': breadcrumbs,
-            },context_instance=RequestContext(request))
+    }
+    defaults.update(context)
+    return render_to_response(template, defaults,
+            context_instance=RequestContext(request))
 
 def object_detail(request, object, template=None):
     if template is None:
@@ -632,6 +635,28 @@ def hardware_edit(request, object_id):
     modal_form = type_dict[type_id].modal_form
     additional = ( models.hardware.type, )
     return object_edit(request, object, modal_form, additional_perms=additional)
+
+def hardware_install(request, object_id):
+    object = get_object_or_404(models.hardware, pk=object_id)
+    error_list = [ ]
+    pks = []
+
+    if request.method == 'POST':
+        pks = request.POST.getlist('pk')
+        for pk in pks:
+            requested_object = get_object_or_404(models.hardware, pk=pk)
+            if requested_object.installed_on is not None:
+                if requested_object.installed_on.pk != object.pk:
+                    error_list.append(u"Cannot install '%s' as it is already installed on another computer"%(requested_object))
+            else:
+                requested_object.installed_on = object
+                requested_object.save()
+
+    type = models.hardware.type
+    filter = filters.hardware(request.GET or {'is_installed': '3'})
+    table = tables.hardware_list_form(pks, request.user, type, filter.qs, order_by=request.GET.get('sort'))
+    return object_list(request, filter, table, type, template="lintory/hardware_list_form.html",
+            context={ 'object': object, 'error_list': error_list })
 
 def hardware_delete(request,object_id):
     object = get_object_or_404(models.hardware, pk=object_id)

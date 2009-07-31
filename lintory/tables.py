@@ -48,9 +48,9 @@ class action_table(tables.ModelTable):
     def __init__(self, user, type, *args, **kwargs):
         super(action_table,self).__init__(*args, **kwargs)
         if type.has_edit_perms(user):
-            self.base_columns["Edit"] = tables.Column(data=lambda row: edit_link(user, row.data),sortable=False)
+            self.base_columns["edit"] = tables.Column(data=lambda row: edit_link(user, row.data),sortable=False)
         if type.has_delete_perms(user):
-            self.base_columns["Delete"] = tables.Column(data=lambda row: delete_link(user, row.data),sortable=False)
+            self.base_columns["delete"] = tables.Column(data=lambda row: delete_link(user, row.data),sortable=False)
 
 def resolve_field(object, name):
     # try to resolve relationships spanning attributes
@@ -78,11 +78,11 @@ def resolve_field(object, name):
 
     return current
 
-def link_field(row, name=None, label=None):
-    if name is None:
+def link_field(row, data=None, label=None):
+    if data is None:
         current = row.data
     else:
-        current = resolve_field(row.data, name)
+        current = resolve_field(row.data, data)
 
     if label is None:
         label = current
@@ -139,9 +139,41 @@ class hardware(action_table):
     def __init__(self, user, type, *args, **kwargs):
         super(action_table,self).__init__(*args, **kwargs)
         if type.has_edit_perms(user):
-            self.base_columns["Edit"] = tables.Column(data=lambda row: edit_link(user, row.data.get_object()),sortable=False)
+            self.base_columns["edit"] = tables.Column(data=lambda row: edit_link(user, row.data.get_object()),sortable=False)
         if type.has_delete_perms(user):
-            self.base_columns["Delete"] = tables.Column(data=lambda row: delete_link(user, row.data.get_object()),sortable=False)
+            self.base_columns["delete"] = tables.Column(data=lambda row: delete_link(user, row.data.get_object()),sortable=False)
+
+    class Meta:
+        pass
+
+def check_box(row,pks):
+    checked = ""
+    if row.data.pk in pks:
+        checked = "checked='checked' "
+
+    return mark_safe(
+        "<input id='pk_%d' type='checkbox' name='pk' value='%d' %s/> <label for='pk_%d'>%s</label>"%(
+            row.data.pk, row.data.pk, checked, row.data.pk, row.data))
+
+class hardware_list_form(hardware):
+
+    def __init__(self, pks, *args, **kwargs):
+        super(hardware_list_form,self).__init__(*args, **kwargs)
+        int_pks = {}
+        for pk in pks:
+            try:
+                int_pks[int(pk)] = True
+            except ValueError, e:
+                # ignore illegal values
+                pass
+
+        self.base_columns["name"] = tables.Column(data=lambda row: check_box(row,int_pks),sortable=False)
+
+        if 'edit' in self.base_columns:
+            del self.base_columns["edit"]
+        if 'delete' in self.base_columns:
+            del self.base_columns["delete"]
+        print self.base_columns
 
     class Meta:
         pass
