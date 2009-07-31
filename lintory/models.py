@@ -584,7 +584,7 @@ class hardware(base_model):
 
     @models.permalink
     def get_deleted_url(self):
-        return("hardware_list")
+        return("hardware_list",)
 
     # We need to make sure that type_id is set before saving
     def save(self, *args,**kwargs):
