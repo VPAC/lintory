@@ -97,6 +97,14 @@ class scanner_form(hardware_form):
     class Meta(hardware_form.Meta):
         model = models.scanner
 
+class docking_station_form(hardware_form):
+    class Meta(hardware_form.Meta):
+        model = models.docking_station
+
+class camera_form(hardware_form):
+    class Meta(hardware_form.Meta):
+        model = models.camera
+
 class os_form(forms.ModelForm):
     class Meta:
         model = models.os

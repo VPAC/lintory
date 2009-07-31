@@ -1,0 +1,21 @@
+{% extends "lintory/hardware_detail.html" %}
+
+{% block class="infobox" %}
+<dt>Technology</dt><dd>{{ object.technology }}</dd>
+{% if object.takes_stills %}
+<dt>Takes stills</dt><dd>Yes</dd>
+{% else %}
+<dt>Takes stills</dt><dd>No</dd>
+{% endif %}
+{% if object.takes_stills and object.still_x_pixels and object.still_y_pixels %}
+<dt>Still pixels</dt><dd>{{ object.still_x_pixels }} x {{ object.still_y_pixels }}</dt>
+{% endif %}
+{% if object.takes_videos %}
+<dt>Takes videos</dt><dd>Yes</dd>
+{% else %}
+<dt>Takes videos</dt><dd>No</dd>
+{% endif %}
+{% if object.takes_videos and object.video_x_pixels and object.video_y_pixels %}
+<dt>Video pixels</dt><dd>{{ object.video_x_pixels }} x {{ object.video_y_pixels }}</dt>
+{% endif %}
+{% endblock %}

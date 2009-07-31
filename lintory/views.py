@@ -580,6 +580,14 @@ type_dict = {
         modal_form = forms.scanner_form,
         type_class = models.scanner,
     ),
+    'docking_station': type_data(
+        modal_form = forms.docking_station_form,
+        type_class = models.docking_station,
+    ),
+    'camera': type_data(
+        modal_form = forms.camera_form,
+        type_class = models.camera,
+    ),
 }
 
 # HARDWARE OBJECTS

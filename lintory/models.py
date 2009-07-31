@@ -473,6 +473,8 @@ hardware_types = {
     'multifunction': True,
     'printer': True,
     'scanner': True,
+    'docking_station': True,
+    'camera': True,
 }
 
 class hardware(base_model):
@@ -917,6 +919,41 @@ class scanner(hardware):
 
     class type(hardware_type):
         type_id = "scanner"
+
+class docking_station(hardware):
+    ports = fields.text_field(null=True,blank=True)
+
+    def __unicode__(self):
+        return "%s %s docking station"%(self.manufacturer,self.model)
+
+    class type(hardware_type):
+        type_id = "docking_station"
+
+CAMERA_TECHNOLOGY = (
+    ('webcam', 'webcam'),
+    ('video', 'video'),
+    ('film', 'film'),
+    ('digital', 'digital'),
+    ('SLR', 'SLR'),
+    ('DSLR', 'DSLR'),
+)
+class camera(hardware):
+    technology = models.CharField(max_length=10, choices=CAMERA_TECHNOLOGY)
+    colour = models.BooleanField()
+
+    takes_stills = models.BooleanField()
+    still_x_pixels = models.PositiveIntegerField(null=True,blank=True)
+    still_y_pixels = models.PositiveIntegerField(null=True,blank=True)
+
+    takes_videos = models.BooleanField()
+    video_x_pixels = models.PositiveIntegerField(null=True,blank=True)
+    video_y_pixels = models.PositiveIntegerField(null=True,blank=True)
+
+    def __unicode__(self):
+        return "%s %s camera"%(self.manufacturer,self.model)
+
+    class type(hardware_type):
+        type_id = "camera"
 
 ######
 # OS #
