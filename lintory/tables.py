@@ -173,7 +173,6 @@ class hardware_list_form(hardware):
             del self.base_columns["edit"]
         if 'delete' in self.base_columns:
             del self.base_columns["delete"]
-        print self.base_columns
 
     class Meta:
         pass
