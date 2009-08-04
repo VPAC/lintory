@@ -210,68 +210,67 @@ def get_disk_drive_from_id(id, data_dict):
                             return disk_drive
     raise import_error("Disk '%s' not found"%(id))
 
-def get_os_storage(computer, data_dict):
-    # Sanity check input data_dict
-    if len(data_dict['OperatingSystem']) == 0:
-        raise import_error("No OperatingSystem found")
-
-    if len(data_dict['OperatingSystem']) > 1:
-        raise import_error("Multiple OperatingSystem found")
-
-    # Get the storage device from the WindowsDirectory
-    drive = data_dict['OperatingSystem'][0]['SystemDrive']
-    disk_drive = get_disk_drive_from_id(drive, data_dict)
-
+def get_storage(disk_drive, computer):
     # Get serial number of storage device
     serial_number=None
     if "SerialNumber" in disk_drive:
         serial_number = son(disk_drive['SerialNumber'])
 
-    # Try to find the storage object that the OS is stored on
-    # First attempt - assume serial number is trusted!!
+    query = models.storage.objects.all()
+
+    # Where we given a serial number? Not if we have Windows XP or older
     if serial_number is not None:
-        try:
-            storage = models.storage.objects.get(
-                        auto_manufacturer=son(disk_drive['Manufacturer']),
-                        auto_model=son(disk_drive['Model']),
-                        auto_serial_number=serial_number,
-                        total_size=son(disk_drive['TotalSectors']),
-                        sector_size=son(disk_drive['BytesPerSector']),
+        # First try to match the serial number, the most positive means of
+        # identifying a hard disk
+        new_query = query.filter(auto_serial_number=serial_number)
+        if new_query.count() > 0:
+            query = new_query
+        else:
+            # If serial number doesn't match, look for system without serial number
+            query = query.filter(auto_serial_number__isnull=True)
+
+        if query.count() == 0:
+            return None
+    else:
+        # If we didn't get a serial number, then try to match by signature instead
+        # signature is supported by Windows XP, instead of the serial number,
+        # and not garanteed to be unique on different computers
+        new_query = query.filter(
+                used_by=computer,
+                signature=son(disk_drive['Signature']),
+        )
+        if new_query.count() > 0:
+            query = new_query
+        else:
+            # Signature doesn't match? Then look for one without
+            query = query.filter(
+                    used_by=computer,
+                    signature__isnull=True,
             )
-            return storage
-        except models.storage.DoesNotExist, e:
-            pass
 
-    # Second attempt, we cannot trust serial_number, check drive is marked as
-    # in use by this computer too.
-    try:
-        storage = models.storage.objects.get(
-                    used_by=computer,
-                    auto_manufacturer=son(disk_drive['Manufacturer']),
-                    auto_model=son(disk_drive['Model']),
-                    auto_serial_number=serial_number,
-                    total_size=son(disk_drive['TotalSectors']),
-                    sector_size=son(disk_drive['BytesPerSector']),
-        )
-        return storage
-    except models.storage.DoesNotExist, e:
-        pass
+        if query.count() == 0:
+            return None
 
-    # Didn't work, lets just look for any unmarked drive in use by this
-    # computer. Won't work if this returns multiple matches.
-    try:
-        storage = models.storage.objects.get(
-                    used_by=computer,
-                    manufacturer__isnull=True,
-                    model__isnull=True,
-                    serial_number__isnull=True,
-        )
-        return storage
-    except models.storage.DoesNotExist, e:
-        pass
+    # This stuff should always match - check to be paraonid
+    # (in case above checks failed to produce unique result)
+    new_query = query.filter(
+            auto_manufacturer=son(disk_drive['Manufacturer']),
+            auto_model=son(disk_drive['Model']),
+            total_size=son(disk_drive['TotalSectors']),
+            sector_size=son(disk_drive['BytesPerSector']),
+    )
+    if new_query.count() > 0:
+        query = new_query
+    else:
+        raise import_error("Could not find storage - manufacturer, model, TotalSectors, or BytesPerSector mismatch")
 
-    # Maybe we still couldn't find it
-    raise import_error("Cannot find storage device for OS '%s'"%(son(data_dict['OperatingSystem'][0]['Caption'])))
+    # did we get a valid result?
+    count = query.count()
+    if count > 1:
+        raise import_error("Too many matching storage objects found")
+
+    # Yes, result was good, return it
+    return query[0]
 
 def get_os(computer, data_dict):
     # Sanity check input data_dict
@@ -301,6 +300,26 @@ def get_os(computer, data_dict):
         raise os_does_not_exist("Cannot find OS '%s'"%(name))
 
     return os
+
+
+def get_os_storage(computer, data_dict):
+    # Sanity check input data_dict
+    if len(data_dict['OperatingSystem']) == 0:
+        raise import_error("No OperatingSystem found")
+
+    if len(data_dict['OperatingSystem']) > 1:
+        raise import_error("Multiple OperatingSystem found")
+
+    # Get the storage device from the WindowsDirectory
+    drive = data_dict['OperatingSystem'][0]['SystemDrive']
+    disk_drive = get_disk_drive_from_id(drive, data_dict)
+
+    storage = get_storage(disk_drive, computer)
+
+    if storage is None:
+        raise import_error("Cannot find storage device for OS '%s'"%(son(data_dict['OperatingSystem'][0]['Caption'])))
+
+    return storage
 
 def create_os(data_datetime, computer, data_dict):
     os = models.os()
@@ -488,53 +507,11 @@ def sync_hardware(data_datetime, computer, data_dict):
                 serial_number = son(disk_drive['SerialNumber'])
 
             c = False
-            s = None
-            # First try, ideal match
-            if s is None and serial_number is not None:
-                try:
-                    s = models.storage.objects.get(
-                            auto_manufacturer=son(disk_drive['Manufacturer']),
-                            auto_model=son(disk_drive['Model']),
-                            auto_serial_number=serial_number,
-                            total_size=son(disk_drive['TotalSectors']),
-                            sector_size=son(disk_drive['BytesPerSector']),
-                    )
-                except models.storage.DoesNotExist, e:
-                    pass
+            s = get_storage(disk_drive, computer)
 
-            # Second try, we weren't given a serial number. Cannot uniquely
-            # identify disk.  Guess work required.
-            if s is None and serial_number is None:
-                try:
-                    s = models.storage.objects.get(
-                            installed_on=computer,
-                            used_by=computer,
-                            auto_manufacturer=disk_drive['Manufacturer'],
-                            auto_model=disk_drive['Model'],
-                            total_size=son(disk_drive['TotalSectors']),
-                            sector_size=son(disk_drive['BytesPerSector']),
-                    )
-                except models.storage.DoesNotExist, e:
-                    pass
-
-            # Third try, if there is only one storage device on this
-            # computer and it has empty values, go for it
+            # If no storage found, just create a new one
             if s is None:
-                try:
-                    s = models.storage.objects.get(
-                            installed_on=computer,
-                            used_by=computer,
-                            total_size__isnull=True,
-                            sector_size__isnull=True,
-                            auto_manufacturer__isnull=True,
-                            auto_model__isnull=True,
-                            auto_serial_number__isnull=True,
-                    )
-                except models.storage.DoesNotExist, e:
-                    pass
-
-            # Forth try, just create a new one
-            if s is None:
+#                raise RuntimeError("Trains crash into fish and chip shops 5 times a day")
                 s = models.storage()
                 c = True
 
@@ -562,6 +539,7 @@ def sync_hardware(data_datetime, computer, data_dict):
             # Update values
             s.total_size   = son(disk_drive['TotalSectors'])
             s.sector_size  = son(disk_drive['BytesPerSector'])
+            s.signature    = son(disk_drive['Signature'])
             s.used_by      = computer
 
             # Save values
@@ -618,6 +596,7 @@ def sync_hardware(data_datetime, computer, data_dict):
             p.save()
 
     # delete old hardware
+    print models.storage.objects.filter(pk__in=used_storage,auto_delete=True)
     models.hardware.objects.filter(pk__in=hardware,auto_delete=True).update(installed_on=None)
     models.storage.objects.filter(pk__in=used_storage,auto_delete=True).update(used_by=None)
 

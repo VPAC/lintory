@@ -231,6 +231,7 @@ class license_key(action_table):
 class software_installation(action_table):
     id = tables.Column(sortable=False, visible=False)
     software = tables.Column(data=lambda row: link_field(row, "software"))
+    software_version = tables.Column()
     computer = tables.Column(data=lambda row: link_field(row, "os__storage__used_by"))
     storage = tables.Column(data=lambda row: link_field(row, "os__storage"))
     os = tables.Column(data=lambda row: link_field(row, "os"))
