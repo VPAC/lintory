@@ -511,7 +511,6 @@ def sync_hardware(data_datetime, computer, data_dict):
 
             # If no storage found, just create a new one
             if s is None:
-#                raise RuntimeError("Trains crash into fish and chip shops 5 times a day")
                 s = models.storage()
                 c = True
 
@@ -557,14 +556,22 @@ def sync_hardware(data_datetime, computer, data_dict):
 
             # first try
             if p is None:
+                # note we specifically exlcude processors we have already seen,
+                # as it is not possible to obtain unique match
+                query = models.processor.objects.exclude(pk__in=seen_hardware.keys())
+                query = query.filter(
+                        installed_on=computer,
+                        auto_manufacturer=son(processor['Manufacturer']),
+                        auto_model=son(processor['Name']),
+                        auto_serial_number=son(processor['ProcessorId']),
+                )
+
+                # Did we get results? If so, just use first result.
+                # No way of uniquely working out which one, as ProcessorId
+                # is not always unique
                 try:
-                    p = models.processor.objects.get(
-                            installed_on=computer,
-                            auto_manufacturer=son(processor['Manufacturer']),
-                            auto_model=son(processor['Name']),
-                            auto_serial_number=son(processor['ProcessorId']),
-                    )
-                except models.processor.DoesNotExist, e:
+                    p = query[0]
+                except IndexError, e:
                     pass
 
             # if not found, just create a new one
@@ -596,7 +603,6 @@ def sync_hardware(data_datetime, computer, data_dict):
             p.save()
 
     # delete old hardware
-    print models.storage.objects.filter(pk__in=used_storage,auto_delete=True)
     models.hardware.objects.filter(pk__in=hardware,auto_delete=True).update(installed_on=None)
     models.storage.objects.filter(pk__in=used_storage,auto_delete=True).update(used_by=None)
 
