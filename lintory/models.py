@@ -1265,12 +1265,19 @@ class software_installation(base_model):
     def error_list(self):
         error_list = super(software_installation,self).error_list()
 
-        if self.license_key != None:
+        # Errors don't matter if this installation was deleted!
+        if not self.active:
+            return error_list
+
+        # Is there a license associated?
+        if self.license_key is not None:
+            # Yes, we better check it is valid
             if self.software != self.license_key.software:
                 error_list.append(u"software %s does not match license key software %s"%(self.software,self.license_key.software))
 
             license=self.license_key.license;
 
+            # Check the version to see if it is allowed by license
             versions_allowed=license.version
             if versions_allowed is not None and versions_allowed!="":
                 if self.software_version is None:
@@ -1280,15 +1287,19 @@ class software_installation(base_model):
                 if not re.match(versions_allowed,test_version):
                     error_list.append(u"version %s is not allowed by license"%(self.software_version))
 
+            # Is this a OEM license for a specific computer?
             if license.computer is not None:
                 computer = self.os.storage.used_by
                 if computer is not None:
                     if computer.pk != license.computer.pk:
                         error_list.append(u"installation on %s is not allowed by license"%(computer))
 
+            # Does this license expire?
             if license.expires is not None and license.expires < datetime.now():
                 error_list.append(u"license has expired")
 
+        # No license, were we expecting one?
+        # Assume license required if at least one license for this software
         elif self.software.license_key_set.count() > 0:
                 error_list.append(u"no license key set for software software installation")
 
