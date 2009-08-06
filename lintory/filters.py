@@ -74,6 +74,7 @@ class hardware(filter.FilterSet):
 
 class software(filter.FilterSet):
     name = filter.CharFilter(lookup_type='icontains')
+    has_licenses = inverted_boolean_filter(lookup_type='isnull', name="license_key")
 
     class Meta:
         model = models.software
