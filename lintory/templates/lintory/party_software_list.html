@@ -1,0 +1,61 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% load inventory %}
+
+{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+
+{% block title %}{{ object }} software list{% endblock %}
+
+{% block content %}
+<h1>{{ object }} software list</h1>
+
+<h2>Owner of Software</h2>
+
+{% if object.owns_software %}
+    <table>
+      <tr>
+        <th>Software</th>
+        <th>Max</th>
+        <th>Found</th>
+        <th>Left</th>
+{% if perms.lintory.change_software or perms.inventory.delete_software %}
+        <th colspan="2">Actions</th>
+{% endif %}
+      </tr>
+    {% for software in object.owns_software %}
+    {% get_licenses_by_software_owner "licenses" software object %}
+      <tr>
+{% if object %}
+        <td><a href="{% url party_software_detail object.pk software.pk %}">{{ software }}</a></td>
+{% else %}
+        <td><a href="{% url party_software_detail "none" software.pk %}">{{ software }}</a></td>
+{% endif %}
+        <td>
+          {{licenses_max}}
+        </td>
+        <td>
+          {{licenses_found }}
+        </li>
+        <td>
+          {{licenses_left}}
+        </td>
+{% if perms.lintory.change_software or perms.inventory.delete_software %}
+{% if perms.lintory.change_software %}
+        <td><a class="changelink" href="{{ software.get_edit_url }}">edit</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% if perms.lintory.delete_software %}
+        <td><a class="deletelink" href="{{ software.get_delete_url }}">delete</a></td>
+{% else %}
+        <td></td>
+{% endif %}
+{% endif %}
+      </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>No software is available.</p>
+{% endif %}
+
+{% endblock %}
