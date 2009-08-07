@@ -1,4 +1,5 @@
 import ldap
+import ldap.filter
 from lintory.eparty.backends import *
 from django.conf import settings
 
