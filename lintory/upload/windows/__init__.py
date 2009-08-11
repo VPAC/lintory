@@ -276,6 +276,9 @@ def get_storage(disk_drive, computer):
     if count > 1:
         raise import_error("Too many matching storage objects found")
 
+    if count == 0:
+        return None
+
     # Yes, result was good, return it
     return query[0]
 
