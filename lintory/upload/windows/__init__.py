@@ -263,6 +263,7 @@ def get_storage(disk_drive, computer):
         query = new_query
     else:
 #        query = query.filter(
+#                used_by=computer,
 #                auto_manufacturer__isnull=True,
 #                auto_model__isnull=True,
 #                total_size__isnull=True,
