@@ -39,7 +39,7 @@ def edit_license_key_link(user, object):
 def delete_link(user, object):
     if object.type.has_edit_perms(user):
         return mark_safe("<a class='deletelink' href='%s'>%s</a>"%(
-                object.get_edit_url(),
+                object.get_delete_url(),
                 "delete"))
     else:
         return "-"
