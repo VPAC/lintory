@@ -702,16 +702,17 @@ def sync_software(data_datetime, os, data_dict):
     license_keys = get_license_keys(data_dict)
 
     software_list = {}
-    for product in data_dict['Product']:
-        if product['Name'] == "":
-            name = "null"
-        else:
-            name = product['Name']
+    if "Product" in data_dict:
+        for product in data_dict['Product']:
+            if product['Name'] == "":
+                name = "null"
+            else:
+                name = product['Name']
 
-        version = son(product['Version'])
-        si = install_software(data_datetime, os, name, version, license_keys)
-        if si.pk in si_list:
-            si_list.remove(si.pk)
+            version = son(product['Version'])
+            si = install_software(data_datetime, os, name, version, license_keys)
+            if si.pk in si_list:
+                si_list.remove(si.pk)
 
     # operating system does not appear in in software list, however we should add it if
     # we detect the license key
