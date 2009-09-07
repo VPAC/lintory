@@ -23,8 +23,7 @@ from django.utils.encoding import smart_unicode
 from django.db import models
 from django.template import loader
 
-import lintory.eparty as eparty
-import lintory.eparty.fields
+import lintory.eparty.fields as eparty
 import lintory.mfields as fields
 
 from datetime import *
@@ -175,7 +174,7 @@ class base_model(models.Model):
 
 class party(base_model):
     name     = fields.char_field(max_length=30)
-    eparty   = eparty.fields.name_model_field(null=True,blank=True,db_index=True)
+    eparty   = eparty.name_model_field(null=True,blank=True,db_index=True)
     comments = fields.text_field(null=True, blank=True)
 
     def owns_software(self):
@@ -186,7 +185,7 @@ class party(base_model):
 
     def error_list(self):
         error_list = super(party,self).error_list()
-        if isinstance(self.eparty.fields,eparty.fields.Error_Name):
+        if isinstance(self.eparty,eparty.Error_Name):
             error_list.append("E-Party entry does not exist")
         return error_list
 
@@ -611,11 +610,8 @@ class hardware(base_model):
         else:
             if self.location is None:
                 error_list.append("Location not defined")
-            try:
-                if self.owner is None:
-                    error_list.append("Owner not defined")
-            except eparty.Lookup_Error, e:
-                error_list.append("LDAP Error: %s"%(e))
+            if self.owner is None:
+                error_list.append("Owner not defined")
 
         return error_list
 
