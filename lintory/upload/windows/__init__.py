@@ -175,7 +175,8 @@ def get_computer(data_dict):
     for network in data_dict['NetworkAdapter']:
         if is_physical_network_adapter(network):
             mac_address = helpers.fix_mac_address(network['MACAddress'])
-            nas = models.network_adaptor.objects.filter(mac_address=mac_address)
+            # if network card is marked as not installed, it can't help us
+            nas = models.network_adaptor.objects.filter(mac_address=mac_address, installed_on__isnull=False)
             try:
                 # did we get any results?
                 first_item = nas[0]
