@@ -132,6 +132,9 @@ def is_physical_network_adapter(network_adaptor_data):
     if network_adaptor_data['Manufacturer'] == "VMware, Inc.":
         return False
 
+    if network_adaptor_data['Description'].lower().find("virtual") != -1:
+        return False
+
     return True
 
 def get_computer_serial_number(data_dict):
