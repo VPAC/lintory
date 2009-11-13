@@ -266,14 +266,15 @@ def get_storage(disk_drive, computer):
     if new_query.count() > 0:
         query = new_query
     else:
-#        query = query.filter(
-#                used_by=computer,
-#                auto_manufacturer__isnull=True,
-#                auto_model__isnull=True,
-#                total_size__isnull=True,
-#                sector_size__isnull=True,
-#        )
-        raise import_error("Could not find storage - manufacturer, model, TotalSectors, or BytesPerSector mismatch")
+        # Last attempt, normally if we get this far it means
+        # no matching drive found
+        query = query.filter(
+                used_by=computer,
+                auto_manufacturer__isnull=True,
+                auto_model__isnull=True,
+                total_size__isnull=True,
+                sector_size__isnull=True,
+        )
 
     # did we get a valid result?
     count = query.count()
