@@ -157,4 +157,7 @@ def get_license_key(software_name, license_keys):
     elif software_name == "Microsoft Windows XP Professional":
         key = license_keys["Microsoft Windows XP"]
 
+    elif software_name == "Microsoft Windows 7 Home Premium":
+        key = license_keys["Windows 7 Home Premium"]
+
     return key
