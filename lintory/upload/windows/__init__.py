@@ -513,9 +513,6 @@ def sync_hardware(data_datetime, computer, data_dict):
             na.save()
 
     for disk_drive in data_dict['DiskDrive']:
-            if disk_drive['Manufacturer'] == "":
-                raise import_error("No manufacturer given for DiskDrive")
-
             serial_number = None
             if "SerialNumber" in disk_drive:
                 serial_number = son(disk_drive['SerialNumber'])
