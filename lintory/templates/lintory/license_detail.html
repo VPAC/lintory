@@ -70,4 +70,9 @@
 
 {% show_history object %}
 
+{% if object.text %}
+<h2>Text</h2>
+{{object.text|urlizetrunc:40|linebreaks }}
+{% endif %}
+
 {% endblock %}
