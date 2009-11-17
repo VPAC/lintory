@@ -59,15 +59,12 @@
 {% show_license_key_list object.license_key_set.all %}
 
 <h2>Active Software Installations</h2>
-
 {% show_software_installation_list object.active_software_installations %}
 
 <h2>Deleted Software Installations</h2>
-
 {% show_software_installation_list object.inactive_software_installations %}
 
 <h2>History</h2>
-
 {% show_history object %}
 
 {% if object.text %}
