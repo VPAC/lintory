@@ -818,6 +818,11 @@ def load(data):
         print "import error: %s"%(e.value)
         data.errors += u"The following error occured during importing:\n%s"%(e.value)
 
+    # work around django bug - if nested object is new,
+    # then assignment gets "forgotten".
+    data.computer = data.computer
+    data.os = data.os
+
     # SAVE RECORD
     data.last_attempt = datetime.datetime.now()
     data.save()
