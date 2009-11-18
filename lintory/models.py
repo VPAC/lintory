@@ -603,15 +603,18 @@ class hardware(base_model):
     def error_list(self):
         error_list = super(hardware,self).error_list()
         if self.installed_on is not None:
-            if self.location is not None:
-                error_list.append("Location defined when hardware is installed")
-            if self.user is not None:
-                error_list.append("User defined when hardware is installed")
+            if self.location != self.installed_on.location:
+                error_list.append("Location different to installed hardware location")
+            if self.owner is None and self.installed_on.user is not None:
+                error_list.append("Owner not defined but is on installed hardware")
+            if self.user != self.installed_on.user:
+                error_list.append("User different to installed hardware user")
         else:
             if self.location is None:
                 error_list.append("Location not defined")
             if self.owner is None:
                 error_list.append("Owner not defined")
+            # We don't care if user is not defined
 
         return error_list
 
