@@ -718,7 +718,7 @@ class storage(hardware):
     used_by  = models.ForeignKey('computer',related_name='used_storage',null=True,blank=True)
     total_size = models.DecimalField(max_digits=12,decimal_places=0,null=True,blank=True)
     sector_size = models.PositiveIntegerField(null=True,blank=True)
-    signature = fields.char_field(max_length=12,db_index=True)
+    signature = fields.char_field(max_length=12,db_index=True,null=True,blank=True)
 
     def os_list(self):
         return self.os_set.all()
