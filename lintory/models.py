@@ -654,7 +654,7 @@ class processor(hardware):
     number_of_cores = models.PositiveIntegerField()
     cur_speed = models.PositiveIntegerField()
     max_speed = models.PositiveIntegerField()
-    version   = fields.char_field(max_length=40)
+    version   = fields.char_field(max_length=40,null=True,blank=True)
 
     def __unicode__(self):
         return "%d MHz processor"%(self.max_speed)
