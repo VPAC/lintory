@@ -605,10 +605,12 @@ class hardware(base_model):
         if self.installed_on is not None:
             if self.location != self.installed_on.location:
                 error_list.append("Location different to installed hardware location")
-            if self.owner is None and self.installed_on.user is not None:
-                error_list.append("Owner not defined but is on installed hardware")
+            if self.owner != self.installed_on.owner:
+                error_list.append("Owner different to installed hardware owner")
             if self.user != self.installed_on.user:
                 error_list.append("User different to installed hardware user")
+            if self.date_of_disposal != self.installed_on.date_of_disposal:
+                error_list.append("Date of disposal different to installed date of disposal user")
         else:
             if self.location is None:
                 error_list.append("Location not defined")
