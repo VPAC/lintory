@@ -186,7 +186,7 @@ def get_computer(data_dict):
                 query = query.filter(installed_hardware__network_adaptor__in=nas)
             except IndexError, e:
                 # no network adaptors found
-                raise computer_does_not_exist("No matching computer found")
+                raise computer_does_not_exist("No matching network cards found for %s"%(mac_address))
 
     # Check - did we get a valid result?
     count = query.count()
