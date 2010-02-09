@@ -385,7 +385,7 @@ def task_delete(request,object_id):
 # HARDWARE_TASK #
 #################
 
-def task_add_computer(request, object_id):
+def task_add_hardware(request, object_id):
     type = models.hardware_task.type
     task = get_object_or_404(models.task, pk=object_id)
     modal_form = forms.hardware_task_form

@@ -262,6 +262,7 @@ class hardware_task(action_table):
     id = tables.Column(sortable=False, visible=False)
     task = tables.Column(data=lambda row: link_field(row, "task"))
     hardware = tables.Column(data=lambda row: link_field(row, "hardware"))
+    user = tables.Column(data=lambda row: link_field(row, "hardware__user"))
     assigned = tables.Column(data=lambda row: link_field(row, "assigned"))
 
     class Meta:

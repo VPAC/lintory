@@ -22,6 +22,8 @@ import lintory.models as models
 import lintory.eparty as eparty
 import re
 
+import pyparsing as p
+
 class object_widget(forms.widgets.TextInput):
 
     def __init__(self, object_class, *args, **kwargs):
@@ -110,8 +112,6 @@ class party_field(forms.CharField):
     def clean(self, value):
         value=super(party_field, self).clean(value)
 
-        value=super(party_field, self).clean(value)
-
         if value in ('',None):
             return None
 
@@ -167,3 +167,73 @@ class mac_address_field(forms.CharField):
             raise ValidationError(u"Unrecognised MAC address %s" % (value))
 
         return value
+
+class hardware_field(forms.CharField):
+    def __init__(self, *args, **kwargs):
+        super(hardware_field, self).__init__(*args, **kwargs)
+
+    def clean(self, value):
+        value=super(hardware_field, self).clean(value)
+
+        if value in ('',None):
+            return None
+
+        parser = p.Keyword("computer") + p.Optional(p.Keyword("name")+p.Word(p.alphanums))
+        parser = parser | p.Keyword("user") + (p.QuotedString('"') | p.Word(p.alphanums))
+
+        parser = p.Group(parser)
+        parser = parser + p.ZeroOrMore(p.Keyword("and") + parser)
+
+        parser = parser | p.Word(p.nums).setResultsName("pk")
+
+        try:
+            results = parser.parseString(value, parseAll=True)
+        except p.ParseBaseException, e:
+            raise ValidationError(u"Cannot parse '%s' loc: %s msg: %s"%(value, e.loc, e.msg))
+
+        if results.pk != "":
+            try:
+                hardware=models.hardware.objects.get(pk=results.pk)
+                return hardware
+            except models.party.DoesNotExist, e:
+                raise forms.util.ValidationError(u"Cannot find hardware after applying '%s': %s" % (value,e))
+
+
+        hardware=models.hardware.objects.all()
+        count = hardware.count()
+
+        while len(results) > 0:
+            check = results.pop(0)
+            print check
+            print hardware
+
+            if len(check) == 3 and check[0] == "computer" and check[1] == "name":
+                hardware=hardware.filter(computer__name=check[2])
+            elif check[0] == "computer":
+                hardware=hardware.filter(computer__name__isnull=False)
+            elif check[0] == "user":
+                try:
+                    n = eparty.connection.lookup_user_input(check[1])
+                except eparty.Not_Found_Error, e:
+                    raise forms.util.ValidationError(u"Cannot find eparty '%s': %s" % (check[1],e))
+
+                try:
+                    party=models.party.objects.get(eparty=n)
+                except models.party.DoesNotExist, e:
+                    raise forms.util.ValidationError(u"Cannot find party for '%s': %s" % (check[1],e))
+                hardware=hardware.filter(user=party)
+
+            print hardware
+            print "-------"
+
+            count = hardware.count()
+            if count <= 0:
+                raise forms.util.ValidationError(u"Cannot find hardware '%s'" % (check))
+
+            if len(results) > 0:
+                dummy = results.pop(0)
+
+        if count > 1:
+            raise forms.util.ValidationError(u"Too many results for '%s'"%(value))
+
+        return hardware[0]

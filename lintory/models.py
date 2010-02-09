@@ -1358,8 +1358,8 @@ class software_installation(base_model):
 
         @classmethod
         def get_create_breadcrumbs(cls, **kwargs):
-            breadcrumbs = self.get_breadcrumbs(**kwargs)
-            breadcrumbs.append(breadcrumb(self.get_create_url(**kwargs),"create installation"))
+            breadcrumbs = cls.get_breadcrumbs(**kwargs)
+            breadcrumbs.append(breadcrumb(cls.get_create_url(**kwargs),"create installation"))
             return breadcrumbs
 
 ########
@@ -1375,8 +1375,8 @@ class task(base_model):
         return self.name
 
     @models.permalink
-    def get_add_computer_url(self):
-        return('task_add_computer', [ str(self.pk) ])
+    def get_add_hardware_url(self):
+        return('task_add_hardware', [ str(self.pk) ])
 
     def hardware_tasks_all(self):
         return self.hardware_task_set.all()
@@ -1391,7 +1391,7 @@ class task(base_model):
         errorlist = []
 
         if self.hardware_task_set.all().count() > 0:
-            errorlist.append("Cannot delete task with computers")
+            errorlist.append("Cannot delete task with hardware")
 
         return errorlist
 
@@ -1443,6 +1443,22 @@ class hardware_task(base_model):
 
     class type(base_model.type):
         type_id = "hardware_task"
+
+        @classmethod
+        def get_breadcrumbs(cls, task):
+            breadcrumbs = task.get_breadcrumbs()
+            return breadcrumbs
+
+        @classmethod
+        @models.permalink
+        def get_create_url(cls, task):
+            return("task_add_hardware", [ task.pk ] )
+
+        @classmethod
+        def get_create_breadcrumbs(cls, **kwargs):
+            breadcrumbs = cls.get_breadcrumbs(**kwargs)
+            breadcrumbs.append(breadcrumb(cls.get_create_url(**kwargs),"add hardware"))
+            return breadcrumbs
 
 ########
 # DATA #

@@ -26,6 +26,7 @@ class vendor_form(forms.ModelForm):
 
 class hardware_task_form(forms.ModelForm):
     assigned     = fields.party_field(required=False)
+    hardware     = fields.hardware_field(required=True)
 
     class Meta:
         model = models.hardware_task

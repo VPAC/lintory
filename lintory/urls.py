@@ -111,9 +111,9 @@ urlpatterns = patterns('',
     'lintory.views.task_delete',
     name='task_delete'),
 
-    url(r'^task/(?P<object_id>\d+)/add_computer/$',
-    'lintory.views.task_add_computer',
-    name='task_add_computer'),
+    url(r'^task/(?P<object_id>\d+)/add_hardware/$',
+    'lintory.views.task_add_hardware',
+    name='task_add_hardware'),
 
     url(r'^hardware_task/(?P<object_id>\d+)/edit/$',
     'lintory.views.hardware_task_edit',

@@ -19,7 +19,7 @@
 <li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a></li>
 {% endif %}
 {% if perms.lintory.add_hardware_task %}
-<li><a class="addlink" href="{{ object.get_add_computer_url }}">Add computer</a></li>
+<li><a class="addlink" href="{{ object.get_add_hardware_url }}">Add hardware</a></li>
 {% endif %}
 </ul>
 {% endif %}
@@ -34,9 +34,13 @@
 
 {% show_error_list object.error_list %}
 
-<h2>Computers</h2>
+<h2>Todo</h2>
 
 {% show_hardware_task_list object.hardware_tasks_todo %}
+
+<h2>Done</h2>
+
+{% show_hardware_task_list object.hardware_tasks_done %}
 
 <h2>History</h2>
 
