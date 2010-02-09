@@ -30,10 +30,10 @@ class Names(Names_Base):
                     if len(r)==0:
                         filter = ldap.filter.filter_format("(givenName=%s)",[value])
                         r = self.l.search_st(settings.LDAP_BASE, ldap.SCOPE_SUBTREE, filter, attrlist=attrs, attrsonly=0, timeout=5)
-                    elif len(r)==0:
-                        filter = ldap.filter.filter_format("(surName=%s)",[value])
+                    if len(r)==0:
+                        filter = ldap.filter.filter_format("(sn=%s)",[value])
                         r = self.l.search_st(settings.LDAP_BASE, ldap.SCOPE_SUBTREE, filter, attrlist=attrs, attrsonly=0, timeout=5)
-                    elif len(r)==0:
+                    if len(r)==0:
                         filter = ldap.filter.filter_format("(uid=%s)",[value])
                         r = self.l.search_st(settings.LDAP_BASE, ldap.SCOPE_SUBTREE, filter, attrlist=attrs, attrsonly=0, timeout=5)
             except ldap.NO_SUCH_OBJECT:
