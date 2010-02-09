@@ -28,6 +28,12 @@ class Names(Names_Base):
                     filter = ldap.filter.filter_format("(cn=%s)",[value])
                     r = self.l.search_st(settings.LDAP_BASE, ldap.SCOPE_SUBTREE, filter, attrlist=attrs, attrsonly=0, timeout=5)
                     if len(r)==0:
+                        filter = ldap.filter.filter_format("(givenName=%s)",[value])
+                        r = self.l.search_st(settings.LDAP_BASE, ldap.SCOPE_SUBTREE, filter, attrlist=attrs, attrsonly=0, timeout=5)
+                    elif len(r)==0:
+                        filter = ldap.filter.filter_format("(surName=%s)",[value])
+                        r = self.l.search_st(settings.LDAP_BASE, ldap.SCOPE_SUBTREE, filter, attrlist=attrs, attrsonly=0, timeout=5)
+                    elif len(r)==0:
                         filter = ldap.filter.filter_format("(uid=%s)",[value])
                         r = self.l.search_st(settings.LDAP_BASE, ldap.SCOPE_SUBTREE, filter, attrlist=attrs, attrsonly=0, timeout=5)
             except ldap.NO_SUCH_OBJECT:
@@ -36,7 +42,7 @@ class Names(Names_Base):
             if len(r)==0:
                 raise Not_Found_Error("Cannot find DN in LDAP database.")
             elif len(r)>1:
-                raise Lookup_Error("Value not unique LDAP database.")
+                raise Not_Found_Error("Value not unique LDAP database.")
 
             return LDAP_Name(r[0])
 
