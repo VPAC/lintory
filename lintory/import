@@ -28,12 +28,16 @@ from django.conf import settings
 def main():
 
         parser = OptionParser()
+        parser.add_option("-d", "--delete_old",
+                  action="store_true", dest="delete", default=False,
+                  help="Delete old/obsolete records")
         parser.add_option("-r", "--redo",
                   action="store_true", dest="redo", default=False,
                   help="Import latest data files with known computer even if already imported")
         (options, args) = parser.parse_args()
 
         if options.redo:
+            # only redo lastet record for every computer
             for computer in models.computer.objects.all():
                 data_list = models.data.objects.filter(computer=computer, format="windows").order_by("-datetime")
                 try:
@@ -43,6 +47,21 @@ def main():
                     print
                 except IndexError, e:
                     pass
+
+        if options.delete:
+            # no point keeping old records where known newer record exists
+            for computer in models.computer.objects.all():
+                data_list = models.data.objects.filter(computer=computer, format="windows").order_by("datetime")
+                last = None
+                for data in data_list:
+                    if last is not None:
+                        last.delete()
+                    last = data
+
+            # records older then 180 days are so old they are useless
+            data_list = models.data.objects.filter(datetime__lt=datetime.datetime.now() - datetime.timedelta(days=180))
+            for data in data_list:
+                data.delete()
 
         for data in models.data.objects.filter(imported__isnull=True, format="windows"):
             print "--- %s ---"%(data.file)
