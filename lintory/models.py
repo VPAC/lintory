@@ -1389,10 +1389,7 @@ class task(base_model):
 
     def check_delete(self):
         errorlist = []
-
-        if self.hardware_task_set.all().count() > 0:
-            errorlist.append("Cannot delete task with hardware")
-
+        # note: delete object *and* delete any associated hardware_task objects.
         return errorlist
 
     class type(base_model.type):
