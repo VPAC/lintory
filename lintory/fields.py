@@ -204,8 +204,6 @@ class hardware_field(forms.CharField):
 
         while len(results) > 0:
             check = results.pop(0)
-            print check
-            print hardware
 
             if len(check) == 3 and check[0] == "computer" and check[1] == "name":
                 hardware=hardware.filter(computer__name=check[2])
@@ -222,9 +220,6 @@ class hardware_field(forms.CharField):
                 except models.party.DoesNotExist, e:
                     raise forms.util.ValidationError(u"Cannot find party for '%s': %s" % (check[1],e))
                 hardware=hardware.filter(user=party)
-
-            print hardware
-            print "-------"
 
             count = hardware.count()
             if count <= 0:
