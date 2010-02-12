@@ -49,6 +49,7 @@ class hardware_type_form(forms.Form):
 class hardware_form(forms.ModelForm):
     owner    = fields.party_field(required=False)
     user     = fields.party_field(required=False)
+    installed_on = fields.hardware_field(required=False)
 
     class Meta:
         model = models.hardware
@@ -152,6 +153,7 @@ class license_create_form(forms.Form):
     key = fields.char_field(max_length=50)
 
 class data_form(forms.ModelForm):
+    computer = fields.hardware_field(required=False)
 
     class Meta:
         model = models.data
