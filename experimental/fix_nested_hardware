@@ -21,13 +21,21 @@ def process(hardware):
     nested_list = models.hardware.objects.filter(installed_on = hardware)
     for nested in nested_list:
         print hardware, nested
-        if nested.location is None:
+
+        updated = False
+        if nested.location != hardware.location:
             nested.location = hardware.location
-        if nested.owner is None:
+            updated = True
+        if nested.owner != hardware.owner:
             nested.owner = hardware.owner
-        if nested.user is None:
+            updated = True
+        if nested.user != hardware.user:
             nested.user = hardware.user
-        nested.save()
+            updated = True
+
+        if updated:
+            nested.save()
+
         process(nested)
 
 
