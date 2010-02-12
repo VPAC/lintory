@@ -178,7 +178,7 @@ class hardware_field(forms.CharField):
         if value in ('',None):
             return None
 
-        parser = p.Keyword("computer") + p.Optional(p.Keyword("name")+p.Word(p.alphanums))
+        parser = p.Keyword("computer") + p.Optional(p.Keyword("name")+p.Word(p.alphanums+"-_"))
         parser = parser | p.Keyword("user") + (p.QuotedString('"') | p.Word(p.alphanums))
 
         parser = p.Group(parser)
@@ -194,7 +194,7 @@ class hardware_field(forms.CharField):
         if results.pk != "":
             try:
                 hardware=models.hardware.objects.get(pk=results.pk)
-                return hardware
+                return hardware.get_object()
             except models.party.DoesNotExist, e:
                 raise forms.util.ValidationError(u"Cannot find hardware after applying '%s': %s" % (value,e))
 
@@ -236,4 +236,4 @@ class hardware_field(forms.CharField):
         if count > 1:
             raise forms.util.ValidationError(u"Too many results for '%s'"%(value))
 
-        return hardware[0]
+        return hardware[0].get_object()
