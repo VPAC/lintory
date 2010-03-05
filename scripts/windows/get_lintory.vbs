@@ -1,3 +1,75 @@
+Option Explicit
+
+Function Base64Encode(sText)
+    Dim oXML, oNode
+
+    Set oXML = CreateObject("Msxml2.DOMDocument.3.0")
+    Set oNode = oXML.CreateElement("base64")
+    oNode.dataType = "bin.base64"
+    oNode.nodeTypedValue =Stream_StringToBinary(sText)
+    Base64Encode = oNode.text
+    Set oNode = Nothing
+    Set oXML = Nothing
+End Function
+
+Function Base64Decode(ByVal vCode)
+    Dim oXML, oNode
+
+    Set oXML = CreateObject("Msxml2.DOMDocument.3.0")
+    Set oNode = oXML.CreateElement("base64")
+    oNode.dataType = "bin.base64"
+    oNode.text = vCode
+    Base64Decode = Stream_BinaryToString(oNode.nodeTypedValue)
+    Set oNode = Nothing
+    Set oXML = Nothing
+End Function
+
+Function IsAscii(s)
+    With New RegExp
+      .Pattern = "[^\x00-\x7f]"  ' Use [^\x00-\xff] for US-ASCII
+      IsAscii = Not .Test(s)
+    End With
+End Function
+
+'Stream_StringToBinary Function
+'2003 Antonin Foller, http://www.motobit.com
+'Text - string parameter To convert To binary data
+Function Stream_StringToBinary(Text)
+  Const adTypeText = 2
+  Const adTypeBinary = 1
+
+  'Create Stream object
+  Dim BinaryStream 'As New Stream
+  Set BinaryStream = CreateObject("ADODB.Stream")
+
+  'Specify stream type - we want To save text/string data.
+  BinaryStream.Type = adTypeText
+
+  'Specify charset For the source text (unicode) data.
+  BinaryStream.CharSet = "us-ascii"
+
+  'Open the stream And write text/string data To the object
+  BinaryStream.Open
+  BinaryStream.WriteText Text
+
+  'Change stream type To binary
+  BinaryStream.Position = 0
+  BinaryStream.Type = adTypeBinary
+
+  'Ignore first two bytes - sign of
+  BinaryStream.Position = 0
+
+  'Open the stream And get binary data from the object
+  Stream_StringToBinary = BinaryStream.Read
+
+  Set BinaryStream = Nothing
+End Function
+
+
+' ------------- START -----------------
+
+Dim ComputerName, wmiServices
+
 ComputerName = "."
 
 Set wmiServices  = GetObject ( _
@@ -9,6 +81,8 @@ WScript.StdOut.WriteLine "Date:"&year(date)&"-"&month(date)&"-"&day(date)
 WScript.StdOut.WriteLine "Time:"&hour(time)&":"&minute(time)&":"&second(time)
 
 ' ------------- COMPUTER -----------------
+
+Dim col, obj, Prop
 
 Set col = wmiServices.ExecQuery _
     ("Select * from Win32_ComputerSystem")
@@ -77,6 +151,8 @@ Next
 
 ' ------------- NETWORK ADAPTOR -----------------
 
+dim colNic, objNic, colNicConfigs, objNicConfig
+
 Set colNic = wmiServices.ExecQuery _
     ("Select * from Win32_NetworkAdapter")
 
@@ -98,6 +174,9 @@ For Each objNic in colNic
 Next
 
 ' ------------- DRIVES -----------------
+
+Dim wmiDiskDrives, wmiDiskDrive, wmiDiskPartitions, wmiDiskPartition, wmiLogicalDisks, wmiLogicalDisk
+Dim query
 
 Set col = wmiServices.ExecQuery _
     ("Select * from Win32_CDROMDrive")
@@ -146,6 +225,10 @@ Dim iValues
 Dim arrDPID
 Dim strHTML
 Dim arrSubKeys(5)
+Dim oReg
+Dim x
+Dim DigitalProductID
+Dim ProductName
 foundKeys = Array()
 iValues = Array()
 arrSubKeys(0) = "SOFTWARE\Microsoft\Windows NT\CurrentVersion"
@@ -156,8 +239,7 @@ arrSubKeys(4) = "SOFTWARE\Microsoft\Exchange\Setup"
 arrSubKeys(5) = "SOFTWARE\Microsoft\Office\9.0\Registration"
 
 ' Open Registry Key and populate binary data into an array
-strComputer = "."
-Set oReg=GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\default:StdRegProv")
+Set oReg=GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & ComputerName & "\root\default:StdRegProv")
 For x = LBound(arrSubKeys, 1) To UBound(arrSubKeys, 1)
   oReg.GetBinaryValue HKEY_LOCAL_MACHINE, arrSubKeys(x), "DigitalProductID", DigitalProductID
   oReg.GetStringValue HKEY_LOCAL_MACHINE, arrSubKeys(x), "ProductName", ProductName
@@ -165,6 +247,7 @@ For x = LBound(arrSubKeys, 1) To UBound(arrSubKeys, 1)
   If Not IsNull(DigitalProductID) Then
    call decodeKey(DigitalProductID, ProductName)
   Else
+   Dim arrGUIDKeys, GUIDKey
    oReg.EnumKey HKEY_LOCAL_MACHINE, arrSubKeys(x), arrGUIDKeys
    If Not IsNull(arrGUIDKeys) Then
     For Each GUIDKey In arrGUIDKeys
@@ -181,6 +264,7 @@ Next
 ' Return the Product Key
 Function decodeKey(iValues, strProduct)
   Dim arrDPID
+  Dim i, j, k, strProductKey
   arrDPID = Array()
   ' extract bytes 52-66 of the DPID
   For i = 52 to 66
@@ -205,12 +289,13 @@ Function decodeKey(iValues, strProduct)
   foundKeys( UBound(foundKeys) ) = strProductKey
   Wscript.StdOut.WriteLine ""
   Wscript.StdOut.WriteLine "# license key"
-  Wscript.StdOut.WriteLine "Name:" & strProduct
-  Wscript.StdOut.WriteLine "Product Key:" & strProductKey
+  Wscript.StdOut.WriteLine "Name: " & strProduct
+  Wscript.StdOut.WriteLine "Product Key: " & strProductKey
 End Function
 
 ' ------------- SOFTWARE -----------------
 
+Dim colSoftware, objSoftware
 Set colSoftware = wmiServices.ExecQuery _
     ("Select * from Win32_Product")
 
@@ -228,13 +313,20 @@ Sub WriteProperties(obj)
     For each Prop in obj.Properties_
         WScript.StdOut.Write Prop.Name & ": "
         If isArray(Prop.Value) Then
+            Dim sep, value
             sep = ""
             For each value in Prop.Value
                 WScript.StdOut.Write sep & Value
                 sep = ","
             Next
-        Elseif not isNull(Prop.Value) Then
-            WScript.StdOut.Write CStr(Prop.Value)
+        Elseif isNull(Prop.Value) Then
+            WScript.StdOut.Write ""
+        Elseif TypeName(Prop.Value) <> "String" Then
+            WScript.StdOut.Write Prop.Value
+        Elseif isAscii(Prop.Value) Then
+            WScript.StdOut.Write Prop.Value
+        Else
+            WScript.StdOut.Write Base64Encode(Prop.Value)
         End If
         WScript.StdOut.WriteLine
     Next
