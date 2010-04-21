@@ -95,7 +95,7 @@ def parse_file(file):
             value = value.lstrip()
             this_section[tag] = value
         else:
-            raise import_error("Cannot parse line")
+            raise import_error("Cannot parse line: '%s'"%(line))
 
         line = file.readline()
 
