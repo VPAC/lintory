@@ -772,6 +772,7 @@ def load(data):
 
         # Check data is recent
         if data.datetime < data.computer.seen_last:
+            print "Computer data is older than last update"
             data.errors += u"Warning: Computer data is older than last update\n"
         else:
             # sync_hardware calls data.computer.save()
@@ -796,12 +797,13 @@ def load(data):
 
         # Check data is recent
         if data.datetime < data.os.seen_last:
+            print "OS data is older than last update"
             data.errors += "Warning: OS data is older than last update\n"
         else:
             # Check the OS storage is used by this computer
             if data.os.storage.used_by is not None:
                 if data.os.storage.used_by.pk != data.computer.pk:
-                    raise import_error("OS storage is in use on another computer")
+                    raise import_error("OS storage is in use on another computer '%s'"%(data.os.storage.used_by))
             else:
                 raise import_error("OS storage is not marked in use on any computer")
 
