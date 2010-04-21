@@ -1,70 +1,21 @@
 Option Explicit
 
-Function Base64Encode(sText)
-    Dim oXML, oNode
-
-    Set oXML = CreateObject("Msxml2.DOMDocument.3.0")
-    Set oNode = oXML.CreateElement("base64")
-    oNode.dataType = "bin.base64"
-    oNode.nodeTypedValue =Stream_StringToBinary(sText)
-    Base64Encode = oNode.text
-    Set oNode = Nothing
-    Set oXML = Nothing
-End Function
-
-Function Base64Decode(ByVal vCode)
-    Dim oXML, oNode
-
-    Set oXML = CreateObject("Msxml2.DOMDocument.3.0")
-    Set oNode = oXML.CreateElement("base64")
-    oNode.dataType = "bin.base64"
-    oNode.text = vCode
-    Base64Decode = Stream_BinaryToString(oNode.nodeTypedValue)
-    Set oNode = Nothing
-    Set oXML = Nothing
-End Function
-
 Function IsAscii(s)
     With New RegExp
-      .Pattern = "[^\x00-\x7f]"  ' Use [^\x00-\xff] for US-ASCII
+      .Pattern = "[^\x00-\xff]"  ' Use [^\x00-\xff] for US-ASCII
       IsAscii = Not .Test(s)
     End With
 End Function
 
-'Stream_StringToBinary Function
-'2003 Antonin Foller, http://www.motobit.com
-'Text - string parameter To convert To binary data
-Function Stream_StringToBinary(Text)
-  Const adTypeText = 2
-  Const adTypeBinary = 1
-
-  'Create Stream object
-  Dim BinaryStream 'As New Stream
-  Set BinaryStream = CreateObject("ADODB.Stream")
-
-  'Specify stream type - we want To save text/string data.
-  BinaryStream.Type = adTypeText
-
-  'Specify charset For the source text (unicode) data.
-  BinaryStream.CharSet = "us-ascii"
-
-  'Open the stream And write text/string data To the object
-  BinaryStream.Open
-  BinaryStream.WriteText Text
-
-  'Change stream type To binary
-  BinaryStream.Position = 0
-  BinaryStream.Type = adTypeBinary
-
-  'Ignore first two bytes - sign of
-  BinaryStream.Position = 0
-
-  'Open the stream And get binary data from the object
-  Stream_StringToBinary = BinaryStream.Read
-
-  Set BinaryStream = Nothing
+Function SimpleBinaryToString(Binary)
+  'SimpleBinaryToString converts binary data (VT_UI1 | VT_ARRAY Or MultiByte string)
+  'to a string (BSTR) using MultiByte VBS functions
+  Dim I, S
+  For I = 1 To LenB(Binary)
+    S = S & Chr(AscB(MidB(Binary, I, 1)))
+  Next
+  SimpleBinaryToString = S
 End Function
-
 
 ' ------------- START -----------------
 
@@ -326,7 +277,7 @@ Sub WriteProperties(obj)
         Elseif isAscii(Prop.Value) Then
             WScript.StdOut.Write Prop.Value
         Else
-            WScript.StdOut.Write Base64Encode(Prop.Value)
+            WScript.StdOut.Write SimpleBinaryToString(Prop.Value)
         End If
         WScript.StdOut.WriteLine
     Next
