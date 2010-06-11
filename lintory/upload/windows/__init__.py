@@ -105,6 +105,10 @@ def parse_file(file):
     return data_dict
 
 def is_physical_network_adapter(network_adaptor_data):
+    # Note: OpenVPN TAP device is marked as PhysicalAdapter = True.
+    if network_adaptor_data['Manufacturer'].startswith("TAP-Win32 "):
+        return False
+
     if "PhysicalAdapter" in network_adaptor_data:
         if network_adaptor_data['PhysicalAdapter'] == "True":
             return True
@@ -124,9 +128,6 @@ def is_physical_network_adapter(network_adaptor_data):
         return False
 
     if network_adaptor_data['Manufacturer'] == "Symantec":
-        return False
-
-    if network_adaptor_data['Manufacturer'].startswith("TAP-Win32 "):
         return False
 
     if network_adaptor_data['Manufacturer'] == "VMware, Inc.":
