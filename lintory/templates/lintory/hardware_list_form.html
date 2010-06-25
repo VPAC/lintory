@@ -32,7 +32,7 @@
 <input type="submit" />
 </form>
 
-<form method="post">
+<form method="post">{% csrf_token %}
 {% show_list table page_obj.object_list type %}
 <input type="submit" />
 </form>
