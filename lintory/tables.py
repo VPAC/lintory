@@ -20,83 +20,48 @@ import django_tables as tables
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
-def edit_link(user, object):
-    if object.type.has_edit_perms(user):
-        return mark_safe("<a class='changelink' href='%s'>%s</a>"%(
-                object.get_edit_url(),
-                "edit"))
-    else:
-        return "-"
-
-def edit_license_key_link(user, object):
-    if object.type.has_edit_perms(user):
-        return mark_safe("<a class='changelink' href='%s'>%s</a>"%(
-                object.get_edit_license_key_url(),
-                "key"))
-    else:
-        return "-"
-
-def delete_link(user, object):
-    if object.type.has_edit_perms(user):
-        return mark_safe("<a class='deletelink' href='%s'>%s</a>"%(
-                object.get_delete_url(),
-                "delete"))
-    else:
-        return "-"
-
 class action_table(tables.ModelTable):
     def __init__(self, user, type, *args, **kwargs):
         super(action_table,self).__init__(*args, **kwargs)
+        self.user = user
+
         if type.has_edit_perms(user):
-            self.base_columns["edit"] = tables.Column(data=lambda row: edit_link(user, row.data),sortable=False)
+            self.base_columns["edit"] = tables.Column(sortable=False)
         if type.has_delete_perms(user):
-            self.base_columns["delete"] = tables.Column(data=lambda row: delete_link(user, row.data),sortable=False)
+            self.base_columns["delete"] = tables.Column(sortable=False)
 
-def resolve_field(object, name):
-    # try to resolve relationships spanning attributes
-    bits = name.split('__')
-    current = object
-    for bit in bits:
-        # note the difference between the attribute being None and not
-        # existing at all; assume "value doesn't exist" in the former
-        # (e.g. a relationship has no value), raise error in the latter.
-        # a more proper solution perhaps would look at the model meta
-        # data instead to find out whether a relationship is valid; see
-        # also ``_validate_column_name``, where such a mechanism is
-        # already implemented).
-        if not hasattr(current, bit):
-            raise ValueError("Could not resolve %s from %s" % (bit, name))
+    def render_edit(self, data):
+        if data.type.has_edit_perms(self.user):
+            return mark_safe("<a class='changelink' href='%s'>%s</a>"%(
+                    data.get_edit_url(),
+                    "edit"))
+        else:
+            return "-"
 
-        current = getattr(current, bit)
-        if callable(current):
-            current = current()
-        # important that we break in None case, or a relationship
-        # spanning across a null-key will raise an exception in the
-        # next iteration, instead of defaulting.
-        if current is None:
-            break
+    def render_delete(self, data):
+        if data.type.has_edit_perms(self.user):
+            return mark_safe("<a class='deletelink' href='%s'>%s</a>"%(
+                    data.get_delete_url(),
+                    "delete"))
+        else:
+            return "-"
 
-    return current
+def render_link(data,title=None):
 
-def link_field(row, data=None, label=None):
-    if data is None:
-        current = row.data
-    else:
-        current = resolve_field(row.data, data)
+    if title is None:
+        title=u"%s"%(data)
 
-    if label is None:
-        label = current
-    else:
-        label = resolve_field(row.data, label)
-
-    if current is not None:
-        return mark_safe(u"<a href='%s'>%s</a>"%(current.get_absolute_url(),conditional_escape(label)))
+    if data is not None:
+        return mark_safe(u"<a href='%s'>%s</a>"%(data.get_absolute_url(),conditional_escape(title)))
     else:
         return mark_safe(u"-")
 
 class party(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_field)
+    name = tables.Column()
+
+    def render_name(self, data):
+        return mark_safe(u"<a href='%s'>%s</a>"%(data.get_absolute_url(),conditional_escape(data)))
 
     class Meta:
         model = models.party
@@ -106,7 +71,10 @@ class vendor(action_table):
     id = tables.Column(sortable=False, visible=False)
     telephone = tables.Column(sortable=False)
     email = tables.Column(sortable=False)
-    name = tables.Column(data=link_field)
+    name = tables.Column()
+
+    def render_name(self, data):
+        return render_link(data)
 
     class Meta:
         model = models.vendor
@@ -114,9 +82,18 @@ class vendor(action_table):
 
 class location(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_field)
-    owner = tables.Column(data=lambda row: link_field(row, "owner"))
-    user = tables.Column(data=lambda row: link_field(row, "user"))
+    name = tables.Column()
+    owner = tables.Column()
+    user = tables.Column()
+
+    def render_name(self, data):
+        return render_link(data)
+
+    def render_owner(self, data):
+        return render_link(data.owner)
+
+    def render_user(self, data):
+        return render_link(data.user)
 
     class Meta:
         model = models.location
@@ -125,63 +102,87 @@ class location(action_table):
 
 class hardware(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=lambda row: link_field(row, "get_object"), sortable=False)
+    name = tables.Column(sortable=False)
     type_id = tables.Column(name="Type")
     manufacturer = tables.Column()
     model = tables.Column()
     serial_number = tables.Column()
     asset_id = tables.Column()
-    owner = tables.Column(data=lambda row: link_field(row, "owner"))
-    user = tables.Column(data=lambda row: link_field(row, "user"))
-    location = tables.Column(data=lambda row: link_field(row, "location"))
-    installed_on = tables.Column(data=lambda row: link_field(row, "installed_on"))
+    owner = tables.Column()
+    user = tables.Column()
+    location = tables.Column()
+    installed_on = tables.Column()
 
-    def __init__(self, user, type, *args, **kwargs):
-        super(action_table,self).__init__(*args, **kwargs)
-        if type.has_edit_perms(user):
-            self.base_columns["edit"] = tables.Column(data=lambda row: edit_link(user, row.data.get_object()),sortable=False)
-        if type.has_delete_perms(user):
-            self.base_columns["delete"] = tables.Column(data=lambda row: delete_link(user, row.data.get_object()),sortable=False)
+    def render_name(self, data):
+        return render_link(data)
+
+    def render_owner(self, data):
+        return render_link(data.owner)
+
+    def render_user(self, data):
+        return render_link(data.user)
+
+    def render_location(self, data):
+        return render_link(data.location)
+
+    def render_installed_on(self, data):
+        return render_link(data.installed_on)
+
+    def render_edit(self, data):
+        return super(hardware, self).render_edit(data.get_object())
+
+    def render_delete(self, data):
+        return super(hardware, self).render_delete(data.get_object())
 
     class Meta:
         pass
-
-def check_box(row,pks):
-    checked = ""
-    if row.data.pk in pks:
-        checked = "checked='checked' "
-
-    return mark_safe(
-        "<input id='pk_%d' type='checkbox' name='pk' value='%d' %s/> <label for='pk_%d'>%s</label>"%(
-            row.data.pk, row.data.pk, checked, row.data.pk, row.data))
 
 class hardware_list_form(hardware):
 
     def __init__(self, pks, *args, **kwargs):
         super(hardware_list_form,self).__init__(*args, **kwargs)
-        int_pks = {}
+        self.int_pks = {}
         for pk in pks:
             try:
-                int_pks[int(pk)] = True
+                self.int_pks[int(pk)] = True
             except ValueError, e:
                 # ignore illegal values
                 pass
 
-        self.base_columns["name"] = tables.Column(data=lambda row: check_box(row,int_pks),sortable=False)
+        self.base_columns["name"] = tables.Column(sortable=False)
 
         if 'edit' in self.base_columns:
             del self.base_columns["edit"]
         if 'delete' in self.base_columns:
             del self.base_columns["delete"]
 
+    def render_name(self, data):
+        checked = ""
+        if data.pk in self.int_pks:
+            checked = "checked='checked' "
+
+        return mark_safe(
+            "<input id='pk_%d' type='checkbox' name='pk' value='%d' %s/> <label for='pk_%d'>%s</label>"%(
+                data.pk, data.pk, checked, data.pk, data))
+
+
     class Meta:
         pass
 
 class os(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_field)
-    computer = tables.Column(data=lambda row: link_field(row, "storage__used_by"))
-    storage = tables.Column(data=lambda row: link_field(row, "storage"))
+    name = tables.Column()
+    computer = tables.Column()
+    storage = tables.Column()
+
+    def render_name(self, data):
+        return render_link(data)
+
+    def render_computer(self, data):
+        return render_link(data.storage.used_by)
+
+    def render_storage(self, data):
+        return render_link(data.storage)
 
     class Meta:
         model = models.os
@@ -189,95 +190,182 @@ class os(action_table):
 
 class software(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_field)
-    vendor = tables.Column(data=lambda row: link_field(row, "vendor"))
+    name = tables.Column()
+    vendor = tables.Column()
     max = tables.Column(data="software_installations_max", sortable=False)
     found = tables.Column(data="software_installations_found", sortable=False)
     left = tables.Column(data="software_installations_left", sortable=False)
+
+    def render_name(self, data):
+        return render_link(data)
+
+    def render_vendor(self, data):
+        return render_link(data.vendor)
 
     class Meta:
         model = models.software
 
 class license(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_field)
-    vendor = tables.Column(data=lambda row: link_field(row, "vendor"))
-    computer = tables.Column(data=lambda row: link_field(row, "computer"))
+    name = tables.Column()
+    vendor = tables.Column()
+    computer = tables.Column()
     expires = tables.Column()
-    owner = tables.Column(data=lambda row: link_field(row, "owner"))
+    owner = tables.Column()
     max = tables.Column(data="installations_max", sortable=False)
     found = tables.Column(data="software_installations_found", sortable=False)
     left = tables.Column(data="software_installations_left", sortable=False)
     comments = tables.Column()
+
+    def render_name(self, data):
+        return render_link(data)
+
+    def render_vendor(self, data):
+        return render_link(data.vendor)
+
+    def render_computer(self, data):
+        return render_link(data.computer)
+
+    def render_owner(self, data):
+        return render_link(data.owner)
 
     class Meta:
         pass
 
 class license_key(action_table):
     id = tables.Column(sortable=False, visible=False)
-    key = tables.Column(data=link_field)
-    software = tables.Column(data=lambda row: link_field(row, "software"))
-    license = tables.Column(data=lambda row: link_field(row, "license"))
+    key = tables.Column()
+    software = tables.Column()
+    license = tables.Column()
     comments = tables.Column()
 
-    def __init__(self, user, type, *args, **kwargs):
-        super(license_key,self).__init__(user, type, *args, **kwargs)
-        if type.has_name_perms(user,"can_see_key"):
-            self.base_columns['key'] = tables.Column(data=lambda row: link_field(row, None, "key"))
+    def render_key(self, data):
+        return render_link(data)
+
+    def render_software(self, data):
+        return render_link(data.software)
+
+    def render_license(self, data):
+        return render_link(data.license)
+
+    def render_key(self, data):
+        if data.type.has_name_perms(self.user,"can_see_key"):
+            return render_link(data, data.key)
+        else:
+            return render_link(data)
 
     class Meta:
         pass
 
 class software_installation(action_table):
     id = tables.Column(sortable=False, visible=False)
-    software = tables.Column(data=lambda row: link_field(row, "software"))
+    software = tables.Column()
     software_version = tables.Column()
-    computer = tables.Column(data=lambda row: link_field(row, "os__storage__used_by"))
-    storage = tables.Column(data=lambda row: link_field(row, "os__storage"))
-    os = tables.Column(data=lambda row: link_field(row, "os"))
-    license_key = tables.Column(data=lambda row: link_field(row, "license_key"))
+    computer = tables.Column()
+    storage = tables.Column()
+    os = tables.Column()
+    license_key = tables.Column()
     comments = tables.Column()
+
+    def render_software(self, data):
+        return render_link(data.software)
+
+    def render_computer(self, data):
+        return render_link(data.os.storage.used_by)
+
+    def render_storage(self, data):
+        return render_link(data.os.storage)
+
+    def render_os(self, data):
+        return render_link(data.os)
+
+    def render_license_key(self, data):
+        if data.license_key is None:
+            return "-"
+        elif data.license_key.type.has_name_perms(self.user,"can_see_key"):
+            return render_link(data.license_key, data.license_key.key)
+        else:
+            return render_link(data.license_key)
 
     def __init__(self, user, type, *args, **kwargs):
         super(software_installation,self).__init__(user, type, *args, **kwargs)
         if type.has_edit_perms(user):
-            self.base_columns["Key"] = tables.Column(data=lambda row: edit_license_key_link(user, row.data),sortable=False)
-        if type.has_name_perms(user,"can_see_key"):
-            self.base_columns['license_key'] = tables.Column(data=lambda row: link_field(row, "license_key", "license_key__key"))
+            self.base_columns["edit_key"] = tables.Column(sortable=False)
+
+    def render_edit_key(self, data):
+        if data.type.has_edit_perms(self.user):
+            return mark_safe("<a class='changelink' href='%s'>%s</a>"%(
+                    data.get_edit_license_key_url(),
+                    "key"))
+        else:
+            return "-"
 
     class Meta:
         pass
 
 class task(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_field)
-    total = tables.Column(data=lambda row: row.data.hardware_tasks_all().count(),sortable=False)
-    done = tables.Column(data=lambda row: row.data.hardware_tasks_done().count(),sortable=False)
-    todo = tables.Column(data=lambda row: row.data.hardware_tasks_todo().count(),sortable=False)
+    name = tables.Column()
+    total = tables.Column(sortable=False)
+    done = tables.Column(sortable=False)
+    todo = tables.Column(sortable=False)
+
+    def render_name(self, data):
+        return render_link(data)
+
+    def render_total(self, data):
+        return data.hardware_tasks_all().count()
+
+    def render_done(self, data):
+        return data.hardware_tasks_done().count()
+
+    def render_todo(self, data):
+        return data.hardware_tasks_todo().count()
 
     class Meta:
         model = models.task
 
 class hardware_task(action_table):
     id = tables.Column(sortable=False, visible=False)
-    task = tables.Column(data=lambda row: link_field(row, "task"))
-    hardware = tables.Column(data=lambda row: link_field(row, "hardware"))
-    user = tables.Column(data=lambda row: link_field(row, "hardware__user"))
-    assigned = tables.Column(data=lambda row: link_field(row, "assigned"))
+    task = tables.Column()
+    hardware = tables.Column()
+    user = tables.Column()
+    assigned = tables.Column()
+
+    def render_task(self, data):
+        return render_link(data.task)
+
+    def render_hardware(self, data):
+        return render_link(data.hardware)
+
+    def render_user(self, data):
+        return render_link(data.hardware.user)
+
+    def render_assigned(self, data):
+        return render_link(data.assigned)
 
     class Meta:
         model = models.hardware_task
 
 class data(action_table):
     id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(data=link_field)
+    name = tables.Column()
     datetime = tables.Column()
     format = tables.Column()
-    computer = tables.Column(data=lambda row: link_field(row, "computer"))
-    os = tables.Column(data=lambda row: link_field(row, "os"))
+    computer = tables.Column()
+    os = tables.Column()
     imported = tables.Column()
     last_attempt = tables.Column()
     comments = tables.Column()
+
+    def render_name(self, data):
+        return render_link(data)
+
+    def render_computer(self, data):
+        return render_link(data.computer)
+
+    def render_os(self, data):
+        return render_link(data.os)
 
     class Meta:
         pass
