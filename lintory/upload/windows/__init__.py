@@ -109,6 +109,10 @@ def is_physical_network_adapter(network_adaptor_data):
     if network_adaptor_data['Manufacturer'].startswith("TAP-Win32 "):
         return False
 
+    # Note: Microsoft Virtual WiFi Miniport Adapter is marked as PhysicalAdapter = True.
+    if network_adaptor_data['Manufacturer'] == "Microsoft":
+        return False
+
     if "PhysicalAdapter" in network_adaptor_data:
         if network_adaptor_data['PhysicalAdapter'] == "True":
             return True
@@ -119,9 +123,6 @@ def is_physical_network_adapter(network_adaptor_data):
         return False
 
     if network_adaptor_data['Manufacturer'] == "":
-        return False
-
-    if network_adaptor_data['Manufacturer'] == "Microsoft":
         return False
 
     if network_adaptor_data['Manufacturer'] == "ESET":
