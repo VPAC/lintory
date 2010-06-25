@@ -16,18 +16,18 @@
 
 from lintory import models, fields
 
-import filter
+import django_filters
 
-class party_filter(filter.ModelChoiceFilter):
+class party_filter(django_filters.ModelChoiceFilter):
     field_class = fields.party_field
 
-class hardware_type_filter(filter.CharFilter):
+class hardware_type_filter(django_filters.CharFilter):
     field_class = fields.hardware_type_field
 
-class mac_address_filter(filter.CharFilter):
+class mac_address_filter(django_filters.CharFilter):
     field_class = fields.mac_address_field
 
-class boolean_filter(filter.BooleanFilter):
+class boolean_filter(django_filters.BooleanFilter):
     def filter(self, qs, value):
         lookup = self.lookup_type
         if value is not None:
@@ -35,36 +35,36 @@ class boolean_filter(filter.BooleanFilter):
         return qs
 
 class inverted_boolean_filter(boolean_filter):
-    field_class = filter.BooleanFilter.field_class
+    field_class = django_filters.BooleanFilter.field_class
 
     def filter(self, qs, value):
         if value is not None:
             value = not value
         return super(inverted_boolean_filter,self).filter(qs, value)
 
-class party(filter.FilterSet):
-    name = filter.CharFilter(lookup_type='icontains')
+class party(django_filters.FilterSet):
+    name = django_filters.CharFilter(lookup_type='icontains')
 
     class Meta:
         model = models.party
 
-class vendor(filter.FilterSet):
-    name = filter.CharFilter(lookup_type='icontains')
-    telephone = filter.CharFilter(lookup_type='icontains')
-    email = filter.CharFilter(lookup_type='icontains')
+class vendor(django_filters.FilterSet):
+    name = django_filters.CharFilter(lookup_type='icontains')
+    telephone = django_filters.CharFilter(lookup_type='icontains')
+    email = django_filters.CharFilter(lookup_type='icontains')
 
     class Meta:
         model = models.vendor
 
-class hardware(filter.FilterSet):
+class hardware(django_filters.FilterSet):
     type_id = hardware_type_filter(label="Type")
-    computer = filter.CharFilter(name="computer__name",lookup_type='icontains')
+    computer = django_filters.CharFilter(name="computer__name",lookup_type='icontains')
     is_installed = inverted_boolean_filter(lookup_type='isnull', name="installed_on")
     mac_address = mac_address_filter(name="network_adaptor__mac_address")
-    manufacturer = filter.CharFilter(lookup_type='icontains')
-    model = filter.CharFilter(lookup_type='icontains')
-    serial_number = filter.CharFilter(lookup_type='icontains')
-    asset_id = filter.CharFilter(lookup_type='icontains')
+    manufacturer = django_filters.CharFilter(lookup_type='icontains')
+    model = django_filters.CharFilter(lookup_type='icontains')
+    serial_number = django_filters.CharFilter(lookup_type='icontains')
+    asset_id = django_filters.CharFilter(lookup_type='icontains')
     owner = party_filter()
     user = party_filter()
 
@@ -72,32 +72,32 @@ class hardware(filter.FilterSet):
         model = models.hardware
         fields = [ 'location', 'installed_on' ]
 
-class software(filter.FilterSet):
-    name = filter.CharFilter(lookup_type='icontains')
+class software(django_filters.FilterSet):
+    name = django_filters.CharFilter(lookup_type='icontains')
     has_licenses = inverted_boolean_filter(lookup_type='isnull', name="license_key")
 
     class Meta:
         model = models.software
 
-class license(filter.FilterSet):
+class license(django_filters.FilterSet):
     owner = party_filter()
 
     class Meta:
         model = models.license
 
-class task(filter.FilterSet):
-    name = filter.CharFilter(lookup_type='icontains')
-    comments = filter.CharFilter(lookup_type='icontains')
+class task(django_filters.FilterSet):
+    name = django_filters.CharFilter(lookup_type='icontains')
+    comments = django_filters.CharFilter(lookup_type='icontains')
 
     class Meta:
         model = models.task
 
-class data(filter.FilterSet):
+class data(django_filters.FilterSet):
     attempted = inverted_boolean_filter(lookup_type='isnull', name="last_attempt")
-    last_attempt_after = filter.DateTimeFilter(lookup_type='gte', name="last_attempt")
-    last_attempt_before = filter.DateTimeFilter(lookup_type='lt', name="last_attempt")
-    datetime_after = filter.DateTimeFilter(lookup_type='gte', name="datetime")
-    datetime_before = filter.DateTimeFilter(lookup_type='lt', name="datetime")
+    last_attempt_after = django_filters.DateTimeFilter(lookup_type='gte', name="last_attempt")
+    last_attempt_before = django_filters.DateTimeFilter(lookup_type='lt', name="last_attempt")
+    datetime_after = django_filters.DateTimeFilter(lookup_type='gte', name="datetime")
+    datetime_before = django_filters.DateTimeFilter(lookup_type='lt', name="datetime")
     imported = inverted_boolean_filter(lookup_type='isnull', name="imported")
 
     class Meta:
