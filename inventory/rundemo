@@ -1,9 +1,9 @@
 DJANGO="$HOME/tree/Django-1.1.1"
-APP=sample
+APP=inventory
 DIR=$PWD
 
 export PYTHONPATH="$DIR:$DJANGO"
-export DJANGO_SETTINGS_MODULE="sample.settings"
+export DJANGO_SETTINGS_MODULE="inventory.settings"
 
-"$DIR/sample/manage.py" syncdb
-"$DIR/sample/manage.py" "$@"
+"$DIR/inventory/manage.py" syncdb
+"$DIR/inventory/manage.py" "$@"

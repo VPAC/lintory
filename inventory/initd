@@ -18,7 +18,7 @@
 #
 
 #### SERVER SPECIFIC CONFIGURATION
-DJANGO_SITES="sample"
+DJANGO_SITES="inventory"
 SITES_PATH=/usr/local/django
 export PYTHONPATH=/usr/local/django
 RUNFILES_PATH=$SITES_PATH/run

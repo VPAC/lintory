@@ -19,7 +19,7 @@ LDAP_PEOPLE = 'ou=People, dc=example, dc=org'
 LDAP_GROUPS = 'ou=Group, dc=example, dc=org'
 LDAP_BASE = 'dc=example, dc=org'
 AUTHENTICATION_BACKENDS = (
- 'sample.backends.auth.LDAPBackend',
+ 'inventory.backends.auth.LDAPBackend',
  )
 
 # Make this unique, and don't share it with anybody.
@@ -105,7 +105,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfResponseMiddleware',
 )
 
-ROOT_URLCONF = 'sample.urls'
+ROOT_URLCONF = 'inventory.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".

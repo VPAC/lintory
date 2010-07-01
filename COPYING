@@ -1,7 +1,7 @@
 # License information
 
 Most of the files are covered by GPLv3 (below). The files
-under sample/media and sample/templates are adopted from Django,
+under inventory/media and inventory/templates are adopted from Django,
 and as such have the license from Django.
 
 
