@@ -121,6 +121,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'lintory',
+    'south',
 )
 
 LOGIN_REDIRECT_URL = "/"
