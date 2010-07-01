@@ -72,7 +72,6 @@
   <tr>
     <th></th>
     <th>Mac Address</th>
-    <th>IP Address</th>
   </tr>
 {% for na in object.network_adaptors.all %}
     {% with na.error_list as error_list %}{% if error_list %}
@@ -81,7 +80,6 @@
     <tr>
       <td><a href="{{ na.get_absolute_url }}">{{na.name}}</a></td>
       <td><a href="{% url hardware_list %}?mac_address={{ na.mac_address }}">{{na.mac_address}}</a></td>
-      <td>{{na.IPv4_address}}</td>
     </tr>
 {% endfor %}
 </table>

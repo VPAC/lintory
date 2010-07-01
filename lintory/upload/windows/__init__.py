@@ -509,8 +509,6 @@ def sync_hardware(data_datetime, computer, data_dict):
             na.mac_address = mac_address
             na.name         = son(network['Name'])
             na.network_type = son(network['AdapterType'])
-            # FIXME
-            # na.IPv4_address = son(network['NetworkAdapterConfig'][0]['IPAddress'])
 
             # Save values
             na.save()

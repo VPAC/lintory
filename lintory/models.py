@@ -681,7 +681,6 @@ class network_adaptor(hardware):
     name = fields.char_field(max_length=100)
     network_type = models.CharField(max_length=20, choices=NETWORK_TYPE)
     mac_address = fields.mac_address_field(db_index=True)
-    IPv4_address = models.IPAddressField(null=True,blank=True)
 
     def inet6_host_id(self):
         mac = self.mac_address.split(':')
