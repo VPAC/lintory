@@ -69,7 +69,7 @@ class name_model_field(models.CharField):
 
         return value.get_id()
 
-    def get_db_prep_lookup(self, lookup_type, value, connection):
+    def get_db_prep_lookup(self, lookup_type, value, connection, prepared=False):
         if lookup_type == 'exact':
             return [self.get_db_prep_value(value)]
         elif lookup_type == 'in':
