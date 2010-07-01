@@ -37,7 +37,7 @@ def main():
         (options, args) = parser.parse_args()
 
         if options.redo:
-            # only redo lastet record for every computer
+            # only redo latest record for every computer
             for computer in models.computer.objects.all():
                 data_list = models.data.objects.filter(computer=computer, format="windows").order_by("-datetime")
                 try:
