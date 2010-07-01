@@ -49,3 +49,9 @@ class mac_address_field(models.CharField):
         defaults = {'form_class': lintory.fields.mac_address_field }
         defaults.update(kwargs)
         return super(mac_address_field, self).formfield(**defaults)
+
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules([], ["^lintory\.mfields\.char_field$"])
+add_introspection_rules([], ["^lintory\.mfields\.text_field$"])
+add_introspection_rules([], ["^lintory\.mfields\.email_field$"])
+add_introspection_rules([], ["^lintory\.mfields\.mac_address_field$"])
