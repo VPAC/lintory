@@ -11,7 +11,7 @@ doc             - documentation
 experimental    - experimental stuff
 lintory         - base python directory, should be made available in python search path
 obsolete        - stuff that should be deleted
-sample          - sample application using lintory
+inventory       - sample application using lintory
 scripts         - scripts for client machines.
 
 Please see COPYING for license information.
