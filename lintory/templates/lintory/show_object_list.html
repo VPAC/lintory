@@ -1,6 +1,6 @@
 {% load inventory %}
 {% if rows %}
-{% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user type %}
+{% get_permissions_from_web "add_perm" "edit_perm" "delete_perm" user web %}
 <table>
 <tr>
     {% for column in table.columns %}
@@ -28,5 +28,5 @@
 {% endfor %}
 </table>
 {% else %}
-No {{ type.plural_name }} available.
+No {{ web.plural_name }} available.
 {% endif %}

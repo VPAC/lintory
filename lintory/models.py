@@ -30,13 +30,6 @@ from datetime import *
 import random
 import re
 
-# META INFORMATION FOR MODELS
-
-class breadcrumb:
-    def __init__(self,url,name):
-        self.url = url
-        self.name = name
-
 # BASE ABSTRACT MODEL CLASS
 
 class base_model(models.Model):
@@ -52,121 +45,10 @@ class base_model(models.Model):
         error_list = []
         return error_list
 
-    # VIEW ACTION
-
-    # get the URL to display this object
-    # note this may not always make sense
-    @models.permalink
-    def get_absolute_url(self):
-        return(self.type.type_id+'_detail', [ str(self.pk) ])
-
-    # get the breadcrumbs to show while displaying this object
-    def get_breadcrumbs(self):
-        breadcrumbs = self.type.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(self.get_absolute_url(),self))
-        return breadcrumbs
-
-    # CREATE ACTION
-
-    # EDIT ACTION
-
-    # get the URL to edit this object
-    @models.permalink
-    def get_edit_url(self):
-        return(self.type.type_id+'_edit', [ str(self.pk) ])
-
-    # get breadcrumbs to show while editing this object
-    def get_edit_breadcrumbs(self):
-        breadcrumbs = self.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(self.get_edit_url(),"edit"))
-        return breadcrumbs
-
-    # find link we should go to after editing this object
-    def get_edited_url(self):
-        return self.get_absolute_url()
-
-    # DELETE ACTION
-
-    # get the URL to delete this object
-    @models.permalink
-    def get_delete_url(self):
-        return(self.type.type_id+'_delete', [ str(self.pk) ])
-
-    # get breadcrumbs to show while deleting this object
-    def get_delete_breadcrumbs(self):
-        breadcrumbs = self.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(self.get_delete_url(),"delete"))
-        return breadcrumbs
-
     # are there any reasons why this object should not be deleted?
     def check_delete(self):
         error_list = []
         return error_list
-
-    # find link we should go to after deleting object
-    @models.permalink
-    def get_deleted_url(self):
-        return(self.type.type_id+"_list",)
-
-
-    ################
-    # TYPE METHODS #
-    ################
-    class type:
-        verbose_name = None
-        verbose_name_plural = None
-
-        @classmethod
-        def single_name(cls):
-            if cls.verbose_name is not None:
-                return cls.verbose_name
-
-            type_id = cls.type_id
-            return type_id.replace("_"," ")
-
-        @classmethod
-        def plural_name(cls):
-            if cls.verbose_name_plural is not None:
-                return cls.verbose_name_plural
-
-            return cls.single_name() + 's'
-
-        @classmethod
-        def has_name_perms(cls, user, name):
-            if user.is_authenticated() and user.has_perm('inventory.%s_%s'%(name,cls.type_id)):
-                return True
-            else:
-                return False
-
-        @classmethod
-        def has_add_perms(cls, user):
-            return cls.has_name_perms(user, "add")
-
-        @classmethod
-        def has_edit_perms(cls,user):
-            return cls.has_name_perms(user, "edit")
-
-        @classmethod
-        def has_delete_perms(cls,user):
-            return cls.has_name_perms(user, "delete")
-
-        @classmethod
-        def get_breadcrumbs(cls):
-            breadcrumbs = []
-            breadcrumbs.append(breadcrumb(reverse("lintory_root"),"home"))
-            breadcrumbs.append(breadcrumb(reverse(cls.type_id+"_list"),cls.plural_name()))
-            return breadcrumbs
-
-        @classmethod
-        def get_create_breadcrumbs(cls, **kwargs):
-            breadcrumbs = cls.get_breadcrumbs(**kwargs)
-            breadcrumbs.append(breadcrumb(cls.get_create_url(**kwargs),"create"))
-            return breadcrumbs
-
-        @classmethod
-        @models.permalink
-        def get_create_url(cls):
-            return(cls.type_id+"_create",)
 
 #########
 # PARTY #
@@ -206,16 +88,7 @@ class party(base_model):
             errorlist.append("Cannot delete party that uses hardware")
         return error_list
 
-    class type(base_model.type):
-        type_id = "party"
-        verbose_name_plural = "parties"
-
 class Nobody:
-
-    def get_breadcrumbs(self):
-        breadcrumbs = self.type.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(reverse("party_detail",args=("none",)),"Nobody"))
-        return breadcrumbs
 
     def __unicode__(self):
         return "Nobody"
@@ -246,10 +119,6 @@ class Nobody:
         error_list.append("Cannot delete nobody as nobody is somebody")
         return error_list
 
-    class type(party.type):
-        pass
-
-
 ###########
 # HISTORY #
 ###########
@@ -267,53 +136,6 @@ class history_item(base_model):
 
     def __unicode__(self):
         return u"history item %s"%(self.title)
-
-    def get_breadcrumbs(self):
-        breadcrumbs = history_item.type.get_breadcrumbs(self.content_object)
-        return breadcrumbs
-
-    def get_edit_breadcrumbs(self):
-        breadcrumbs = self.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(self.get_edit_url(),"edit history"))
-        return breadcrumbs
-
-    def get_delete_breadcrumbs(self):
-        breadcrumbs = self.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(self.get_delete_url(),"delete history"))
-        return breadcrumbs
-
-    @models.permalink
-    def get_edit_url(self):
-        return('history_item_edit', [ str(self.pk) ])
-
-    @models.permalink
-    def get_delete_url(self):
-        return('history_item_delete', [ str(self.pk) ])
-
-    def get_edited_url(self):
-        return self.content_object.get_absolute_url()
-
-    def get_deleted_url(self):
-        return self.content_object.get_absolute_url()
-
-    class type(base_model.type):
-        type_id = "history_item"
-
-        @classmethod
-        def get_breadcrumbs(cls, object):
-            breadcrumbs = object.get_breadcrumbs()
-            return breadcrumbs
-
-        @classmethod
-        @models.permalink
-        def get_create_url(cls, object):
-            return(cls.type_id+"_create", [ object.type.type_id, object.pk ] )
-
-        @classmethod
-        def get_create_breadcrumbs(cls, **kwargs):
-            breadcrumbs = cls.get_breadcrumbs(**kwargs)
-            breadcrumbs.append(breadcrumb(cls.get_create_url(**kwargs),"create history"))
-            return breadcrumbs
 
 ##########
 # VENDOR #
@@ -344,9 +166,6 @@ class vendor(base_model):
 
         return errorlist
 
-    class type(base_model.type):
-        type_id = "vendor"
-
 ############
 # LOCATION #
 ############
@@ -359,39 +178,6 @@ class location(base_model):
     parent  = models.ForeignKey('self',related_name='children',null=True,blank=True)
 
     comments = fields.text_field(null=True,blank=True)
-
-    @models.permalink
-    def get_create_url(self):
-        return('location_create', [ str(self.pk) ])
-
-    def get_absolute_svg_url(self):
-        try:
-            t = loader.get_template('lintory/locations/%i.svg' % self.id)
-            return reverse('location_svg', args=[ str(self.pk) ])
-        except loader.TemplateDoesNotExist:
-            return None
-
-    def get_breadcrumbs(self):
-        breadcrumbs = []
-        breadcrumbs.append(breadcrumb(reverse("lintory_root"),"home"))
-
-        object=self
-        seen = {}
-        while object is not None and object.pk not in seen:
-            breadcrumbs.insert(1,breadcrumb(object.get_absolute_url(),object))
-            seen[object.pk] = True
-            object = object.parent
-
-        if object is not None:
-            breadcrumbs.insert(1,breadcrumb(object.get_absolute_url(),"ERROR"))
-
-        return breadcrumbs
-
-    def get_deleted_url(self):
-        if self.parent is not None:
-                return self.parent.get_absolute_url()
-        else:
-                return reverse("lintory_root")
 
     def __unicode__(self):
         return self.name
@@ -444,19 +230,6 @@ class location(base_model):
 
         return error_list
 
-    class type(base_model.type):
-        type_id = "location"
-
-        @classmethod
-        def get_breadcrumbs(cls, parent):
-            breadcrumbs = parent.get_breadcrumbs()
-            return breadcrumbs
-
-        @classmethod
-        @models.permalink
-        def get_create_url(cls, parent):
-            return(cls.type_id+"_create", [ parent.pk ] )
-
 ############
 # HARDWARE #
 ############
@@ -508,37 +281,13 @@ class hardware(base_model):
     class Meta:
         ordering = ('type_id', 'manufacturer','model')
 
-    @models.permalink
-    def get_absolute_url(self):
-        return('hardware_detail', [ str(self.pk) ])
-
-    @models.permalink
-    def get_create_url(self, type_id=None):
-        if type_id is None:
-            return('hardware_create', [ str(self.pk) ])
-        else:
-            return('hardware_create', [ str(self.pk), str(type_id) ])
-
-    @models.permalink
-    def get_edit_url(self):
-        return('hardware_edit', [ str(self.pk) ])
-
-    # get the URL to edit this object
-    @models.permalink
-    def get_install_url(self):
-        return('hardware_install', [ str(self.pk) ])
-
-    @models.permalink
-    def get_delete_url(self):
-        return('hardware_delete', [ str(self.pk) ])
-
     def get_owner(self):
         return self.owner
 
     def get_user(self):
         return self.user
 
-    # get the object type_id of this hardwware item
+    # get the object type_id of this hardware item
     def get_object_type_id(self):
         if self.type_id is not None and self.type_id!="":
             type_id = self.type_id
@@ -549,16 +298,11 @@ class hardware(base_model):
 
         return type_id
 
-    # get the object type of this hardware item
-    def get_object_type(self):
-        type_id = self.get_type_id()
-        return types[type_id]
-
     # get the object for this hardware item
     def get_object(self):
         # No need to get type data if we we already that type
         type_id = self.get_object_type_id()
-        if self.type.type_id == type_id:
+        if type(self).__name__ == type_id:
             return self
 
         if type_id in hardware_types:
@@ -584,21 +328,11 @@ class hardware(base_model):
     def network_adaptors(self):
         return network_adaptor.objects.filter(installed_on=self)
 
-    @models.permalink
-    def get_deleted_url(self):
-        return("hardware_list",)
-
     # We need to make sure that type_id is set before saving
     def save(self, *args,**kwargs):
         self.type_id = self.get_object_type_id()
         super(hardware,self).save(*args, **kwargs)
     save.alters_data = True
-
-    def get_breadcrumbs(self):
-        if type(self) == hardware:
-            return self.get_object().get_breadcrumbs()
-        else:
-            return super(hardware,self).get_breadcrumbs()
 
     def error_list(self):
         error_list = super(hardware,self).error_list()
@@ -620,37 +354,11 @@ class hardware(base_model):
 
         return error_list
 
-    class type(base_model.type):
-        type_id = "hardware"
-        verbose_name_plural = "hardware"
-
-        @classmethod
-        @models.permalink
-        def get_create_url(cls,type_id=None):
-            if type_id==None:
-                return(cls.type_id+"_create",)
-            else:
-                return(cls.type_id+"_type_create",[ type_id ])
-
-class hardware_type(base_model.type):
-    @classmethod
-    def get_breadcrumbs(cls):
-        breadcrumbs = hardware.type.get_breadcrumbs()
-        return breadcrumbs
-
-    @classmethod
-    @models.permalink
-    def get_create_url(cls):
-        return("hardware_type_create", [ cls.type_id ])
-
 class motherboard(hardware):
     type = fields.char_field(max_length=20)
 
     def __unicode__(self):
         return "'%s' compatable motherboard"%(self.type)
-
-    class type(hardware_type):
-        type_id = "motherboard"
 
 class processor(hardware):
     number_of_cores = models.PositiveIntegerField()
@@ -661,17 +369,11 @@ class processor(hardware):
     def __unicode__(self):
         return "%d MHz processor"%(self.max_speed)
 
-    class type(hardware_type):
-        type_id = "processor"
-
 class video_controller(hardware):
     memory = models.DecimalField(max_digits=12,decimal_places=0,null=True,blank=True)
 
     def __unicode__(self):
         return "%s video controller"%(self.manufacturer)
-
-    class type(hardware_type):
-        type_id = "video_controller"
 
 NETWORK_TYPE = (
     ('Ethernet 802.3', 'Ethernet 802.3'),
@@ -711,9 +413,6 @@ class network_adaptor(hardware):
             error_list.append(u"Ethernet address %s is duplicated"%(self.mac_address))
 
         return error_list
-
-    class type(hardware_type):
-        type_id = "network_adaptor"
 
 class storage(hardware):
     used_by  = models.ForeignKey('computer',related_name='used_storage',null=True,blank=True)
@@ -780,20 +479,12 @@ class storage(hardware):
                 error_list.append("Storage is installed but in use by different machine")
         return error_list
 
-    class type(hardware_type):
-        type_id = "storage"
-        verbose_name_plural = "storage"
-
 class power_supply(hardware):
     is_portable = models.BooleanField()
     watts = models.PositiveIntegerField()
 
     def __unicode__(self):
         return "%d watts power supply"%(self.watts)
-
-    class type(hardware_type):
-        type_id = "power_supply"
-        verbose_name_plural = "power supplies"
 
 class computer(hardware):
     name = fields.char_field(max_length=20)
@@ -835,9 +526,6 @@ class computer(hardware):
             errorlist.append("Cannot delete computer with used storage")
         return errorlist
 
-    class type(hardware_type):
-        type_id = "computer"
-
 MONITOR_TECHNOLOGY = (
     ('CRT', 'Cathode Ray Tube'),
     ('LCD', 'Liquid Crystal Display'),
@@ -865,9 +553,6 @@ class monitor(hardware):
         text += u"monitor"
         return text
 
-    class type(hardware_type):
-        type_id = "monitor"
-
 class multifunction(hardware):
     can_send_fax = models.BooleanField()
     can_receive_fax = models.BooleanField()
@@ -879,9 +564,6 @@ class multifunction(hardware):
 
     def __unicode__(self):
         return "%s %s"%(self.manufacturer,self.model)
-
-    class type(hardware_type):
-        type_id = "multifunction"
 
 PRINTER_TECHNOLOGY = (
     ('Inkjet', 'Inkjet'),
@@ -903,9 +585,6 @@ class printer(hardware):
     def __unicode__(self):
         return "%s %s printer"%(self.manufacturer,self.model)
 
-    class type(hardware_type):
-        type_id = "printer"
-
 class scanner(hardware):
     colour = models.BooleanField()
     OCR = models.BooleanField()
@@ -922,17 +601,11 @@ class scanner(hardware):
     def __unicode__(self):
         return "%s %s scanner"%(self.manufacturer,self.model)
 
-    class type(hardware_type):
-        type_id = "scanner"
-
 class docking_station(hardware):
     ports = fields.text_field(null=True,blank=True)
 
     def __unicode__(self):
         return "%s %s docking station"%(self.manufacturer,self.model)
-
-    class type(hardware_type):
-        type_id = "docking_station"
 
 CAMERA_TECHNOLOGY = (
     ('webcam', 'webcam'),
@@ -956,9 +629,6 @@ class camera(hardware):
 
     def __unicode__(self):
         return "%s %s camera"%(self.manufacturer,self.model)
-
-    class type(hardware_type):
-        type_id = "camera"
 
 ######
 # OS #
@@ -994,29 +664,6 @@ class os(base_model):
     def check_delete(self):
         errorlist = []
         return errorlist
-
-    def get_breadcrumbs(self):
-        breadcrumbs = self.type.get_breadcrumbs(storage=self.storage)
-        breadcrumbs.append(breadcrumb(self.get_absolute_url(),self))
-        return breadcrumbs
-
-    def get_deleted_url(self):
-        return self.storage.get_absolute_url()
-
-    class type(base_model.type):
-        type_id = "os"
-        verbose_name = "OS"
-        verbose_name_plural = "OSes"
-
-        @classmethod
-        def get_breadcrumbs(cls, storage):
-            breadcrumbs = storage.get_breadcrumbs()
-            return breadcrumbs
-
-        @classmethod
-        @models.permalink
-        def get_create_url(cls, storage):
-            return(cls.type_id+"_create", [ storage.pk ] )
 
 ############
 # SOFTWARE #
@@ -1065,14 +712,6 @@ class software(base_model):
     def inactive_software_installations(self):
         return software_installation.objects.filter(software=self,active=False)
 
-    @models.permalink
-    def get_add_software_installation_url(self):
-        return('software_add_software_installation', [ str(self.pk) ])
-
-    @models.permalink
-    def get_add_license_url(self):
-        return('software_add_license', [ str(self.pk) ])
-
     def check_delete(self):
         errorlist = []
         if self.license_key_set.all().count() > 0:
@@ -1080,10 +719,6 @@ class software(base_model):
         if self.active_software_installations().count() > 0:
             errorlist.append("Cannot delete software with active installations")
         return errorlist
-
-    class type(base_model.type):
-        type_id = "software"
-        verbose_name_plural = "software"
 
 ###########
 # LICENSE #
@@ -1129,10 +764,6 @@ class license(base_model):
     def inactive_software_installations(self):
         return software_installation.objects.filter(active=False,license_key__license=self)
 
-    @models.permalink
-    def get_add_license_key_url(self):
-        return('license_add_license_key', [ str(self.pk) ])
-
     def get_owner(self):
         return self.owner
 
@@ -1164,9 +795,6 @@ class license(base_model):
         if self.software_installations_found() > 0:
             errorlist.append("Cannot delete license with installations")
         return errorlist
-
-    class type(base_model.type):
-        type_id = "license"
 
 ###############
 # LICENSE KEY #
@@ -1215,27 +843,6 @@ class license_key(base_model):
         if object.software_installations_found() > 0:
             errorlist.append("Cannot delete license key with installations")
         return errorlist
-
-    def get_breadcrumbs(self):
-        breadcrumbs = self.software.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(self.get_absolute_url(),self))
-        return breadcrumbs
-
-    def get_deleted_url(self):
-        return self.software.get_absolute_url()
-
-    class type(base_model.type):
-        type_id = "license_key"
-
-        @classmethod
-        def get_breadcrumbs(cls, license):
-            breadcrumbs = license.get_breadcrumbs()
-            return breadcrumbs
-
-        @classmethod
-        @models.permalink
-        def get_create_url(cls, license):
-            return("license_add_"+cls.type_id, [ license.pk ] )
 
 #########################
 # SOFTWARE_INSTALLATION #
@@ -1309,57 +916,14 @@ class software_installation(base_model):
 
         return error_list
 
-    @models.permalink
-    def get_edit_license_key_url(self):
-        return('software_installation_edit_license_key', [ str(self.pk) ])
-
-    def get_edited_url(self):
-        return self.software.get_absolute_url()
-
-    def get_deleted_url(self):
-        return self.software.get_absolute_url()
-
     def __unicode__(self):
         return self.software.name+"@"+self.os.name
 
-    def check_delete(self):
+    def check_delete(subject):
         errorlist = []
         if object.active:
             errorlist.append("Cannot delete active software installation")
         return errorlist
-
-    def get_breadcrumbs(self):
-        breadcrumbs = self.software.get_breadcrumbs()
-        return breadcrumbs
-
-    def get_edit_breadcrumbs(self):
-        breadcrumbs = self.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(self.get_edit_url(),"edit installation"))
-        return breadcrumbs
-
-    def get_delete_breadcrumbs(self):
-        breadcrumbs = self.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(self.get_delete_url(),"delete installation"))
-        return breadcrumbs
-
-    class type(base_model.type):
-        type_id = "software_installation"
-
-        @classmethod
-        def get_breadcrumbs(cls, software):
-            breadcrumbs = software.get_breadcrumbs()
-            return breadcrumbs
-
-        @classmethod
-        @models.permalink
-        def get_create_url(cls, software):
-            return("software_add_"+cls.type_id, [ software.pk ] )
-
-        @classmethod
-        def get_create_breadcrumbs(cls, **kwargs):
-            breadcrumbs = cls.get_breadcrumbs(**kwargs)
-            breadcrumbs.append(breadcrumb(cls.get_create_url(**kwargs),"create installation"))
-            return breadcrumbs
 
 ########
 # TASK #
@@ -1372,10 +936,6 @@ class task(base_model):
 
     def __unicode__(self):
         return self.name
-
-    @models.permalink
-    def get_add_hardware_url(self):
-        return('task_add_hardware', [ str(self.pk) ])
 
     def hardware_tasks_all(self):
         return self.hardware_task_set.all()
@@ -1390,9 +950,6 @@ class task(base_model):
         errorlist = []
         # note: delete object *and* delete any associated hardware_task objects.
         return errorlist
-
-    class type(base_model.type):
-        type_id = "task"
 
 #################
 # HARDWARE_TASK #
@@ -1410,51 +967,12 @@ class hardware_task(base_model):
     def __unicode__(self):
         return "task %s on hardware %s"%(self.task,self.hardware.get_object())
 
-    def get_breadcrumbs(self):
-        breadcrumbs = self.task.get_breadcrumbs()
-        return breadcrumbs
-
-    def get_edit_breadcrumbs(self):
-        breadcrumbs = self.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(self.get_edit_url(),"edit hardware todo"))
-        return breadcrumbs
-
-    def get_edited_url(self):
-        return self.task.get_absolute_url()
-
-    def get_delete_breadcrumbs(self):
-        breadcrumbs = self.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(self.get_delete_url(),"delete hardware todo"))
-        return breadcrumbs
-
-    def get_deleted_url(self):
-        return self.task.get_absolute_url()
-
     def get_assigned(self):
         return self.assigned
 
     def check_delete(self):
         errorlist = []
         return errorlist
-
-    class type(base_model.type):
-        type_id = "hardware_task"
-
-        @classmethod
-        def get_breadcrumbs(cls, task):
-            breadcrumbs = task.get_breadcrumbs()
-            return breadcrumbs
-
-        @classmethod
-        @models.permalink
-        def get_create_url(cls, task):
-            return("task_add_hardware", [ task.pk ] )
-
-        @classmethod
-        def get_create_breadcrumbs(cls, **kwargs):
-            breadcrumbs = cls.get_breadcrumbs(**kwargs)
-            breadcrumbs.append(breadcrumb(cls.get_create_url(**kwargs),"add hardware"))
-            return breadcrumbs
 
 ########
 # DATA #
@@ -1488,6 +1006,3 @@ class data(base_model):
 
     class Meta:
         ordering = ('datetime','computer',)
-
-    class type(base_model.type):
-        type_id = "data"

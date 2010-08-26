@@ -1,6 +1,6 @@
 {% if perms.lintory.add_history_item %}
 <ul class="object-tools">
-<li><a class="addlink" href="{% url history_item_create type_id=type_id object_id=object.pk %}">Add</a></li>
+<li><a class="addlink" href="{% url history_item_add type_id=type_id object_id=object.pk %}">Add</a></li>
 </ul>
 {% endif %}
 

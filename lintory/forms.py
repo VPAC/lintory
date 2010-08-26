@@ -144,7 +144,7 @@ class license_key_select_form(forms.Form):
         choices.insert( 0, ("","None") )
         self.fields['key'].choices = choices
 
-class license_create_form(forms.Form):
+class license_add_form(forms.Form):
     vendor_tag = fields.char_field(max_length=10,required=False)
     installations_max = forms.IntegerField(min_value=0,required=False)
     version    = fields.char_field(max_length=20,required=False)

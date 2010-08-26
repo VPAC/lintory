@@ -10,22 +10,25 @@
 
 <h1>{{ object }}</h1>
 
-{% if perms.lintory.change_software or perms.inventory.delete_software or perms.inventory.add_license_key or perms.inventory.add_software_installation %}
-<ul class="object-tools">
-{% if perms.lintory.change_software %}
-<li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
+{% block tools %}
+{% get_permissions_from_web "add_perm" "edit_perm" "delete_perm" user web %}
+{% if edit_perm or delete_perm or perms.lintory.add_license_key or perms.lintory.add_software_installation %}
+    <ul class="object-tools">
+    {% if edit_perm %}
+        <li><a class="changelink" href="{% web_url web 'edit' object %}">Edit</a></li>
+    {% endif %}
+    {% if delete_perm %}
+        <li><a class="deletelink" href="{% web_url web 'delete' object %}">Delete</a></li>
+    {% endif %}
+    {% if perms.lintory.add_license_key %}
+        <li><a class="addlink" href="{% web_url web 'add_license' object %}">Add license</a></li>
+    {% endif %}
+    {% if perms.lintory.add_software_installation %}
+        <li><a class="addlink" href="{% web_url web 'add_software_installation' object %}">Add installation</a></li>
+    {% endif %}
+    </ul>
 {% endif %}
-{% if perms.lintory.delete_software %}
-<li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a></li>
-{% endif %}
-{% if perms.lintory.add_license_key %}
-<li><a class="addlink" href="{{ object.get_add_license_url }}">Add license</a></li>
-{% endif %}
-{% if perms.lintory.add_software_installation %}
-<li><a class="addlink" href="{{ object.get_add_software_installation_url }}">Add installation</a></li>
-{% endif %}
-</ul>
-{% endif %}
+{% endblock %}
 
 <dl class="infobox">
 <dt>Software</dt><dd>{{ object }}</dd>

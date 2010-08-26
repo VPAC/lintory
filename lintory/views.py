@@ -28,13 +28,13 @@ from django.db.models import get_model
 import django.views.generic.list_detail
 import django.forms.util as util
 
-from lintory import models, helpers, forms, eparty, tables, filters
+from lintory import models, helpers, forms, eparty, tables, filters, webs
 
 import datetime
 
 def lintory_root(request):
     breadcrumbs = [ ]
-    breadcrumbs.append(models.breadcrumb(reverse("lintory_root"),"home"))
+    breadcrumbs.append(webs.breadcrumb(reverse("lintory_root"),"home"))
 
     return render_to_response('lintory/index.html', {
                                 'breadcrumbs': breadcrumbs,
@@ -61,33 +61,50 @@ def HttpErrorResponse(request, breadcrumbs, error_list):
     })
     return HttpResponseForbidden(t.render(c))
 
-def check_add_perms(request, breadcrumbs, types):
+def check_list_perms(request, breadcrumbs, web):
     error_list = []
-    for type in types:
-        if not type.has_add_perms(request.user):
-            error_list.append("You cannot create a %s object"%(type.single_name()))
+    if not web.has_list_perms(request.user):
+        error_list.append("You cannot list %s objects"%(webs.single_name()))
 
     if len(error_list) > 0:
         return HttpErrorResponse(request, breadcrumbs, error_list)
     else:
         return None
 
-def check_edit_perms(request, breadcrumbs, types):
+def check_view_perms(request, breadcrumbs, web):
     error_list = []
-    for type in types:
-        if not type.has_edit_perms(request.user):
-            error_list.append("You cannot create a %s object"%(type.single_name()))
+    if not web.has_view_perms(request.user):
+        error_list.append("You cannot view a %s object"%(webs.single_name()))
 
     if len(error_list) > 0:
         return HttpErrorResponse(request, breadcrumbs, error_list)
     else:
         return None
 
-def check_delete_perms(request, breadcrumbs, types):
+def check_add_perms(request, breadcrumbs, web):
     error_list = []
-    for type in types:
-        if not type.has_delete_perms(request.user):
-            error_list.append("You cannot create a %s object"%(type.single_name()))
+    if not web.has_add_perms(request.user):
+        error_list.append("You cannot add a %s object"%(webs.single_name()))
+
+    if len(error_list) > 0:
+        return HttpErrorResponse(request, breadcrumbs, error_list)
+    else:
+        return None
+
+def check_edit_perms(request, breadcrumbs, web):
+    error_list = []
+    if not web.has_edit_perms(request.user):
+        error_list.append("You cannot edit a %s object"%(webs.single_name()))
+
+    if len(error_list) > 0:
+        return HttpErrorResponse(request, breadcrumbs, error_list)
+    else:
+        return None
+
+def check_delete_perms(request, breadcrumbs, web):
+    error_list = []
+    if not webs.has_delete_perms(request.user):
+        error_list.append("You cannot delete a %s object"%(webs.single_name()))
 
     if len(error_list) > 0:
         return HttpErrorResponse(request, breadcrumbs, error_list)
@@ -98,8 +115,13 @@ def check_delete_perms(request, breadcrumbs, types):
 # GENERIC FUNCTIONS #
 #####################
 
-def object_list(request, filter, table, type, template=None, kwargs={}, context={}):
-    breadcrumbs = type.get_breadcrumbs(**kwargs)
+def object_list(request, filter, table, web, template=None, kwargs={}, context={}):
+    breadcrumbs = web.get_list_breadcrumbs(**kwargs)
+
+    error = check_list_perms(request, breadcrumbs, web)
+    if error is not None:
+        return error
+
     if template is None:
         template='lintory/object_list.html'
 
@@ -118,7 +140,7 @@ def object_list(request, filter, table, type, template=None, kwargs={}, context=
         page_obj = paginator.page(paginator.num_pages)
 
     defaults = {
-            'type': type,
+            'web': web,
             'filter': filter,
             'table': table,
             'page_obj': page_obj,
@@ -129,21 +151,28 @@ def object_list(request, filter, table, type, template=None, kwargs={}, context=
             context_instance=RequestContext(request))
 
 def object_detail(request, object, template=None):
+    web=webs.get_web_from_object(object)
+    breadcrumbs = web.get_view_breadcrumbs(object)
+
+    error = check_view_perms(request, breadcrumbs, web)
+    if error is not None:
+        return error
+
     if template is None:
-        template='lintory/'+object.type.type_id+'_detail.html'
+        template='lintory/'+web.web_id+'_detail.html'
     return render_to_response(template, {
             'object': object,
-            'breadcrumbs': object.get_breadcrumbs(),
+            'web': web,
+            'breadcrumbs': breadcrumbs,
             },context_instance=RequestContext(request))
 
-def object_create(request, type, modal_form, get_defaults=None, pre_save=None, template=None, kwargs={}, additional_perms=()):
-    breadcrumbs = type.get_create_breadcrumbs(**kwargs)
+def object_add(request, web, modal_form, get_defaults=None, pre_save=None, template=None, kwargs={}):
+    breadcrumbs = web.get_add_breadcrumbs(**kwargs)
+
     if template is None:
         template='lintory/object_edit.html'
 
-    types = [ type ]
-    types.extend(additional_perms)
-    error = check_add_perms(request, breadcrumbs, types)
+    error = check_add_perms(request, breadcrumbs, web)
     if error is not None:
         return error
 
@@ -169,20 +198,20 @@ def object_create(request, type, modal_form, get_defaults=None, pre_save=None, t
             form = modal_form(instance=instance)
 
     return render_to_response(template, {
-            'object': None, 'type': type,
+            'object': None, 'web': web,
             'breadcrumbs': breadcrumbs,
             'form' : form,
             'media' : form.media,
             },context_instance=RequestContext(request))
 
-def object_edit(request, object, modal_form, pre_save=None, template=None, additional_perms=()):
-    breadcrumbs = object.get_edit_breadcrumbs()
+def object_edit(request, object, modal_form, pre_save=None, template=None):
+    web=webs.get_web_from_object(object)
+    breadcrumbs = web.get_edit_breadcrumbs(object)
+
     if template is None:
         template='lintory/object_edit.html'
 
-    types = [ object.type ]
-    types.extend(additional_perms)
-    error = check_edit_perms(request, breadcrumbs, types)
+    error = check_edit_perms(request, breadcrumbs, web)
     if error is not None:
         return error
 
@@ -204,19 +233,20 @@ def object_edit(request, object, modal_form, pre_save=None, template=None, addit
 
     return render_to_response(template, {
             'object': object,
+            'web': web,
             'breadcrumbs': breadcrumbs,
             'form' : form,
             'media' : form.media,
             },context_instance=RequestContext(request))
 
-def object_delete(request, object, template=None, additional_perms=()):
-    breadcrumbs = object.get_delete_breadcrumbs()
+def object_delete(request, object, template=None):
+    web=webs.get_web_from_object(object)
+    breadcrumbs = web.get_delete_breadcrumbs(object)
+
     if template is None:
         template='lintory/object_confirm_delete.html'
 
-    types = [ object.type ]
-    types.extend(additional_perms)
-    error = check_delete_perms(request, breadcrumbs, types)
+    error = check_delete_perms(request, breadcrumbs, web)
     if error is not None:
         return error
 
@@ -238,7 +268,7 @@ def object_delete(request, object, template=None, additional_perms=()):
 # HISTORY #
 ###########
 
-def history_item_create(request, type_id, object_id):
+def history_item_add(request, type_id, object_id):
     type = models.history_item.type
     object = get_object_by_string(type_id,object_id)
     modal_form = forms.history_item_form
@@ -249,7 +279,7 @@ def history_item_create(request, type_id, object_id):
         instance.date = datetime.datetime.now()
         return True
 
-    return object_create(request, type, modal_form, pre_save=pre_save, kwargs={ 'object': object })
+    return object_add(request, type, modal_form, pre_save=pre_save, kwargs={ 'object': object })
 
 def history_item_edit(request, history_item_id):
     history_item = get_object_or_404(models.history_item, pk=history_item_id)
@@ -264,10 +294,10 @@ def history_item_delete(request, history_item_id):
 #########
 
 def party_list(request):
-    type = models.party.type
+    web = webs.party_web()
     filter = filters.party(request.GET or None)
-    table = tables.party(request.user, type, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, type)
+    table = tables.party(request.user, web, filter.qs, order_by=request.GET.get('sort'))
+    return object_list(request, filter, table, web)
 
 def party_detail(request, object_id):
     if object_id != "none":
@@ -277,10 +307,9 @@ def party_detail(request, object_id):
 
     return object_detail(request, object)
 
-def party_create(request):
-    type = models.party.type
+def party_add(request):
     modal_form = forms.party_form
-    return object_create(request, type, modal_form)
+    return object_add(request, webs.party_web(), modal_form)
 
 def party_edit(request,object_id):
     object = get_object_or_404(models.party, pk=object_id)
@@ -332,19 +361,18 @@ def party_software_detail(request, object_id, software_id):
 ##########
 
 def vendor_list(request):
-    type = models.vendor.type
+    web = webs.vendor_web()
     filter = filters.vendor(request.GET or None)
-    table = tables.vendor(request.user, type, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, type)
+    table = tables.vendor(request.user, web, filter.qs, order_by=request.GET.get('sort'))
+    return object_list(request, filter, table, web)
 
 def vendor_detail(request, object_id):
     object = get_object_or_404(models.vendor, pk=object_id)
     return object_detail(request, object)
 
-def vendor_create(request):
-    type = models.vendor.type
+def vendor_add(request):
     modal_form = forms.vendor_form
-    return object_create(request, type, modal_form)
+    return object_add(request, webs.vendor_web(), modal_form)
 
 def vendor_edit(request,object_id):
     object = get_object_or_404(models.vendor, pk=object_id)
@@ -359,19 +387,18 @@ def vendor_delete(request,object_id):
 ########
 
 def task_list(request):
-    type = models.task.type
+    web = webs.task_web()
     filter = filters.task(request.GET or None)
-    table = tables.task(request.user, type, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, type)
+    table = tables.task(request.user, web, filter.qs, order_by=request.GET.get('sort'))
+    return object_list(request, filter, table, web)
 
 def task_detail(request, object_id):
     object = get_object_or_404(models.task, pk=object_id)
     return object_detail(request, object)
 
-def task_create(request):
-    type = models.task.type
+def task_add(request):
     modal_form = forms.task_form
-    return object_create(request, type, modal_form)
+    return object_add(request, webs.task_web(), modal_form)
 
 def task_edit(request,object_id):
     object = get_object_or_404(models.task, pk=object_id)
@@ -386,7 +413,6 @@ def task_delete(request,object_id):
 #################
 
 def task_add_hardware(request, object_id):
-    type = models.hardware_task.type
     task = get_object_or_404(models.task, pk=object_id)
     modal_form = forms.hardware_task_form
 
@@ -395,7 +421,7 @@ def task_add_hardware(request, object_id):
         instance.task = task
         return instance
 
-    return object_create(request, type, modal_form, get_defaults, kwargs={ 'task': task })
+    return object_add(request, webs.hardware_task_web(), modal_form, get_defaults, kwargs={ 'task': task })
 
 def hardware_task_edit(request,object_id):
     object = get_object_or_404(models.hardware_task, pk=object_id)
@@ -444,10 +470,9 @@ def location_task(request, object_id, task_id):
 
 def location_redirect(request,object_id):
     object = get_object_or_404(models.location, pk=object_id)
-    return HttpResponseRedirect(object.get_absolute_url())
+    return HttpResponseRedirect(object.get_view_url())
 
-def location_create(request, object_id):
-    type = models.location.type
+def location_add(request, object_id):
     parent = get_object_or_404(models.location, pk=object_id)
     modal_form = forms.location_form
 
@@ -456,7 +481,7 @@ def location_create(request, object_id):
         instance.parent = parent
         return instance
 
-    return object_create(request, type, modal_form, get_defaults=get_defaults, kwargs={ 'parent': parent })
+    return object_add(request, webs.location_web(), modal_form, get_defaults=get_defaults, kwargs={ 'parent': parent })
 
 def location_edit(request,object_id):
     object = get_object_or_404(models.location, pk=object_id)
@@ -487,7 +512,7 @@ class location_hardware_lookup:
 
     # Short cut
     def url(self):
-        return self.location.get_absolute_url()
+        return self.location.get_view_url()
 
     def __getitem__(self, key):
         value = getattr(self.location, key)
@@ -515,7 +540,9 @@ class location_lookup:
 
 def location_svg(request, object_id):
     object = get_object_or_404(models.location, pk=object_id)
-    if not object.get_absolute_svg_url():
+
+    # FIXME!
+    if False:
         raise Http404
 
     return render_to_response('lintory/locations/%i.svg'%object.pk,
@@ -593,24 +620,24 @@ type_dict = {
 # HARDWARE OBJECTS
 
 def hardware_list(request):
-    type = models.hardware.type
+    web = webs.hardware_web()
     filter = filters.hardware(request.GET or None)
-    table = tables.hardware(request.user, type, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, type)
+    table = tables.hardware(request.user, web, filter.qs, order_by=request.GET.get('sort'))
+    return object_list(request, filter, table, web)
 
 def hardware_detail(request, object_id):
     object = get_object_or_404(models.hardware, pk=object_id)
     object = object.get_object()
     return object_detail(request, object)
 
-def hardware_create(request, type_id=None, object_id=None):
+def hardware_add(request, type_id=None, object_id=None):
     if object_id is None:
-        type = models.hardware.type
-        breadcrumbs = type.get_create_breadcrumbs()
+        web = webs.hardware_web()
+        breadcrumbs = web.get_add_breadcrumbs()
     else:
         object = get_object_or_404(models.hardware, pk=object_id)
         breadcrumbs = object.get_breadcrumbs()
-        breadcrumbs.append(models.breadcrumb(object.get_create_url(),"create hardware"))
+        breadcrumbs.append(models.breadcrumb(object.get_add_url(),"add hardware"))
 
     if request.method == 'POST':
         form = forms.hardware_type_form(request.POST, request.FILES)
@@ -619,9 +646,9 @@ def hardware_create(request, type_id=None, object_id=None):
             new_type = form.cleaned_data['type']
 
             if object_id is None:
-                url = type.get_create_url(new_type)
+                url = type.get_add_url(new_type)
             else:
-                url = object.get_create_url(new_type)
+                url = object.get_add_url(new_type)
             return HttpResponseRedirect(url)
     else:
         form = forms.hardware_type_form()
@@ -641,8 +668,7 @@ def hardware_edit(request, object_id):
 
     object = object.get_object()
     modal_form = type_dict[type_id].modal_form
-    additional = ( models.hardware.type, )
-    return object_edit(request, object, modal_form, additional_perms=additional)
+    return object_edit(request, object, modal_form)
 
 def hardware_install(request, object_id):
     object = get_object_or_404(models.hardware, pk=object_id)
@@ -666,13 +692,12 @@ def hardware_install(request, object_id):
     return object_list(request, filter, table, type, template="lintory/hardware_list_form.html",
             context={ 'object': object, 'error_list': error_list })
 
-def hardware_delete(request,object_id):
+def hardware_delete(request, object_id):
     object = get_object_or_404(models.hardware, pk=object_id)
     object = object.get_object()
-    additional = ( models.hardware.type, )
-    return object_delete(request, object, additional_perms=additional)
+    return object_delete(request, object)
 
-def hardware_type_create(request, type_id, object_id=None):
+def hardware_type_add(request, type_id, object_id=None):
     if type_id not in type_dict:
         raise Http404(u"Hardware type '%s' not found"%(type_id))
 
@@ -691,27 +716,25 @@ def hardware_type_create(request, type_id, object_id=None):
         instance.seen_last = datetime.datetime.now()
         return instance
 
-    additional = ( models.hardware.type, )
-    return object_create(request, type, modal_form, get_defaults, additional_perms=additional)
+    return object_add(request, type, modal_form, get_defaults)
 
 ############
 # SOFTWARE #
 ############
 
 def software_list(request):
-    type = models.software.type
+    web = webs.software_web()
     filter = filters.software(request.GET or None)
-    table = tables.software(request.user, type, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, type)
+    table = tables.software(request.user, web, filter.qs, order_by=request.GET.get('sort'))
+    return object_list(request, filter, table, web)
 
 def software_detail(request, object_id):
     object = get_object_or_404(models.software, pk=object_id)
     return object_detail(request, object)
 
-def software_create(request):
-    type = models.software.type
+def software_add(request):
     modal_form = forms.software_form
-    return object_create(request, type, modal_form)
+    return object_add(request, webs.software_web(), modal_form)
 
 def software_edit(request,object_id):
     object = get_object_or_404(models.software, pk=object_id)
@@ -726,19 +749,18 @@ def software_delete(request,object_id):
 ###########
 
 def license_list(request):
-    type = models.license.type
+    web = web.license_web()
     filter = filters.license(request.GET or None)
-    table = tables.license(request.user, type, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, type)
+    table = tables.license(request.user, web, filter.qs, order_by=request.GET.get('sort'))
+    return object_list(request, filter, table, web)
 
 def license_detail(request, object_id):
     object = get_object_or_404(models.license, pk=object_id)
     return object_detail(request, object)
 
-def license_create(request):
-    type = models.license.type
+def license_add(request):
     modal_form = forms.license_form
-    return object_create(request, type, modal_form)
+    return object_add(request, web.license_web(), modal_form)
 
 def license_edit(request,object_id):
     object = get_object_or_404(models.license, pk=object_id)
@@ -749,13 +771,12 @@ def software_add_license(request,object_id):
     breadcrumbs = object.get_breadcrumbs()
     breadcrumbs.append(models.breadcrumb(object.get_add_license_url(),"add software license"))
 
-    type = models.license.type
-    error = check_add_perms(request, breadcrumbs, [ type ])
+    error = check_add_perms(request, breadcrumbs, webs.license_web())
     if error is not None:
         return error
 
     if request.method == 'POST':
-        form = forms.license_create_form(request.POST, request.FILES)
+        form = forms.license_add_form(request.POST, request.FILES)
 
         if form.is_valid():
             valid = True
@@ -797,10 +818,11 @@ def software_add_license(request,object_id):
                 license_key.save()
 
                 # we finished
-                url=license.get_absolute_url()
+                license_web = webs.license_web()
+                url=license_web.get_view_url(license)
                 return HttpResponseRedirect(url)
     else:
-        form = forms.license_create_form()
+        form = forms.license_add_form()
 
     return render_to_response('lintory/object_edit.html', {
             'object': None, 'type': 'software license',
@@ -822,7 +844,6 @@ def license_key_detail(request, object_id):
     return object_detail(request, object)
 
 def license_add_license_key(request, object_id):
-    type = models.license_key.type
     license = get_object_or_404(models.license, pk=object_id)
     modal_form = forms.license_key_form
 
@@ -831,7 +852,7 @@ def license_add_license_key(request, object_id):
         instance.license = license
         return instance
 
-    return object_create(request, type, modal_form, get_defaults, kwargs={ 'license': license })
+    return object_add(request, webs.license_key_web(), modal_form, get_defaults, kwargs={ 'license': license })
 
 def license_key_edit(request, object_id):
     object = get_object_or_404(models.license_key, pk=object_id)
@@ -846,7 +867,6 @@ def license_key_delete(request,object_id):
 #########################
 
 def software_add_software_installation(request, object_id):
-    type = models.software_installation.type
     software = get_object_or_404(models.software, pk=object_id)
     modal_form = forms.software_installation_form
 
@@ -857,15 +877,15 @@ def software_add_software_installation(request, object_id):
         instance.seen_last = datetime.datetime.now()
         return instance
 
-    return object_create(request, type, modal_form, get_defaults, kwargs={ 'software': software })
+    return object_add(request, webs.software_installation_web(), modal_form, get_defaults, kwargs={ 'software': software })
 
 def software_installation_edit_license_key(request,object_id):
     object = get_object_or_404(models.software_installation, pk=object_id)
     breadcrumbs = object.software.get_breadcrumbs()
     breadcrumbs.append(models.breadcrumb(object.get_edit_license_key_url(),"edit license key"))
 
-    type = models.software_installation.type
-    error = check_edit_perms(request, breadcrumbs, [ type ])
+    web = webs.software_installation_web()
+    error = check_edit_perms(request, breadcrumbs, web)
     if error is not None:
         return error
 
@@ -880,7 +900,7 @@ def software_installation_edit_license_key(request,object_id):
             object.license_key = license_key
             object.save()
 
-            url = object.software.get_absolute_url()
+            url = web.get_view_url(software)
             return HttpResponseRedirect(url)
     else:
         if object.license_key is None:
@@ -924,8 +944,7 @@ def os_detail(request, object_id):
     object = get_object_or_404(models.os, pk=object_id)
     return object_detail(request, object)
 
-def os_create(request, object_id):
-    type = models.os.type
+def os_add(request, object_id):
     storage = get_object_or_404(models.storage, pk=object_id)
     modal_form = forms.os_form
 
@@ -936,7 +955,7 @@ def os_create(request, object_id):
         instance.seen_last = datetime.datetime.now()
         return instance
 
-    return object_create(request, type, modal_form, get_defaults, kwargs={ 'storage': storage })
+    return object_add(request, webs.os_web(), modal_form, get_defaults, kwargs={ 'storage': storage })
 
 def os_edit(request, object_id):
     object = get_object_or_404(models.os, pk=object_id)
@@ -952,17 +971,16 @@ def os_delete(request,object_id):
 ########
 
 def data_list(request):
-    type = models.data.type
+    web = webs.data_web()
     filter = filters.data(request.GET or None)
-    table = tables.data(request.user, type, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, type)
+    table = tables.data(request.user, web, filter.qs, order_by=request.GET.get('sort'))
+    return object_list(request, filter, table, web)
 
 def data_detail(request, object_id):
     object = get_object_or_404(models.data, pk=object_id)
     return object_detail(request, object)
 
-def data_create(request):
-    type = models.data.type
+def data_add(request):
     modal_form = forms.data_form
     template = 'lintory/object_file_edit.html'
 
@@ -971,7 +989,7 @@ def data_create(request):
         instance.datetime = datetime.datetime.now()
         return instance
 
-    return object_create(request, type, modal_form, template=template, get_defaults=get_defaults)
+    return object_add(request, webs.data_web, modal_form, template=template, get_defaults=get_defaults)
 
 def data_edit(request, object_id):
     template = 'lintory/object_file_edit.html'

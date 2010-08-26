@@ -14,45 +14,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from lintory import models
+from lintory import models, webs
 import django_tables as tables
 
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
 class action_table(tables.ModelTable):
-    def __init__(self, user, type, *args, **kwargs):
+    def __init__(self, user, web, *args, **kwargs):
         super(action_table,self).__init__(*args, **kwargs)
         self.user = user
+        self.web = web
 
-        if type.has_edit_perms(user):
+        if web.has_edit_perms(user):
             self.base_columns["edit"] = tables.Column(sortable=False)
-        if type.has_delete_perms(user):
+        if web.has_delete_perms(user):
             self.base_columns["delete"] = tables.Column(sortable=False)
 
     def render_edit(self, data):
-        if data.type.has_edit_perms(self.user):
-            return mark_safe("<a class='changelink' href='%s'>%s</a>"%(
-                    data.get_edit_url(),
-                    "edit"))
-        else:
-            return "-"
+        web = webs.get_web_from_object(data)
+        return mark_safe("<a class='changelink' href='%s'>%s</a>"%(
+                web.get_edit_url(data),
+                "edit"))
 
     def render_delete(self, data):
-        if data.type.has_edit_perms(self.user):
-            return mark_safe("<a class='deletelink' href='%s'>%s</a>"%(
-                    data.get_delete_url(),
-                    "delete"))
-        else:
-            return "-"
+        web = webs.get_web_from_object(data)
+        return mark_safe("<a class='deletelink' href='%s'>%s</a>"%(
+                web.get_delete_url(data),
+                "delete"))
 
-def render_link(data,title=None):
-
+def render_link(data, title=None):
     if title is None:
         title=u"%s"%(data)
 
     if data is not None:
-        return mark_safe(u"<a href='%s'>%s</a>"%(data.get_absolute_url(),conditional_escape(title)))
+        web = webs.get_web_from_object(data)
+        return mark_safe(u"<a href='%s'>%s</a>"%(web.get_view_url(data),conditional_escape(title)))
     else:
         return mark_safe(u"-")
 
@@ -61,7 +58,7 @@ class party(action_table):
     name = tables.Column()
 
     def render_name(self, data):
-        return mark_safe(u"<a href='%s'>%s</a>"%(data.get_absolute_url(),conditional_escape(data)))
+        return mark_safe(u"<a href='%s'>%s</a>"%(self.web.get_view_url(data),conditional_escape(data)))
 
     class Meta:
         model = models.party
@@ -249,7 +246,7 @@ class license_key(action_table):
         return render_link(data.license)
 
     def render_key(self, data):
-        if data.type.has_name_perms(self.user,"can_see_key"):
+        if self.web.has_name_perms(self.user,"can_see_key"):
             return render_link(data, data.key)
         else:
             return render_link(data)
@@ -282,23 +279,21 @@ class software_installation(action_table):
     def render_license_key(self, data):
         if data.license_key is None:
             return "-"
-        elif data.license_key.type.has_name_perms(self.user,"can_see_key"):
+        elif self.web.has_name_perms(self.user,"can_see_key"):
             return render_link(data.license_key, data.license_key.key)
         else:
             return render_link(data.license_key)
 
-    def __init__(self, user, type, *args, **kwargs):
-        super(software_installation,self).__init__(user, type, *args, **kwargs)
-        if type.has_edit_perms(user):
+    def __init__(self, user, web, *args, **kwargs):
+        super(software_installation,self).__init__(user, web, *args, **kwargs)
+        if web.has_edit_perms(user):
             self.base_columns["edit_key"] = tables.Column(sortable=False)
 
     def render_edit_key(self, data):
-        if data.type.has_edit_perms(self.user):
-            return mark_safe("<a class='changelink' href='%s'>%s</a>"%(
-                    data.get_edit_license_key_url(),
-                    "key"))
-        else:
-            return "-"
+        web = webs.get_web_from_object(data)
+        return mark_safe("<a class='changelink' href='%s'>%s</a>"%(
+                web.get_edit_license_key_url(data),
+                "key"))
 
     class Meta:
         pass

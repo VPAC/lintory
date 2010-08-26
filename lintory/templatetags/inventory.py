@@ -18,8 +18,9 @@ from django import template
 from django.utils.safestring import mark_safe
 from django.utils.http import urlquote
 from django.utils.html import conditional_escape
+from django.contrib.contenttypes.models import ContentType
 
-from lintory import models, tables
+from lintory import models, tables, webs
 
 from django.db.models import Q
 
@@ -64,10 +65,10 @@ def show_error_list(error_list):
     };
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
-def show_list(context, table, rows, type, sort="sort"):
+def show_list(context, table, rows, web, sort="sort"):
     dict = defaults(context)
     dict['table'] = table
-    dict['type'] = type
+    dict['web'] = web
     dict['rows'] = rows
     dict['sort'] = sort
     return dict
@@ -75,118 +76,117 @@ def show_list(context, table, rows, type, sort="sort"):
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
 def show_hardware_list(context, object_list, sort="hardware_sort"):
     request = context['request']
-    type = models.hardware.type
+    web = webs.hardware_web()
     dict = defaults(context)
-    dict['table'] = tables.hardware(request.user, type, object_list,request.GET.get(sort))
+    dict['table'] = tables.hardware(request.user, web, object_list,request.GET.get(sort))
     dict['rows'] = dict['table'].rows
-    dict['type'] = type
+    dict['web'] = web
     dict['sort'] = sort
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
 def show_location_list(context, object_list, sort="location_sort"):
     request = context['request']
-    type = models.location.type
+    web = webs.location_web()
     dict = defaults(context)
-    dict['table'] = tables.location(request.user, type, object_list,request.GET.get(sort))
+    dict['table'] = tables.location(request.user, web, object_list,request.GET.get(sort))
     dict['rows'] = dict['table'].rows
-    dict['type'] = type
+    dict['web'] = web
     dict['sort'] = sort
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
 def show_license_list(context, object_list, sort="license_sort"):
     request = context['request']
-    type = models.license.type
+    web = webs.license_web()
     dict = defaults(context)
-    dict['table'] = tables.license(request.user, type, object_list,request.GET.get(sort))
+    dict['table'] = tables.license(request.user, web, object_list,request.GET.get(sort))
     dict['rows'] = dict['table'].rows
-    dict['type'] = type
+    dict['web'] = web
     dict['sort'] = sort
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
 def show_license_key_list(context, object_list, sort="license_key_sort"):
     request = context['request']
-    type = models.license.type
+    web = webs.license_key_web()
     dict = defaults(context)
-    dict['table'] = tables.license_key(request.user, type, object_list,request.GET.get(sort))
+    dict['table'] = tables.license_key(request.user, web, object_list,request.GET.get(sort))
     dict['rows'] = dict['table'].rows
-    dict['type'] = type
+    dict['web'] = web
     dict['sort'] = sort
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
 def show_software_list(context, object_list, sort="software_sort"):
     request = context['request']
-    type = models.software.type
+    web = webs.software_web()
     dict = defaults(context)
-    dict['table'] = tables.software(request.user, type, object_list,request.GET.get(sort))
+    dict['table'] = tables.software(request.user, web, object_list,request.GET.get(sort))
     dict['rows'] = dict['table'].rows
-    dict['type'] = type
+    dict['web'] = web
     dict['sort'] = sort
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
 def show_software_installation_list(context, object_list, sort="software_installation_sort"):
     request = context['request']
-    type = models.software.type
+    web = webs.software_installation_web()
     dict = defaults(context)
-    dict['table'] = tables.software_installation(request.user, type, object_list,request.GET.get(sort))
-    dict['type'] = type
+    dict['table'] = tables.software_installation(request.user, web, object_list,request.GET.get(sort))
     dict['rows'] = dict['table'].rows
-    dict['type'] = type
+    dict['web'] = web
     dict['sort'] = sort
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
 def show_task_list(context, object_list, sort="task_sort"):
     request = context['request']
-    type = models.task.type
+    web = webs.task_web()
     dict = defaults(context)
-    dict['table'] = tables.task(request.user, type, object_list,request.GET.get(sort))
+    dict['table'] = tables.task(request.user, web, object_list,request.GET.get(sort))
     dict['rows'] = dict['table'].rows
-    dict['type'] = type
+    dict['web'] = web
     dict['sort'] = sort
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
 def show_hardware_task_list(context, object_list, sort="hardware_task_sort"):
     request = context['request']
-    type = models.hardware_task.type
+    web = webs.hardware_task_web()
     dict = defaults(context)
-    dict['table'] = tables.hardware_task(request.user, type, object_list,request.GET.get(sort))
+    dict['table'] = tables.hardware_task(request.user, web, object_list,request.GET.get(sort))
     dict['rows'] = dict['table'].rows
-    dict['type'] = type
+    dict['web'] = web
     dict['sort'] = sort
     return dict
 
 @register.inclusion_tag('lintory/show_history.html', takes_context=True)
 def show_history(context, object):
     dict = defaults(context)
-    dict['type_id'] = object.type.type_id
+    dict['type_id'] = ContentType.objects.get_for_model(object)
     dict['object'] = object
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
 def show_os_list(context, object_list, sort="os_sort"):
     request = context['request']
-    type = models.os.type
+    web = webs.os_web()
     dict = defaults(context)
-    dict['table'] = tables.os(request.user, type, object_list,request.GET.get(sort))
+    dict['table'] = tables.os(request.user, web, object_list,request.GET.get(sort))
     dict['rows'] = dict['table'].rows
-    dict['type'] = type
+    dict['web'] = web
     dict['sort'] = sort
     return dict
 
 @register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
 def show_data_list(context, object_list, sort="data_sort"):
     request = context['request']
-    type = models.data.type
+    web = webs.data_web()
     dict = defaults(context)
-    dict['table'] = tables.data(request.user, type, object_list,request.GET.get(sort))
+    dict['table'] = tables.data(request.user, web, object_list,request.GET.get(sort))
     dict['rows'] = dict['table'].rows
-    dict['type'] = type
+    dict['web'] = web
     dict['sort'] = sort
     return dict
 
@@ -328,30 +328,30 @@ class get_active_software_installations_by_software_owner_node(template.Node):
 
 
 @register.tag
-def get_permissions_from_type(parser, token):
+def get_permissions_from_web(parser, token):
     try:
-        tag_name, add_tag, edit_tag, delete_tag, user, type = token.split_contents()
+        tag_name, add_tag, edit_tag, delete_tag, user, web = token.split_contents()
     except ValueError:
         raise template.TemplateSyntaxError, "%r tag requires exactly four arguments" % token.contents.split()[0]
-    return get_permissions_from_type_node(add_tag, edit_tag, delete_tag, user, type)
+    return get_permissions_from_web_node(add_tag, edit_tag, delete_tag, user, web)
 
-class get_permissions_from_type_node(template.Node):
-    def __init__(self, add_tag, edit_tag, delete_tag, user, type):
+class get_permissions_from_web_node(template.Node):
+    def __init__(self, add_tag, edit_tag, delete_tag, user, web):
         self.add_tag = template.Variable(add_tag)
         self.edit_tag = template.Variable(edit_tag)
         self.delete_tag = template.Variable(delete_tag)
         self.user = template.Variable(user)
-        self.type = template.Variable(type)
+        self.web = template.Variable(web)
     def render(self, context):
         add_tag = self.add_tag.resolve(context)
         edit_tag = self.edit_tag.resolve(context)
         delete_tag = self.delete_tag.resolve(context)
         user = self.user.resolve(context)
-        type = self.type.resolve(context)
+        web = self.web.resolve(context)
 
-        context[add_tag] = type.has_add_perms(user)
-        context[edit_tag] = type.has_edit_perms(user)
-        context[delete_tag] = type.has_delete_perms(user)
+        context[add_tag] = web.has_add_perms(user)
+        context[edit_tag] = web.has_edit_perms(user)
+        context[delete_tag] = web.has_delete_perms(user)
         return ''
 
 DOT='.'
@@ -450,3 +450,32 @@ def url_with_param(parser, token):
         except ValueError:
             raise template.TemplateSyntaxError, "Argument syntax wrong: should be key=value"
     return url_with_param_node(qschanges)
+
+class web_url_node(template.Node):
+    def __init__(self, web, name, args):
+        self.web = template.Variable(web)
+        self.name = template.Variable(name)
+        self.args = []
+        for arg in args:
+            self.args.append(template.Variable(arg))
+
+    def render(self, context):
+        web = self.web.resolve(context)
+        name = self.name.resolve(context)
+        args = []
+        for arg in self.args:
+            args.append(arg.resolve(context))
+
+        function = getattr(web,"get_%s_url"%(name))
+        return mark_safe(function(*args))
+
+@register.tag
+def web_url(parser, token):
+    bits = token.split_contents()
+    try:
+        web = bits[1]
+        name = bits[2]
+        args = bits[3:]
+    except ValueError:
+        raise template.TemplateSyntaxError, "%r tag requires exactly three arguments" % token.contents.split()[0]
+    return web_url_node(web,name,args)

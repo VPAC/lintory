@@ -10,13 +10,13 @@
 
 <h1>{{ object }}</h1>
 
-{% get_permissions_from_type "add_perm" "edit_perm" "delete_perm" user object.type %}
+{% get_permissions_from_web "add_perm" "edit_perm" "delete_perm" user web %}
 {% if edit_perm or delete_perm %}
     <ul class="object-tools">
-    {% if perms.lintory.change_hardware and edit_perm %}
+    {% if edit_perm %}
         <li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
     {% endif %}
-    {% if perms.lintory.delete_hardware and delete_perm %}
+    {% if delete_perm %}
         <li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a></li>
     {% endif %}
     </ul>
