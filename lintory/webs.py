@@ -123,14 +123,6 @@ class base_web(object):
     def template_prefix(self):
         return self.web_id
 
-    # OBSOLETE
-    def single_name(self):
-        return self.verbose_name
-
-    # OBSOLETE
-    def plural_name(self):
-        return self.verbose_name_plural
-
     def has_name_perms(self, user, name):
         if user.is_authenticated() and user.has_perm('inventory.%s_%s'%(name, self.perm_id)):
             return True
