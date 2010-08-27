@@ -237,17 +237,26 @@ class history_item_web(base_web):
     # VIEW ACTION #
     ###############
 
+    def get_view_breadcrumbs(self, object):
+        o_web = get_web_from_object(object.content_object)
+        breadcrumbs = o_web.get_view_breadcrumbs(object.content_object)
+        return breadcrumbs
+
     ##############
     # ADD ACTION #
     ##############
 
     @models.permalink
-    def get_add_url(self, subject):
-        return(subject.web_id+"_add", [ subject.web.web_id, self.pk ] )
+    def get_add_url(self, object):
+        # note: object is the object containing history item, not the history item
+        o_web = get_web_from_object(object)
+        return("history_item_add", [ o_web.web_id, object.pk ] )
 
-    def get_add_breadcrumbs(self, **kwargs):
-        breadcrumbs = self.get_breadcrumbs(**kwargs)
-        breadcrumbs.append(breadcrumb(self.get_add_url(**kwargs), "add history"))
+    def get_add_breadcrumbs(self, object):
+        # note: object is the object containing history item, not the history item
+        o_web = get_web_from_object(object)
+        breadcrumbs = o_web.get_view_breadcrumbs(object)
+        breadcrumbs.append(breadcrumb(self.get_add_url(object), "add history"))
         return breadcrumbs
 
     ###############
@@ -264,9 +273,10 @@ class history_item_web(base_web):
         web = get_web_from_object(subject.content_object)
         return web.get_view_url(subject.content_object)
 
+    # get breadcrumbs to show while editing this object
     def get_edit_breadcrumbs(self, subject):
         self.assert_subject_type(subject)
-        breadcrumbs = subject.get_breadcrumbs()
+        breadcrumbs = self.get_view_breadcrumbs(subject)
         breadcrumbs.append(breadcrumb(self.get_edit_url(subject), "edit history"))
         return breadcrumbs
 
@@ -284,11 +294,13 @@ class history_item_web(base_web):
         web = get_web_from_object(subject.content_object)
         return web.get_view_url(subject.content_object)
 
+    # get breadcrumbs to show while deleting this object
     def get_delete_breadcrumbs(self, subject):
         self.assert_subject_type(subject)
-        breadcrumbs = subject.get_breadcrumbs()
+        breadcrumbs = self.get_view_breadcrumbs(subject)
         breadcrumbs.append(breadcrumb(self.get_delete_url(subject), "delete history"))
         return breadcrumbs
+
 
 
 ##########

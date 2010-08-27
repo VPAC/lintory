@@ -1,4 +1,4 @@
- # lintory - keep track of computers and licenses
+# lintory - keep track of computers and licenses
 # Copyright (C) 2008-2009 Brian May
 #
 # This program is free software: you can redistribute it and/or modify
@@ -103,7 +103,7 @@ def check_edit_perms(request, breadcrumbs, web):
 
 def check_delete_perms(request, breadcrumbs, web):
     error_list = []
-    if not webs.has_delete_perms(request.user):
+    if not web.has_delete_perms(request.user):
         error_list.append("You cannot delete a %s object"%(webs.single_name()))
 
     if len(error_list) > 0:
@@ -188,7 +188,7 @@ def object_add(request, web, modal_form, get_defaults=None, pre_save=None, templ
 
             if valid:
                 instance.save()
-                url=instance.get_edited_url()
+                url=web.get_edited_url(instance)
                 return HttpResponseRedirect(url)
     else:
         if get_defaults is None:
@@ -226,7 +226,7 @@ def object_edit(request, object, modal_form, pre_save=None, template=None):
 
             if valid:
                 instance.save()
-                url = instance.get_edited_url()
+                url = web.get_edited_url(object)
                 return HttpResponseRedirect(url)
     else:
         form = modal_form(instance=object)
@@ -254,7 +254,7 @@ def object_delete(request, object, template=None):
     if request.method == 'POST':
         errorlist = object.check_delete()
         if len(errorlist) == 0:
-            url = object.get_deleted_url()
+            url = web.get_deleted_url(object)
             object.delete()
             return HttpResponseRedirect(url)
 
@@ -269,7 +269,6 @@ def object_delete(request, object, template=None):
 ###########
 
 def history_item_add(request, type_id, object_id):
-    type = models.history_item.type
     object = get_object_by_string(type_id,object_id)
     modal_form = forms.history_item_form
 
@@ -279,7 +278,8 @@ def history_item_add(request, type_id, object_id):
         instance.date = datetime.datetime.now()
         return True
 
-    return object_add(request, type, modal_form, pre_save=pre_save, kwargs={ 'object': object })
+    web = webs.history_item_web()
+    return object_add(request, web, modal_form, pre_save=pre_save, kwargs={ 'object': object })
 
 def history_item_edit(request, history_item_id):
     history_item = get_object_or_404(models.history_item, pk=history_item_id)
