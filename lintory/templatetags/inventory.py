@@ -453,37 +453,6 @@ def url_with_param(parser, token):
             raise template.TemplateSyntaxError, "Argument syntax wrong: should be key=value"
     return url_with_param_node(qschanges)
 
-# DEPRECIATED
-class web_url_node(template.Node):
-    def __init__(self, web, name, args):
-        self.web = template.Variable(web)
-        self.name = template.Variable(name)
-        self.args = []
-        for arg in args:
-            self.args.append(template.Variable(arg))
-
-    def render(self, context):
-        web = self.web.resolve(context)
-        name = self.name.resolve(context)
-        args = []
-        for arg in self.args:
-            args.append(arg.resolve(context))
-
-        function = getattr(web,"get_%s_url"%(name))
-        return mark_safe(function(*args))
-
-# DEPRECIATED
-@register.tag
-def web_url(parser, token):
-    bits = token.split_contents()
-    try:
-        web = bits[1]
-        name = bits[2]
-        args = bits[3:]
-    except ValueError:
-        raise template.TemplateSyntaxError, "%r tag requires exactly three arguments" % token.contents.split()[0]
-    return web_url_node(web,name,args)
-
 @register.inclusion_tag('lintory/show_buttons.html', takes_context=True)
 def show_list_buttons(context, web, user):
     dict = defaults(context)
