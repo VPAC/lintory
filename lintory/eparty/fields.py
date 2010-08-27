@@ -90,5 +90,11 @@ class name_model_field(models.CharField):
         value = self._get_val_from_obj(obj)
         return self.get_db_prep_value(value)
 
+    def clean(self, value, model_instance):
+        value = self.to_python(value)
+        self.validate(value.get_id(), model_instance)
+        self.run_validators(value.get_id())
+        return value
+
 from south.modelsinspector import add_introspection_rules
 add_introspection_rules([], ["^lintory\.eparty\.fields\.name_model_field$"])

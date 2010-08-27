@@ -95,7 +95,7 @@ def party_add(request):
 def party_edit(request,object_id):
     web = webs.party_web()
     object = get_object_or_404(models.party, pk=object_id)
-    return web.object_edit(request, object, forms.party_form)
+    return web.object_edit(request, object)
 
 def party_delete(request,object_id):
     web = webs.party_web()
@@ -164,7 +164,7 @@ def vendor_add(request):
 def vendor_edit(request,object_id):
     web = webs.vendor_web()
     object = get_object_or_404(models.vendor, pk=object_id)
-    return web.object_edit(request, object, forms.vendor_form)
+    return web.object_edit(request, object)
 
 def vendor_delete(request,object_id):
     web = webs.vendor_web()
@@ -193,7 +193,7 @@ def task_add(request):
 def task_edit(request,object_id):
     web = webs.task_web()
     object = get_object_or_404(models.task, pk=object_id)
-    return web.object_edit(request, object, forms.task_form)
+    return web.object_edit(request, object)
 
 def task_delete(request,object_id):
     web = webs.task_web()
@@ -218,7 +218,7 @@ def task_add_hardware(request, object_id):
 def hardware_task_edit(request,object_id):
     web = webs.hardware_task_web()
     object = get_object_or_404(models.hardware_task, pk=object_id)
-    return web.object_edit(request, object, forms.hardware_task_form)
+    return web.object_edit(request, object)
 
 def hardware_task_delete(request,object_id):
     web = webs.hardware_task_web()
@@ -281,7 +281,7 @@ def location_add(request, object_id):
 def location_edit(request,object_id):
     web = webs.location_web()
     object = get_object_or_404(models.location, pk=object_id)
-    return web.object_edit(request, object, forms.location_form)
+    return web.object_edit(request, object)
 
 def location_delete(request,object_id):
     web = webs.location_web()
@@ -536,7 +536,7 @@ def software_add(request):
 def software_edit(request,object_id):
     web = webs.software_web()
     object = get_object_or_404(models.software, pk=object_id)
-    return web.object_edit(request, object, forms.software_form)
+    return web.object_edit(request, object)
 
 def software_delete(request,object_id):
     web = webs.software_web()
@@ -565,7 +565,7 @@ def license_add(request):
 def license_edit(request,object_id):
     web = webs.license_web()
     object = get_object_or_404(models.license, pk=object_id)
-    return web.object_edit(request, object, forms.license_form)
+    return web.object_edit(request, object)
 
 def software_add_license(request,object_id):
     object = get_object_or_404(models.software, pk=object_id)
@@ -661,7 +661,7 @@ def license_add_license_key(request, object_id):
 def license_key_edit(request, object_id):
     web = webs.license_key_web()
     object = get_object_or_404(models.license_key, pk=object_id)
-    return web.object_edit(request, object, forms.license_key_form)
+    return web.object_edit(request, object)
 
 def license_key_delete(request,object_id):
     web = webs.license_key_web()
@@ -737,7 +737,7 @@ def software_installation_edit(request, object_id):
                 valid = False
         return valid
 
-    return web.object_edit(request, object, forms.software_installation_form, pre_save=pre_save)
+    return web.object_edit(request, object, pre_save=pre_save)
 
 def software_installation_delete(request,object_id):
     web = webs.software_installation_web()
@@ -769,7 +769,7 @@ def os_add(request, object_id):
 def os_edit(request, object_id):
     web = webs.os_web()
     object = get_object_or_404(models.os, pk=object_id)
-    return web.object_edit(request, object, forms.os_form)
+    return web.object_edit(request, object)
 
 def os_delete(request,object_id):
     web = webs.os_web()
@@ -807,7 +807,7 @@ def data_edit(request, object_id):
     web = webs.data_web()
     template = 'lintory/object_file_edit.html'
     object = get_object_or_404(models.data, pk=object_id)
-    return web.object_edit(request, object, forms.data_form, template=template)
+    return web.object_edit(request, object, template=template)
 
 def data_delete(request,object_id):
     web = webs.data_web()

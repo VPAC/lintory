@@ -255,7 +255,7 @@ class base_web(object):
 
     # find link we should go to after deleting object
     @models.permalink
-    def get_deleted_url(self, subject):
+    def get_delete_finished_url(self, subject):
         self.assert_subject_type(subject)
         return(self.link_prefix+"_list",)
 
@@ -343,7 +343,7 @@ class base_web(object):
 
                 if valid:
                     instance.save()
-                    url=self.get_edited_url(instance)
+                    url=self.get_edit_finished_url(instance)
                     return HttpResponseRedirect(url)
         else:
             if get_defaults is None:
@@ -381,7 +381,7 @@ class base_web(object):
 
                 if valid:
                     instance.save()
-                    url = self.get_edited_url(subject)
+                    url = self.get_edit_finished_url(subject)
                     return HttpResponseRedirect(url)
         else:
             form = self.form(instance=subject)
@@ -409,7 +409,7 @@ class base_web(object):
         if request.method == 'POST':
             errorlist = subject.check_delete()
             if len(errorlist) == 0:
-                url = self.get_deleted_url(subject)
+                url = self.get_delete_finished_url(subject)
                 subject.delete()
                 return HttpResponseRedirect(url)
 
@@ -498,7 +498,7 @@ class history_item_web(base_web):
         self.assert_subject_type(subject)
         return('history_item_edit', [ str(subject.pk) ])
 
-    def get_edited_url(self, subject):
+    def get_edit_finished_url(self, subject):
         self.assert_subject_type(subject)
         web = get_web_from_object(subject.content_object)
         return web.get_view_url(subject.content_object)
@@ -519,7 +519,7 @@ class history_item_web(base_web):
         self.assert_subject_type(subject)
         return('history_item_delete', [ str(subject.pk) ])
 
-    def get_deleted_url(self, subject):
+    def get_delete_finished_url(self, subject):
         self.assert_subject_type(subject)
         web = get_web_from_object(subject.content_object)
         return web.get_view_url(subject.content_object)
@@ -613,7 +613,7 @@ class location_web(base_web):
     # DELETE ACTION #
     #################
 
-    def get_deleted_url(self, subject):
+    def get_delete_finished_url(self, subject):
         self.assert_subject_type(subject)
         if subject.parent is not None:
                 return subject.parent.get_view_url()
@@ -797,7 +797,7 @@ class os_web(base_web):
     # DELETE ACTION #
     #################
 
-    def get_deleted_url(self, subject):
+    def get_delete_finished_url(self, subject):
         return subject.storage.get_view_url()
 
 ############
@@ -959,7 +959,7 @@ class license_key_web(base_web):
     # DELETE ACTION #
     #################
 
-    def get_deleted_url(self, subject):
+    def get_delete_finished_url(self, subject):
         return subject.software.get_view_url()
 
 #########################
@@ -1007,7 +1007,7 @@ class software_installation_web(base_web):
         self.assert_subject_type(subject)
         return('software_installation_edit_license_key', [ str(subject.pk) ])
 
-    def get_edited_url(self, subject):
+    def get_edit_finished_url(self, subject):
         self.assert_subject_type(subject)
         return subject.software.get_view_url()
 
@@ -1022,7 +1022,7 @@ class software_installation_web(base_web):
     # DELETE ACTION #
     #################
 
-    def get_deleted_url(self, subject):
+    def get_delete_finished_url(self, subject):
         self.assert_subject_type(subject)
         return subject.software.get_view_url()
 
@@ -1109,7 +1109,7 @@ class hardware_task_web(base_web):
         breadcrumbs.append(breadcrumb(subject.get_edit_url(), "edit hardware todo"))
         return breadcrumbs
 
-    def get_edited_url(self, subject):
+    def get_edit_finished_url(self, subject):
         self.assert_subject_type(subject)
         web = task_web()
         return web.get_view_url(subject.task)
@@ -1124,7 +1124,7 @@ class hardware_task_web(base_web):
         breadcrumbs.append(breadcrumb(subject.get_delete_url(), "delete hardware todo"))
         return breadcrumbs
 
-    def get_deleted_url(self, subject):
+    def get_delete_finished_url(self, subject):
         self.assert_subject_type(subject)
         web = task_web()
         return web.get_view_url(subject.task)
