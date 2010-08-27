@@ -617,10 +617,24 @@ class hardware_web(base_web):
     web_id = "hardware"
     verbose_name_plural = "hardware"
 
+    def assert_subject_type(self, subject):
+        type_name = type(subject).__name__
+        expected_type = self.hardware_type
+
+        if type_name != expected_type:
+            raise RuntimeError("Expected type %s but got '%s'"%(expected_type,type_name))
+
+    def single_name(self):
+        if self.verbose_name is not None:
+            return self.verbose_name
+
+        hardware_type = self.hardware_type
+        return hardware_type.replace("_", " ")
+
     def get_breadcrumbs(self):
         breadcrumbs = []
         breadcrumbs.append(breadcrumb(reverse("lintory_root"), "home"))
-        breadcrumbs.append(breadcrumb(reverse("hardware_list"), self.plural_name()))
+        breadcrumbs.append(breadcrumb(reverse("hardware_list"), "hardware"))
         return breadcrumbs
 
     ###############
@@ -630,11 +644,6 @@ class hardware_web(base_web):
     ###############
     # VIEW ACTION #
     ###############
-
-    @models.permalink
-    def get_view_url(self, subject):
-        self.assert_subject_type(subject)
-        return('hardware_detail', [ str(subject.pk) ])
 
     def get_view_buttons(self, user, subject):
         buttons = super(hardware_web, self).get_view_buttons(user, subject)
@@ -662,9 +671,9 @@ class hardware_web(base_web):
     @models.permalink
     def get_add_url(self, type_id=None):
         if type_id==None:
-            return(self.web_id+"_add",)
+            return("hardware_add",)
         else:
-            return(self.web_id+"_web_add",[ type_id ])
+            return("hardware_type_add",[ type_id ])
 
     @models.permalink
     def get_add_to_subject_url(self, subject, type_id=None):
@@ -678,11 +687,6 @@ class hardware_web(base_web):
     ###############
 
     @models.permalink
-    def get_edit_url(self, subject):
-        self.assert_subject_type(subject)
-        return('hardware_edit', [ str(subject.pk) ])
-
-    @models.permalink
     def get_install_url(self, subject):
         self.assert_subject_type(subject)
         return('hardware_install', [ str(subject.pk) ])
@@ -691,56 +695,47 @@ class hardware_web(base_web):
     # DELETE ACTION #
     #################
 
-    @models.permalink
-    def get_delete_url(self, subject):
-        self.assert_subject_type(subject)
-        return('hardware_delete', [ str(subject.pk) ])
-
-    @models.permalink
-    def get_deleted_url(self, subject):
-        self.assert_subject_type(subject)
-        return("hardware_list",)
 
 class motherboard_web(hardware_web):
-    web_id = "motherboard"
+    hardware_type = "motherboard"
 
 class processor_web(hardware_web):
-    web_id = "processor"
+    hardware_type = "processor"
 
 class video_controller_web(hardware_web):
-    web_id = "video_controller"
+    hardware_type = "video_controller"
 
 class network_adaptor_web(hardware_web):
-    web_id = "network_adaptor"
+    hardware_type = "network_adaptor"
 
 class storage_web(hardware_web):
-    web_id = "storage"
+    hardware_type = "storage"
     verbose_name_plural = "storage"
 
 class power_supply_web(hardware_web):
-    web_id = "power_supply"
+    hardware_type = "power_supply"
     verbose_name_plural = "power supplies"
 
 class computer_web(hardware_web):
-    web_id = "computer"
+    hardware_type = "computer"
 
 class monitor_web(hardware_web):
-    web_id = "monitor"
+    hardware_type = "monitor"
 
 class multifunction_web(hardware_web):
-    web_id = "multifunction"
+    hardware_type = "multifunction"
 
 class printer_web(hardware_web):
-    web_id = "printer"
+    hardware_type = "printer"
 
 class scanner_web(hardware_web):
-    web_id = "scanner"
+    hardware_type = "scanner"
 
 class docking_station_web(hardware_web):
-    web_id = "docking_station"
+    hardware_type = "docking_station"
 
 class camera_web(hardware_web):
-    web_id = "camera"
+    hardware_type = "camera"
 
 ######
 # OS #

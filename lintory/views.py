@@ -361,60 +361,74 @@ def location_svg(request, object_id):
 # HARDWARE TYPE DATA
 
 class type_data:
-    def __init__(self, modal_form, type_class):
+    def __init__(self, web, modal_form, type_class):
+        self.web = web
         self.modal_form = modal_form
         self.type_class = type_class
 
 type_dict = {
     'motherboard': type_data(
+        web = webs.motherboard_web,
         modal_form = forms.motherboard_form,
         type_class = models.motherboard,
     ),
     'processor': type_data(
+        web = webs.processor_web,
         modal_form = forms.processor_form,
         type_class = models.processor,
     ),
     'video_controller': type_data(
+        web = webs.video_controller_web,
         modal_form = forms.video_controller_form,
         type_class = models.video_controller,
     ),
     'network_adaptor': type_data(
+        web = webs.network_adaptor_web,
         modal_form = forms.network_adaptor_form,
         type_class = models.network_adaptor,
     ),
     'storage': type_data(
+        web = webs.storage_web,
         modal_form = forms.storage_form,
         type_class = models.storage,
     ),
     'computer': type_data(
+        web = webs.computer_web,
         modal_form = forms.computer_form,
         type_class = models.computer,
     ),
     'power_supply': type_data(
+        web = webs.power_supply_web,
         modal_form = forms.power_supply_form,
         type_class = models.power_supply,
     ),
     'monitor': type_data(
+        web = webs.monitor_web,
         modal_form = forms.monitor_form,
         type_class = models.monitor,
     ),
     'multifunction': type_data(
+        web = webs.multifunction_web,
         modal_form = forms.multifunction_form,
         type_class = models.multifunction,
     ),
     'printer': type_data(
+        web = webs.printer_web,
         modal_form = forms.printer_form,
         type_class = models.printer,
     ),
     'scanner': type_data(
+        web = webs.scanner_web,
         modal_form = forms.scanner_form,
         type_class = models.scanner,
     ),
     'docking_station': type_data(
+        web = webs.docking_station_web,
         modal_form = forms.docking_station_form,
         type_class = models.docking_station,
     ),
     'camera': type_data(
+        web = webs.camera_web,
         modal_form = forms.camera_form,
         type_class = models.camera,
     ),
@@ -450,11 +464,7 @@ def hardware_add(request, type_id=None, object_id=None):
 
         if form.is_valid():
             new_type = form.cleaned_data['type']
-
-            if object_id is None:
-                url = type.get_add_url(new_type)
-            else:
-                url = object.get_add_url(new_type)
+            url = web.get_add_url(new_type)
             return HttpResponseRedirect(url)
     else:
         form = forms.hardware_type_form()
@@ -512,8 +522,8 @@ def hardware_type_add(request, type_id, object_id=None):
     if object_id is not None:
         object = get_object_or_404(models.hardware, pk=object_id)
 
+    web = type_dict[type_id].web()
     type_class = type_dict[type_id].type_class
-    type = type_class.type
     modal_form = type_dict[type_id].modal_form
 
     def get_defaults():
@@ -524,7 +534,7 @@ def hardware_type_add(request, type_id, object_id=None):
         instance.seen_last = datetime.datetime.now()
         return instance
 
-    return object_add(request, type, modal_form, get_defaults)
+    return web.object_add(request, modal_form, get_defaults)
 
 ############
 # SOFTWARE #
