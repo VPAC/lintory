@@ -44,7 +44,7 @@ def HttpErrorResponse(request, breadcrumbs, error_list):
 def check_list_perms(request, breadcrumbs, web):
     error_list = []
     if not web.has_list_perms(request.user):
-        error_list.append("You cannot list %s objects"%(webs.single_name()))
+        error_list.append("You cannot list %s objects"%(webs.verbose_name))
 
     if len(error_list) > 0:
         return HttpErrorResponse(request, breadcrumbs, error_list)
@@ -54,7 +54,7 @@ def check_list_perms(request, breadcrumbs, web):
 def check_view_perms(request, breadcrumbs, web):
     error_list = []
     if not web.has_view_perms(request.user):
-        error_list.append("You cannot view a %s object"%(webs.single_name()))
+        error_list.append("You cannot view a %s object"%(webs.verbose_name))
 
     if len(error_list) > 0:
         return HttpErrorResponse(request, breadcrumbs, error_list)
@@ -64,7 +64,7 @@ def check_view_perms(request, breadcrumbs, web):
 def check_add_perms(request, breadcrumbs, web):
     error_list = []
     if not web.has_add_perms(request.user):
-        error_list.append("You cannot add a %s object"%(webs.single_name()))
+        error_list.append("You cannot add a %s object"%(webs.verbose_name))
 
     if len(error_list) > 0:
         return HttpErrorResponse(request, breadcrumbs, error_list)
@@ -74,7 +74,7 @@ def check_add_perms(request, breadcrumbs, web):
 def check_edit_perms(request, breadcrumbs, web):
     error_list = []
     if not web.has_edit_perms(request.user):
-        error_list.append("You cannot edit a %s object"%(webs.single_name()))
+        error_list.append("You cannot edit a %s object"%(webs.verbose_name))
 
     if len(error_list) > 0:
         return HttpErrorResponse(request, breadcrumbs, error_list)
@@ -84,7 +84,7 @@ def check_edit_perms(request, breadcrumbs, web):
 def check_delete_perms(request, breadcrumbs, web):
     error_list = []
     if not web.has_delete_perms(request.user):
-        error_list.append("You cannot delete a %s object"%(webs.single_name()))
+        error_list.append("You cannot delete a %s object"%(webs.verbose_name))
 
     if len(error_list) > 0:
         return HttpErrorResponse(request, breadcrumbs, error_list)
@@ -95,9 +95,6 @@ def check_delete_perms(request, breadcrumbs, web):
 # BASE METHODS #
 ################
 class base_web(object):
-    verbose_name = None
-    verbose_name_plural = None
-
     def assert_subject_type(self, subject):
         type_name = type(subject).__name__
         expected_type = self.web_id
@@ -105,21 +102,37 @@ class base_web(object):
         if type_name != expected_type:
             raise RuntimeError("Expected type %s but got '%s'"%(expected_type,type_name))
 
-    def single_name(self):
-        if self.verbose_name is not None:
-            return self.verbose_name
-
+    @property
+    def verbose_name(self):
         web_id = self.web_id
         return web_id.replace("_", " ")
 
-    def plural_name(self):
-        if self.verbose_name_plural is not None:
-            return self.verbose_name_plural
+    @property
+    def verbose_name_plural(self):
+        return self.verbose_name + 's'
 
-        return self.single_name() + 's'
+    @property
+    def perm_id(self):
+        return self.web_id
+
+    @property
+    def link_prefix(self):
+        return self.web_id
+
+    @property
+    def template_prefix(self):
+        return self.web_id
+
+    # OBSOLETE
+    def single_name(self):
+        return self.verbose_name
+
+    # OBSOLETE
+    def plural_name(self):
+        return self.verbose_name_plural
 
     def has_name_perms(self, user, name):
-        if user.is_authenticated() and user.has_perm('inventory.%s_%s'%(name, self.web_id)):
+        if user.is_authenticated() and user.has_perm('inventory.%s_%s'%(name, self.perm_id)):
             return True
         else:
             return False
@@ -127,7 +140,7 @@ class base_web(object):
     def get_breadcrumbs(self):
         breadcrumbs = []
         breadcrumbs.append(breadcrumb(reverse("lintory_root"), "home"))
-        breadcrumbs.append(breadcrumb(reverse(self.web_id+"_list"), self.plural_name()))
+        breadcrumbs.append(breadcrumb(reverse(self.link_prefix+"_list"), self.verbose_name_plural))
         return breadcrumbs
 
     ###############
@@ -146,7 +159,7 @@ class base_web(object):
         if self.has_add_perms(user):
             buttons.append({
                 'class': 'addlink',
-                'text': 'Add %s'%(self.single_name()),
+                'text': 'Add %s'%(self.verbose_name),
                 'link': self.get_add_url(),
             })
 
@@ -164,7 +177,7 @@ class base_web(object):
     @models.permalink
     def get_view_url(self, subject):
         self.assert_subject_type(subject)
-        return(self.web_id+'_detail', [ str(subject.pk) ])
+        return(self.link_prefix+'_detail', [ str(subject.pk) ])
 
     # get the breadcrumbs to show while displaying this object
     def get_view_breadcrumbs(self, subject):
@@ -201,7 +214,7 @@ class base_web(object):
 
     @models.permalink
     def get_add_url(self):
-        return(self.web_id+"_add",)
+        return(self.link_prefix+"_add",)
 
     def get_add_breadcrumbs(self, **kwargs):
         breadcrumbs = self.get_breadcrumbs()
@@ -219,7 +232,7 @@ class base_web(object):
     @models.permalink
     def get_edit_url(self, subject):
         self.assert_subject_type(subject)
-        return(self.web_id+'_edit', [ str(subject.pk) ])
+        return(self.link_prefix+'_edit', [ str(subject.pk) ])
 
     # find link we should go to after editing this object
     def get_edit_finished_url(self, subject):
@@ -244,13 +257,13 @@ class base_web(object):
     @models.permalink
     def get_delete_url(self, subject):
         self.assert_subject_type(subject)
-        return(self.web_id+'_delete', [ str(subject.pk) ])
+        return(self.link_prefix+'_delete', [ str(subject.pk) ])
 
     # find link we should go to after deleting object
     @models.permalink
     def get_deleted_url(self, subject):
         self.assert_subject_type(subject)
-        return(self.web_id+"_list",)
+        return(self.link_prefix+"_list",)
 
     # get breadcrumbs to show while deleting this object
     def get_delete_breadcrumbs(self, subject):
@@ -307,7 +320,7 @@ class base_web(object):
             return error
 
         if template is None:
-            template='lintory/'+self.web_id+'_detail.html'
+            template='lintory/'+self.template_prefix+'_detail.html'
         return render_to_response(template, {
                 'object': subject,
                 'web': self,
@@ -471,7 +484,7 @@ class history_item_web(base_web):
     def get_add_url(self, object):
         # note: object is the object containing history item, not the history item
         o_web = get_web_from_object(object)
-        return("history_item_add", [ o_web.web_id, object.pk ] )
+        return("history_item_add", [ type(object).__name__, object.pk ] )
 
     def get_add_breadcrumbs(self, object):
         # note: object is the object containing history item, not the history item
@@ -587,7 +600,7 @@ class location_web(base_web):
 
     @models.permalink
     def get_add_url(self, parent):
-        return(self.web_id+"_add", [ parent.pk ] )
+        return("location_add", [ parent.pk ] )
 
     def get_add_breadcrumbs(self, parent):
         breadcrumbs = self.get_view_breadcrumbs(parent)
@@ -616,28 +629,19 @@ class location_web(base_web):
 class hardware_web(base_web):
     web_id = "hardware"
     verbose_name_plural = "hardware"
-    hardware_type = None
+    perm_prefix = "hardware"
+    link_prefix = "hardware"
 
     def assert_subject_type(self, subject):
         type_name = type(subject).__name__
-        expected_type = self.hardware_type
+        expected_type = self.web_id
 
-        if expected_type is not None:
-            if type_name != expected_type:
-                raise RuntimeError("Expected type '%s' but got '%s'"%(expected_type,type_name))
-        else:
+        if expected_type == "hardware":
             if not type_name in types:
                 raise RuntimeError("Expected a hardware type but got '%s'"%(type_name))
-
-    def single_name(self):
-        if self.verbose_name is not None:
-            return self.verbose_name
-
-        if self.hardware_type is not None:
-            hardware_type = self.hardware_type
-            return hardware_type.replace("_", " ")
         else:
-            return super(hardware_web, self).single_name()
+            if type_name != expected_type:
+                raise RuntimeError("Expected type '%s' but got '%s'"%(expected_type,type_name))
 
     def get_breadcrumbs(self):
         breadcrumbs = []
@@ -705,45 +709,45 @@ class hardware_web(base_web):
 
 
 class motherboard_web(hardware_web):
-    hardware_type = "motherboard"
+    web_id = "motherboard"
 
 class processor_web(hardware_web):
-    hardware_type = "processor"
+    web_id = "processor"
 
 class video_controller_web(hardware_web):
-    hardware_type = "video_controller"
+    web_id = "video_controller"
 
 class network_adaptor_web(hardware_web):
-    hardware_type = "network_adaptor"
+    web_id = "network_adaptor"
 
 class storage_web(hardware_web):
-    hardware_type = "storage"
+    web_id = "storage"
     verbose_name_plural = "storage"
 
 class power_supply_web(hardware_web):
-    hardware_type = "power_supply"
+    web_id = "power_supply"
     verbose_name_plural = "power supplies"
 
 class computer_web(hardware_web):
-    hardware_type = "computer"
+    web_id = "computer"
 
 class monitor_web(hardware_web):
-    hardware_type = "monitor"
+    web_id = "monitor"
 
 class multifunction_web(hardware_web):
-    hardware_type = "multifunction"
+    web_id = "multifunction"
 
 class printer_web(hardware_web):
-    hardware_type = "printer"
+    web_id = "printer"
 
 class scanner_web(hardware_web):
-    hardware_type = "scanner"
+    web_id = "scanner"
 
 class docking_station_web(hardware_web):
-    hardware_type = "docking_station"
+    web_id = "docking_station"
 
 class camera_web(hardware_web):
-    hardware_type = "camera"
+    web_id = "camera"
 
 ######
 # OS #
@@ -923,7 +927,7 @@ class license_key_web(base_web):
 
     @models.permalink
     def get_add_url(self, license):
-        return("license_add_"+self.web_id, [ license.pk ] )
+        return("license_add_license_key", [ license.pk ] )
 
     def get_add_breadcrumbs(self, license):
         web = license_web()
@@ -970,7 +974,7 @@ class software_installation_web(base_web):
 
     @models.permalink
     def get_add_url(self, software):
-        return("software_add_"+self.web_id, [ software.pk ] )
+        return("software_add_software_installation", [ software.pk ] )
 
     def get_add_breadcrumbs(self, **kwargs):
         breadcrumbs = self.get_breadcrumbs(**kwargs)
