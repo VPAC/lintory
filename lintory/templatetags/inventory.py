@@ -327,6 +327,7 @@ class get_active_software_installations_by_software_owner_node(template.Node):
         return ''
 
 
+# DEPRECIATED
 @register.tag
 def get_permissions_from_web(parser, token):
     try:
@@ -335,6 +336,7 @@ def get_permissions_from_web(parser, token):
         raise template.TemplateSyntaxError, "%r tag requires exactly four arguments" % token.contents.split()[0]
     return get_permissions_from_web_node(add_tag, edit_tag, delete_tag, user, web)
 
+# DEPRECIATED
 class get_permissions_from_web_node(template.Node):
     def __init__(self, add_tag, edit_tag, delete_tag, user, web):
         self.add_tag = template.Variable(add_tag)
@@ -451,6 +453,7 @@ def url_with_param(parser, token):
             raise template.TemplateSyntaxError, "Argument syntax wrong: should be key=value"
     return url_with_param_node(qschanges)
 
+# DEPRECIATED
 class web_url_node(template.Node):
     def __init__(self, web, name, args):
         self.web = template.Variable(web)
@@ -469,6 +472,7 @@ class web_url_node(template.Node):
         function = getattr(web,"get_%s_url"%(name))
         return mark_safe(function(*args))
 
+# DEPRECIATED
 @register.tag
 def web_url(parser, token):
     bits = token.split_contents()
@@ -479,3 +483,15 @@ def web_url(parser, token):
     except ValueError:
         raise template.TemplateSyntaxError, "%r tag requires exactly three arguments" % token.contents.split()[0]
     return web_url_node(web,name,args)
+
+@register.inclusion_tag('lintory/show_buttons.html', takes_context=True)
+def show_list_buttons(context, web, user):
+    dict = defaults(context)
+    dict['buttons'] = web.get_list_buttons(user)
+    return dict
+
+@register.inclusion_tag('lintory/show_buttons.html', takes_context=True)
+def show_view_buttons(context, web, user, subject):
+    dict = defaults(context)
+    dict['buttons'] = web.get_view_buttons(user, subject)
+    return dict

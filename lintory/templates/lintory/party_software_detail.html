@@ -9,22 +9,9 @@
 {% block content %}
 <h1>{{ software }} by {{ party }}</h1>
 
-{% if perms.lintory.change_software or perms.inventory.delete_software or perms.inventory.add_license_key or perms.inventory.add_software_installation %}
-<ul class="object-tools">
-{% if perms.lintory.change_software %}
-<li><a class="changelink" href="{{ software.get_edit_url }}">Edit</a></li>
-{% endif %}
-{% if perms.lintory.delete_software %}
-<li><a class="deletelink" href="{{ software.get_delete_url }}">Delete</a></li>
-{% endif %}
-{% if perms.lintory.add_license_key %}
-<li><a class="addlink" href="{{ software.get_add_license_url }}">Add license</a></li>
-{% endif %}
-{% if perms.lintory.add_software_installation %}
-<li><a class="addlink" href="{{ software.get_add_software_installation_url }}">Add installation</a></li>
-{% endif %}
-</ul>
-{% endif %}
+{% block tools %}
+{% show_view_buttons software_web user software %}
+{% endblock %}
 
 {% get_licenses_by_software_owner "licenses" software party %}
 {% get_license_keys_by_software_owner "license_keys" software party %}

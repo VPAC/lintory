@@ -19,7 +19,7 @@ from django.db import models
 
 # META INFORMATION FOR MODELS
 
-class breadcrumb:
+class breadcrumb(object):
     def __init__(self, url, name):
         self.url = url
         self.name = name
@@ -27,7 +27,7 @@ class breadcrumb:
 ################
 # BASE METHODS #
 ################
-class base_web:
+class base_web(object):
     verbose_name = None
     verbose_name_plural = None
 
@@ -73,6 +73,18 @@ class base_web:
     def get_list_breadcrumbs(self):
         return self.get_breadcrumbs()
 
+    def get_list_buttons(self, user):
+        buttons = []
+
+        if self.has_add_perms(user):
+            buttons.append({
+                'class': 'addlink',
+                'text': 'Add %s'%(self.single_name()),
+                'link': self.get_add_url(),
+            })
+
+        return buttons
+
     ###############
     # VIEW ACTION #
     ###############
@@ -93,6 +105,25 @@ class base_web:
         breadcrumbs = self.get_breadcrumbs()
         breadcrumbs.append(breadcrumb(self.get_view_url(subject), subject))
         return breadcrumbs
+
+    def get_view_buttons(self, user, subject):
+        buttons = []
+
+        if self.has_edit_perms(user):
+            buttons.append({
+                'class': 'changelink',
+                'text': 'Edit',
+                'link': self.get_edit_url(subject),
+            })
+
+        if self.has_delete_perms(user):
+            buttons.append({
+                'class': 'deletelink',
+                'text': 'Delete',
+                'link': self.get_delete_url(subject),
+            })
+
+        return buttons
 
     ##############
     # ADD ACTION #
@@ -169,6 +200,28 @@ class party_web(base_web):
     web_id = "party"
     verbose_name_plural = "parties"
 
+    def get_view_buttons(self, user, subject):
+        buttons = super(party_web, self).get_view_buttons(user, subject)
+
+        if self.has_view_perms(user):
+            buttons.insert(0,{
+                'class': 'viewlink',
+                'text': 'Software',
+                'link': self.get_software_list_url(subject),
+            })
+
+        return buttons
+
+    @models.permalink
+    def get_software_list_url(self, subject):
+        self.assert_subject_type(subject)
+        return('party_software_list', [ str(subject.pk) ])
+
+    @models.permalink
+    def get_software_view_url(self, subject, software):
+        self.assert_subject_type(subject)
+        return('party_software_detail', [ str(subject.pk), str(software.pk) ])
+
 ###########
 # HISTORY #
 ###########
@@ -222,16 +275,16 @@ class history_item_web(base_web):
     #################
 
     @models.permalink
-    def get_delete_url(subject):
+    def get_delete_url(self, subject):
         self.assert_subject_type(subject)
         return('history_item_delete', [ str(subject.pk) ])
 
-    def get_deleted_url(subject):
+    def get_deleted_url(self, subject):
         self.assert_subject_type(subject)
         web = get_web_from_object(subject.content_object)
         return web.get_view_url(subject.content_object)
 
-    def get_delete_breadcrumbs(subject):
+    def get_delete_breadcrumbs(self, subject):
         self.assert_subject_type(subject)
         breadcrumbs = subject.get_breadcrumbs()
         breadcrumbs.append(breadcrumb(self.get_delete_url(subject), "delete history"))
@@ -283,6 +336,18 @@ class location_web(base_web):
 
         return breadcrumbs
 
+    def get_view_buttons(self, user, subject):
+        buttons = super(location_web, self).get_view_buttons(user, subject)
+
+        if self.has_add_perms(user):
+            buttons.insert(0,{
+                'class': 'addlink',
+                'text': 'Add location',
+                'link': self.get_add_url(subject),
+            })
+
+        return buttons
+
     ##############
     # ADD ACTION #
     ##############
@@ -290,6 +355,11 @@ class location_web(base_web):
     @models.permalink
     def get_add_url(self, parent):
         return(self.web_id+"_add", [ parent.pk ] )
+
+    def get_add_breadcrumbs(self, parent):
+        breadcrumbs = self.get_view_breadcrumbs(parent)
+        breadcrumbs.append(breadcrumb(self.get_add_url(parent), "add"))
+        return breadcrumbs
 
     ###############
     # EDIT ACTION #
@@ -333,6 +403,25 @@ class hardware_web(base_web):
         self.assert_subject_type(subject)
         return('hardware_detail', [ str(subject.pk) ])
 
+    def get_view_buttons(self, user, subject):
+        buttons = super(hardware_web, self).get_view_buttons(user, subject)
+
+        if self.has_add_perms(user):
+            buttons.insert(0,{
+                'class': 'addlink',
+                'text': 'Add hardware',
+                'link': self.get_add_to_subject_url(subject),
+            })
+
+        if self.has_edit_perms(user):
+            buttons.insert(1,{
+                'class': 'changelink',
+                'text': 'Install hardware',
+                'link': self.get_install_url(subject),
+            })
+
+        return buttons
+
     ##############
     # ADD ACTION #
     ##############
@@ -345,7 +434,7 @@ class hardware_web(base_web):
             return(self.web_id+"_web_add",[ type_id ])
 
     @models.permalink
-    def get_add_url(self, subject, type_id=None):
+    def get_add_to_subject_url(self, subject, type_id=None):
         if type_id is None:
             return('hardware_add', [ str(subject.pk) ])
         else:
@@ -473,6 +562,37 @@ class software_web(base_web):
     # VIEW ACTION #
     ###############
 
+    def get_view_buttons(self, user, subject):
+        buttons = super(software_web, self).get_view_buttons(user, subject)
+
+        if self.has_add_license_perms(user):
+            buttons.append({
+                'class': 'addlink',
+                'text': 'Add license',
+                'link': self.get_add_license_url(subject),
+            })
+
+        if self.has_add_software_installation_perms(user):
+            buttons.append({
+                'class': 'addlink',
+                'text': 'Add installation',
+                'link': self.get_add_software_installation_url(subject),
+            })
+
+        return buttons
+
+    ##############
+    # ADD ACTION #
+    ##############
+
+    def has_add_software_installation_perms(self, user):
+        web = software_installation_web()
+        return web.has_add_perms(user)
+
+    def has_add_license_perms(self, user):
+        web = license_web()
+        return web.has_add_perms(user)
+
     @models.permalink
     def get_add_software_installation_url(self, subject):
         self.assert_subject_type(subject)
@@ -482,10 +602,6 @@ class software_web(base_web):
     def get_add_license_url(self, subject):
         self.assert_subject_type(subject)
         return('software_add_license', [ str(subject.pk) ])
-
-    ##############
-    # ADD ACTION #
-    ##############
 
     ###############
     # EDIT ACTION #
@@ -510,14 +626,30 @@ class license_web(base_web):
     # VIEW ACTION #
     ###############
 
-    @models.permalink
-    def get_add_license_key_url(self, subject):
-        self.assert_subject_type(subject)
-        return('license_add_license_key', [ str(subject.pk) ])
+    def get_view_buttons(self, user, subject):
+        buttons = super(license_web, self).get_view_buttons(user, subject)
+
+        if self.has_add_license_key_perms(user):
+            buttons.append({
+                'class': 'addlink',
+                'text': 'Add key',
+                'link': self.get_add_license_key_url(subject),
+            })
+
+        return buttons
 
     ##############
     # ADD ACTION #
     ##############
+
+    def has_add_license_key_perms(self, user):
+        web = license_web()
+        return web.has_add_perms(user)
+
+    @models.permalink
+    def get_add_license_key_url(self, subject):
+        self.assert_subject_type(subject)
+        return('license_add_license_key', [ str(subject.pk) ])
 
     ###############
     # EDIT ACTION #
@@ -544,9 +676,9 @@ class license_key_web(base_web):
 
     def get_view_breadcrumbs(self, subject):
         self.assert_subject_type(subject)
-        web = get_web_for_object(subject.software)
-        breadcrumbs = web.get_breadcrumbs(subject.software)
-        breadcrumbs.append(breadcrumb(web.get_view_url(subject.software), subject))
+        web = license_web()
+        breadcrumbs = web.get_view_breadcrumbs(subject.license)
+        breadcrumbs.append(breadcrumb(web.get_view_url(subject.license), subject))
         return breadcrumbs
 
     ##############

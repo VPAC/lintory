@@ -12,12 +12,9 @@
 
 <h1>{{ type.plural_name }}</h1>
 
-{% get_permissions_from_web "add_perm" "edit_perm" "delete_perm" user web %}
-{% if add_perm %}
-<ul class="object-tools">
-<li><a class="addlink" href="{{ web.get_create_url }}">Create</a></li>
-</ul>
-{% endif %}
+{% block tools %}
+{% show_list_buttons web user %}
+{% endblock %}
 
 <form method="get">
 <table>{{ filter.form.as_table }}</table>

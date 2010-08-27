@@ -327,8 +327,9 @@ def party_software_list(request, object_id):
 
     template='lintory/party_software_list.html'
 
-    breadcrumbs = object.get_breadcrumbs()
-    breadcrumbs.append(models.breadcrumb(reverse("party_software_list",args=[object_id]),"software list"))
+    web = webs.party_web()
+    breadcrumbs = web.get_view_breadcrumbs(object)
+    breadcrumbs.append(webs.breadcrumb(web.get_software_list_url(object),"software list"))
 
     return render_to_response(template, {
             'object': object,
@@ -345,13 +346,15 @@ def party_software_detail(request, object_id, software_id):
 
     software = get_object_or_404(models.software, pk=software_id)
 
-    breadcrumbs = object.get_breadcrumbs()
-    breadcrumbs.append(models.breadcrumb(reverse("party_software_list",args=[object_id]),"software list"))
-    breadcrumbs.append(models.breadcrumb(reverse("party_software_detail",args=[object_id,software_id]),software))
+    web = webs.party_web()
+    breadcrumbs = web.get_view_breadcrumbs(object)
+    breadcrumbs.append(webs.breadcrumb(web.get_software_list_url(object),"software list"))
+    breadcrumbs.append(webs.breadcrumb(web.get_software_view_url(object, software),software))
 
     return render_to_response(template, {
             'party': object,
             'software': software,
+            'software_web': webs.software_web(),
             'breadcrumbs': breadcrumbs,
             },context_instance=RequestContext(request))
 
@@ -631,13 +634,13 @@ def hardware_detail(request, object_id):
     return object_detail(request, object)
 
 def hardware_add(request, type_id=None, object_id=None):
+    web = webs.hardware_web()
     if object_id is None:
-        web = webs.hardware_web()
         breadcrumbs = web.get_add_breadcrumbs()
     else:
         object = get_object_or_404(models.hardware, pk=object_id)
-        breadcrumbs = object.get_breadcrumbs()
-        breadcrumbs.append(models.breadcrumb(object.get_add_url(),"add hardware"))
+        breadcrumbs = web.get_view_breadcrumbs(object)
+        breadcrumbs.append(webs.breadcrumb(web.get_add_to_subject_url(object,type_id),"add hardware"))
 
     if request.method == 'POST':
         form = forms.hardware_type_form(request.POST, request.FILES)
@@ -686,10 +689,10 @@ def hardware_install(request, object_id):
                 requested_object.installed_on = object
                 requested_object.save()
 
-    type = models.hardware.type
+    web = webs.hardware_web()
     filter = filters.hardware(request.GET or {'is_installed': '3'})
-    table = tables.hardware_list_form(pks, request.user, type, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, type, template="lintory/hardware_list_form.html",
+    table = tables.hardware_list_form(pks, request.user, web, filter.qs, order_by=request.GET.get('sort'))
+    return object_list(request, filter, table, web, template="lintory/hardware_list_form.html",
             context={ 'object': object, 'error_list': error_list })
 
 def hardware_delete(request, object_id):
@@ -749,7 +752,7 @@ def software_delete(request,object_id):
 ###########
 
 def license_list(request):
-    web = web.license_web()
+    web = webs.license_web()
     filter = filters.license(request.GET or None)
     table = tables.license(request.user, web, filter.qs, order_by=request.GET.get('sort'))
     return object_list(request, filter, table, web)
@@ -760,7 +763,7 @@ def license_detail(request, object_id):
 
 def license_add(request):
     modal_form = forms.license_form
-    return object_add(request, web.license_web(), modal_form)
+    return object_add(request, webs.license_web(), modal_form)
 
 def license_edit(request,object_id):
     object = get_object_or_404(models.license, pk=object_id)
@@ -768,8 +771,9 @@ def license_edit(request,object_id):
 
 def software_add_license(request,object_id):
     object = get_object_or_404(models.software, pk=object_id)
-    breadcrumbs = object.get_breadcrumbs()
-    breadcrumbs.append(models.breadcrumb(object.get_add_license_url(),"add software license"))
+    web = webs.software_web()
+    breadcrumbs = web.get_view_breadcrumbs(object)
+    breadcrumbs.append(webs.breadcrumb(web.get_add_license_url(object),"add software license"))
 
     error = check_add_perms(request, breadcrumbs, webs.license_web())
     if error is not None:

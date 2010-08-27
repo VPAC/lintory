@@ -9,18 +9,9 @@
 {% block content %}
 <h1>{{ object }}</h1>
 
-<ul class="object-tools">
-<li><a class="viewlink" href="{% url party_software_list object.pk %}">Software</a></li>
-{% ifnotequal object.pk "none" %}
-{% get_permissions_from_web "add_perm" "edit_perm" "delete_perm" user web %}
-{% if edit_perm %}
-    <li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
-{% endif %}
-{% if delete_perm %}
-    <li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a></li>
-{% endif %}
-{% endifnotequal %}
-</ul>
+{% block tools %}
+{% show_view_buttons web user object %}
+{% endblock %}
 
 <dl class="infobox">
 <dt>Party</dt><dd>{{ object }}</dd>

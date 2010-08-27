@@ -10,9 +10,12 @@
 <h1>{{ object }}</h1>
 
 {% block tools %}
+{% show_view_buttons web user object %}
+{% endblock %}
+
 {% get_permissions_from_web "add_perm" "edit_perm" "delete_perm" user web %}
 {% if add_perm or edit_perm or delete_perm %}
-    <ul class="object-tools">
+    <ul class="my-object-tools">
     {% if add_perm %}
         <li><a class="addlink" href="{{ object.get_create_url }}">Create</a></li>
     {% endif %}
@@ -25,7 +28,6 @@
     {% endif %}
     </ul>
 {% endif %}
-{% endblock %}
 
 <dl class="infobox">
 <dt>Location</dt><dd>{{ object }}</dd>

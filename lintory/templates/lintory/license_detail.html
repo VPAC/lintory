@@ -11,20 +11,7 @@
 <h1>{{ object }}</h1>
 
 {% block tools %}
-{% get_permissions_from_web "add_perm" "edit_perm" "delete_perm" user web %}
-{% if edit_perm or delete_perm %}
-    <ul class="object-tools">
-    {% if edit_perm %}
-        <li><a class="changelink" href="{% web_url web 'edit' object %}">Edit</a></li>
-    {% endif %}
-    {% if delete_perm %}
-        <li><a class="deletelink" href="{% web_url web 'delete' object %}">Delete</a></li>
-    {% endif %}
-    {% if perms.lintory.add_license_key %}
-        <li><a class="addlink" href="{% web_url web 'add_license_key' object %}">Add key</a></li>
-    {% endif %}
-    </ul>
-{% endif %}
+{% show_view_buttons web user object %}
 {% endblock %}
 
 <dl class="infobox">

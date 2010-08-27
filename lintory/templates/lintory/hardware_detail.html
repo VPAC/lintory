@@ -11,21 +11,7 @@
 <h1>{{ object }}</h1>
 
 {% block tools %}
-{% get_permissions_from_web "add_perm" "edit_perm" "delete_perm" user web %}
-{% if add_perm or edit_perm or delete_perm %}
-    <ul class="object-tools">
-    {% if add_perm %}
-        <li><a class="addlink" href="{% web_url web 'add' object %}">Create</a></li>
-    {% endif %}
-    {% if edit_perm %}
-        <li><a class="changelink" href="{% web_url web 'edit' object %}">Edit</a></li>
-        <li><a class="changelink" href="{% web_url web 'install' object %}">Install</a></li>
-    {% endif %}
-    {% if delete_perm %}
-        <li><a class="deletelink" href="{% web_url web 'delete' object %}">Delete</a></li>
-    {% endif %}
-    </ul>
-{% endif %}
+{% show_view_buttons web user object %}
 {% endblock %}
 
 <dl class="infobox">
