@@ -49,7 +49,6 @@ def get_object_by_string(type_id,object_id):
 
 def history_item_add(request, type_id, object_id):
     object = get_object_by_string(type_id,object_id)
-    modal_form = forms.history_item_form
 
     def pre_save(instance, form):
         instance.content_type = ContentType.objects.get_for_model(object)
@@ -58,7 +57,7 @@ def history_item_add(request, type_id, object_id):
         return True
 
     web = webs.history_item_web()
-    return web.object_add(request, modal_form, pre_save=pre_save, kwargs={ 'object': object })
+    return web.object_add(request, pre_save=pre_save, kwargs={ 'object': object })
 
 def history_item_edit(request, history_item_id):
     web = webs.history_item_web()
@@ -91,8 +90,7 @@ def party_detail(request, object_id):
 
 def party_add(request):
     web = webs.party_web()
-    modal_form = forms.party_form
-    return web.object_add(request, modal_form)
+    return web.object_add(request)
 
 def party_edit(request,object_id):
     web = webs.party_web()
@@ -161,8 +159,7 @@ def vendor_detail(request, object_id):
 
 def vendor_add(request):
     web = webs.vendor_web()
-    modal_form = forms.vendor_form
-    return web.object_add(request, modal_form)
+    return web.object_add(request)
 
 def vendor_edit(request,object_id):
     web = webs.vendor_web()
@@ -191,8 +188,7 @@ def task_detail(request, object_id):
 
 def task_add(request):
     web = webs.task_web()
-    modal_form = forms.task_form
-    return web.object_add(request, modal_form)
+    return web.object_add(request)
 
 def task_edit(request,object_id):
     web = webs.task_web()
@@ -211,14 +207,13 @@ def task_delete(request,object_id):
 def task_add_hardware(request, object_id):
     web = webs.hardware_task_web()
     task = get_object_or_404(models.task, pk=object_id)
-    modal_form = forms.hardware_task_form
 
     def get_defaults():
         instance = models.hardware_task()
         instance.task = task
         return instance
 
-    return web.object_add(request, modal_form, get_defaults, kwargs={ 'task': task })
+    return web.object_add(request, get_defaults, kwargs={ 'task': task })
 
 def hardware_task_edit(request,object_id):
     web = webs.hardware_task_web()
@@ -275,14 +270,13 @@ def location_redirect(request,object_id):
 def location_add(request, object_id):
     web = webs.location_web()
     parent = get_object_or_404(models.location, pk=object_id)
-    modal_form = forms.location_form
 
     def get_defaults():
         instance = models.location()
         instance.parent = parent
         return instance
 
-    return web.object_add(request, modal_form, get_defaults=get_defaults, kwargs={ 'parent': parent })
+    return web.object_add(request, get_defaults=get_defaults, kwargs={ 'parent': parent })
 
 def location_edit(request,object_id):
     web = webs.location_web()
@@ -361,75 +355,61 @@ def location_svg(request, object_id):
 # HARDWARE TYPE DATA
 
 class type_data:
-    def __init__(self, web, modal_form, type_class):
+    def __init__(self, web, type_class):
         self.web = web
-        self.modal_form = modal_form
         self.type_class = type_class
 
 type_dict = {
     'motherboard': type_data(
         web = webs.motherboard_web,
-        modal_form = forms.motherboard_form,
         type_class = models.motherboard,
     ),
     'processor': type_data(
         web = webs.processor_web,
-        modal_form = forms.processor_form,
         type_class = models.processor,
     ),
     'video_controller': type_data(
         web = webs.video_controller_web,
-        modal_form = forms.video_controller_form,
         type_class = models.video_controller,
     ),
     'network_adaptor': type_data(
         web = webs.network_adaptor_web,
-        modal_form = forms.network_adaptor_form,
         type_class = models.network_adaptor,
     ),
     'storage': type_data(
         web = webs.storage_web,
-        modal_form = forms.storage_form,
         type_class = models.storage,
     ),
     'computer': type_data(
         web = webs.computer_web,
-        modal_form = forms.computer_form,
         type_class = models.computer,
     ),
     'power_supply': type_data(
         web = webs.power_supply_web,
-        modal_form = forms.power_supply_form,
         type_class = models.power_supply,
     ),
     'monitor': type_data(
         web = webs.monitor_web,
-        modal_form = forms.monitor_form,
         type_class = models.monitor,
     ),
     'multifunction': type_data(
         web = webs.multifunction_web,
-        modal_form = forms.multifunction_form,
         type_class = models.multifunction,
     ),
     'printer': type_data(
         web = webs.printer_web,
-        modal_form = forms.printer_form,
         type_class = models.printer,
     ),
     'scanner': type_data(
         web = webs.scanner_web,
-        modal_form = forms.scanner_form,
         type_class = models.scanner,
     ),
     'docking_station': type_data(
         web = webs.docking_station_web,
-        modal_form = forms.docking_station_form,
         type_class = models.docking_station,
     ),
     'camera': type_data(
         web = webs.camera_web,
-        modal_form = forms.camera_form,
         type_class = models.camera,
     ),
 }
@@ -484,8 +464,7 @@ def hardware_edit(request, object_id):
 
     object = object.get_object()
     web = webs.get_web_from_object(object)
-    modal_form = type_dict[type_id].modal_form
-    return web.object_edit(request, object, modal_form)
+    return web.object_edit(request, object)
 
 def hardware_install(request, object_id):
     object = get_object_or_404(models.hardware, pk=object_id)
@@ -524,7 +503,6 @@ def hardware_type_add(request, type_id, object_id=None):
 
     web = type_dict[type_id].web()
     type_class = type_dict[type_id].type_class
-    modal_form = type_dict[type_id].modal_form
 
     def get_defaults():
         instance = type_class()
@@ -534,7 +512,7 @@ def hardware_type_add(request, type_id, object_id=None):
         instance.seen_last = datetime.datetime.now()
         return instance
 
-    return web.object_add(request, modal_form, get_defaults)
+    return web.object_add(request, get_defaults)
 
 ############
 # SOFTWARE #
@@ -553,8 +531,7 @@ def software_detail(request, object_id):
 
 def software_add(request):
     web = webs.software_web()
-    modal_form = forms.software_form
-    return web.object_add(request, modal_form)
+    return web.object_add(request)
 
 def software_edit(request,object_id):
     web = webs.software_web()
@@ -583,8 +560,7 @@ def license_detail(request, object_id):
 
 def license_add(request):
     web = webs.license_web()
-    modal_form = forms.license_form
-    return web.object_add(request, webs.license_web(), modal_form)
+    return web.object_add(request)
 
 def license_edit(request,object_id):
     web = webs.license_web()
@@ -674,14 +650,13 @@ def license_key_detail(request, object_id):
 def license_add_license_key(request, object_id):
     web = webs.license_key_web()
     license = get_object_or_404(models.license, pk=object_id)
-    modal_form = forms.license_key_form
 
     def get_defaults():
         instance = models.license_key()
         instance.license = license
         return instance
 
-    return web.object_add(request, modal_form, get_defaults, kwargs={ 'license': license })
+    return web.object_add(request, get_defaults, kwargs={ 'license': license })
 
 def license_key_edit(request, object_id):
     web = webs.license_key_web()
@@ -700,7 +675,6 @@ def license_key_delete(request,object_id):
 def software_add_software_installation(request, object_id):
     web = webs.software_installation_web()
     software = get_object_or_404(models.software, pk=object_id)
-    modal_form = forms.software_installation_form
 
     def get_defaults():
         instance = models.software_installation()
@@ -709,7 +683,7 @@ def software_add_software_installation(request, object_id):
         instance.seen_last = datetime.datetime.now()
         return instance
 
-    return web.object_add(request, modal_form, get_defaults, kwargs={ 'software': software })
+    return web.object_add(request, get_defaults, kwargs={ 'software': software })
 
 def software_installation_edit_license_key(request,object_id):
     object = get_object_or_404(models.software_installation, pk=object_id)
@@ -782,7 +756,6 @@ def os_detail(request, object_id):
 def os_add(request, object_id):
     web = webs.os_web()
     storage = get_object_or_404(models.storage, pk=object_id)
-    modal_form = forms.os_form
 
     def get_defaults():
         instance = models.os()
@@ -791,7 +764,7 @@ def os_add(request, object_id):
         instance.seen_last = datetime.datetime.now()
         return instance
 
-    return web.object_add(request, modal_form, get_defaults, kwargs={ 'storage': storage })
+    return web.object_add(request, get_defaults, kwargs={ 'storage': storage })
 
 def os_edit(request, object_id):
     web = webs.os_web()
@@ -821,7 +794,6 @@ def data_detail(request, object_id):
 
 def data_add(request):
     web = webs.data_web()
-    modal_form = forms.data_form
     template = 'lintory/object_file_edit.html'
 
     def get_defaults():
@@ -829,7 +801,7 @@ def data_add(request):
         instance.datetime = datetime.datetime.now()
         return instance
 
-    return web.object_add(request, modal_form, template=template, get_defaults=get_defaults)
+    return web.object_add(request, template=template, get_defaults=get_defaults)
 
 def data_edit(request, object_id):
     web = webs.data_web()

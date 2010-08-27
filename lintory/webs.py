@@ -21,6 +21,8 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, loader
 from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
 
+from lintory import forms
+
 # META INFORMATION FOR MODELS
 
 class breadcrumb(object):
@@ -319,7 +321,7 @@ class base_web(object):
                 'breadcrumbs': breadcrumbs,
                 },context_instance=RequestContext(request))
 
-    def object_add(self, request, modal_form, get_defaults=None, pre_save=None, template=None, kwargs={}):
+    def object_add(self, request, get_defaults=None, pre_save=None, template=None, kwargs={}):
         breadcrumbs = self.get_add_breadcrumbs(**kwargs)
 
         if template is None:
@@ -330,7 +332,7 @@ class base_web(object):
             return error
 
         if request.method == 'POST':
-            form = modal_form(request.POST, request.FILES)
+            form = self.form(request.POST, request.FILES)
 
             if form.is_valid():
                 valid = True
@@ -345,10 +347,10 @@ class base_web(object):
                     return HttpResponseRedirect(url)
         else:
             if get_defaults is None:
-                form = modal_form()
+                form = self.form()
             else:
                 instance = get_defaults()
-                form = modal_form(instance=instance)
+                form = self.form(instance=instance)
 
         return render_to_response(template, {
                 'object': None, 'web': self,
@@ -357,7 +359,7 @@ class base_web(object):
                 'media' : form.media,
                 },context_instance=RequestContext(request))
 
-    def object_edit(self, request, subject, modal_form, pre_save=None, template=None):
+    def object_edit(self, request, subject, pre_save=None, template=None):
         self.assert_subject_type(subject)
         breadcrumbs = self.get_edit_breadcrumbs(subject)
 
@@ -369,7 +371,7 @@ class base_web(object):
             return error
 
         if request.method == 'POST':
-            form = modal_form(request.POST, request.FILES, instance=subject)
+            form = self.form(request.POST, request.FILES, instance=subject)
             if form.is_valid():
                 valid = True
                 instance = form.save(commit=False)
@@ -382,7 +384,7 @@ class base_web(object):
                     url = self.get_edited_url(subject)
                     return HttpResponseRedirect(url)
         else:
-            form = modal_form(instance=subject)
+            form = self.form(instance=subject)
 
         return render_to_response(template, {
                 'object': subject,
@@ -424,6 +426,7 @@ class base_web(object):
 class party_web(base_web):
     web_id = "party"
     verbose_name_plural = "parties"
+    form = forms.party_form
 
     def get_view_buttons(self, user, subject):
         buttons = super(party_web, self).get_view_buttons(user, subject)
@@ -453,6 +456,7 @@ class party_web(base_web):
 
 class history_item_web(base_web):
     web_id = "history_item"
+    form = forms.history_item_form
 
     ###############
     # LIST ACTION #
@@ -535,6 +539,7 @@ class history_item_web(base_web):
 
 class vendor_web(base_web):
     web_id = "vendor"
+    form = forms.vendor_form
 
 ############
 # LOCATION #
@@ -542,6 +547,7 @@ class vendor_web(base_web):
 
 class location_web(base_web):
     web_id = "location"
+    form = forms.location_form
 
     ###############
     # LIST ACTION #
@@ -623,6 +629,7 @@ class hardware_web(base_web):
     verbose_name_plural = "hardware"
     perm_prefix = "hardware"
     link_prefix = "hardware"
+    form = forms.hardware_form
 
     def assert_subject_type(self, subject):
         type_name = type(subject).__name__
@@ -702,44 +709,57 @@ class hardware_web(base_web):
 
 class motherboard_web(hardware_web):
     web_id = "motherboard"
+    form = forms.motherboard_form
 
 class processor_web(hardware_web):
     web_id = "processor"
+    form = forms.processor_form
 
 class video_controller_web(hardware_web):
     web_id = "video_controller"
+    form = forms.video_controller_form
 
 class network_adaptor_web(hardware_web):
     web_id = "network_adaptor"
+    form = forms.network_adaptor_form
 
 class storage_web(hardware_web):
     web_id = "storage"
     verbose_name_plural = "storage"
+    form = forms.storage_form
 
 class power_supply_web(hardware_web):
     web_id = "power_supply"
     verbose_name_plural = "power supplies"
+    form = forms.power_supply_form
 
 class computer_web(hardware_web):
     web_id = "computer"
+    form = forms.computer_form
 
 class monitor_web(hardware_web):
     web_id = "monitor"
+    form = forms.monitor_form
 
 class multifunction_web(hardware_web):
     web_id = "multifunction"
+    form = forms.multifunction_form
 
 class printer_web(hardware_web):
     web_id = "printer"
+    form = forms.printer_form
 
 class scanner_web(hardware_web):
     web_id = "scanner"
+    form = forms.scanner_form
 
 class docking_station_web(hardware_web):
     web_id = "docking_station"
+    form = forms.docking_station_form
 
 class camera_web(hardware_web):
     web_id = "camera"
+    form = forms.camera_form
 
 ######
 # OS #
@@ -748,6 +768,7 @@ class camera_web(hardware_web):
 class os_web(base_web):
     web_id = "os"
     verbose_name_plural = "os"
+    form = forms.os_form
 
     ###############
     # LIST ACTION #
@@ -785,6 +806,7 @@ class os_web(base_web):
 class software_web(base_web):
     web_id = "software"
     verbose_name_plural = "software"
+    form = forms.software_form
 
     ###############
     # LIST ACTION #
@@ -849,6 +871,7 @@ class software_web(base_web):
 
 class license_web(base_web):
     web_id = "license"
+    form = forms.license_form
 
     ###############
     # LIST ACTION #
@@ -897,6 +920,7 @@ class license_web(base_web):
 
 class license_key_web(base_web):
     web_id = "license_key"
+    form = forms.license_key_form
 
     ###############
     # LIST ACTION #
@@ -944,6 +968,7 @@ class license_key_web(base_web):
 
 class software_installation_web(base_web):
     web_id = "software_installation"
+    form = forms.software_installation_form
 
     ###############
     # LIST ACTION #
@@ -1014,6 +1039,7 @@ class software_installation_web(base_web):
 
 class task_web(base_web):
     web_id = "task"
+    form = forms.task_form
 
     ###############
     # LIST ACTION #
@@ -1043,6 +1069,7 @@ class task_web(base_web):
 
 class hardware_task_web(base_web):
     web_id = "hardware_task"
+    form = forms.hardware_task_form
 
     ###############
     # LIST ACTION #
@@ -1109,6 +1136,7 @@ class hardware_task_web(base_web):
 
 class data_web(base_web):
     web_id = "data"
+    form = forms.data_form
 
     ###############
     # LIST ACTION #
