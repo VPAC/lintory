@@ -179,7 +179,7 @@ def task_list(request):
     web = webs.task_web()
     filter = filters.task(request.GET or None)
     table = tables.task(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table)
+    return web.object_list(request, filter, table)
 
 def task_detail(request, object_id):
     web = webs.task_web()
