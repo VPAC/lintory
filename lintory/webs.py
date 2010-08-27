@@ -616,20 +616,28 @@ class location_web(base_web):
 class hardware_web(base_web):
     web_id = "hardware"
     verbose_name_plural = "hardware"
+    hardware_type = None
 
     def assert_subject_type(self, subject):
         type_name = type(subject).__name__
         expected_type = self.hardware_type
 
-        if type_name != expected_type:
-            raise RuntimeError("Expected type %s but got '%s'"%(expected_type,type_name))
+        if expected_type is not None:
+            if type_name != expected_type:
+                raise RuntimeError("Expected type '%s' but got '%s'"%(expected_type,type_name))
+        else:
+            if not type_name in types:
+                raise RuntimeError("Expected a hardware type but got '%s'"%(type_name))
 
     def single_name(self):
         if self.verbose_name is not None:
             return self.verbose_name
 
-        hardware_type = self.hardware_type
-        return hardware_type.replace("_", " ")
+        if self.hardware_type is not None:
+            hardware_type = self.hardware_type
+            return hardware_type.replace("_", " ")
+        else:
+            return super(hardware_web, self).single_name()
 
     def get_breadcrumbs(self):
         breadcrumbs = []
