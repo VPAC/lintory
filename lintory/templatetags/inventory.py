@@ -327,35 +327,6 @@ class get_active_software_installations_by_software_owner_node(template.Node):
         return ''
 
 
-# DEPRECIATED
-@register.tag
-def get_permissions_from_web(parser, token):
-    try:
-        tag_name, add_tag, edit_tag, delete_tag, user, web = token.split_contents()
-    except ValueError:
-        raise template.TemplateSyntaxError, "%r tag requires exactly four arguments" % token.contents.split()[0]
-    return get_permissions_from_web_node(add_tag, edit_tag, delete_tag, user, web)
-
-# DEPRECIATED
-class get_permissions_from_web_node(template.Node):
-    def __init__(self, add_tag, edit_tag, delete_tag, user, web):
-        self.add_tag = template.Variable(add_tag)
-        self.edit_tag = template.Variable(edit_tag)
-        self.delete_tag = template.Variable(delete_tag)
-        self.user = template.Variable(user)
-        self.web = template.Variable(web)
-    def render(self, context):
-        add_tag = self.add_tag.resolve(context)
-        edit_tag = self.edit_tag.resolve(context)
-        delete_tag = self.delete_tag.resolve(context)
-        user = self.user.resolve(context)
-        web = self.web.resolve(context)
-
-        context[add_tag] = web.has_add_perms(user)
-        context[edit_tag] = web.has_edit_perms(user)
-        context[delete_tag] = web.has_delete_perms(user)
-        return ''
-
 DOT='.'
 
 @register.inclusion_tag('lintory/pagination.html', takes_context=True)
