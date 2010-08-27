@@ -15,7 +15,7 @@
 <h2>OS</h2>
 {% if perms.lintory.add_os %}
 <ul class="object-tools">
-<li><a class="addlink" href="{% url os_create object.pk %}">Add</a></li>
+<li><a class="addlink" href="{% url os_add object.pk %}">Add</a></li>
 </ul>
 {% endif %}
 {% show_os_list os_list %}
