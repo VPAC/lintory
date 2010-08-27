@@ -1,6 +1,5 @@
 {% load inventory %}
 {% if rows %}
-{% get_permissions_from_web "add_perm" "edit_perm" "delete_perm" user web %}
 <table>
 <tr>
     {% for column in table.columns %}
