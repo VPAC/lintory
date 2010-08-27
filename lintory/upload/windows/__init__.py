@@ -395,28 +395,28 @@ def has_changed(auto,old,new,paranoid=True):
     return True
 
 # sync hardware item with database
-def sync_hardware_item(hardware, type, created, computer,
+def sync_hardware_item(hardware, verbose_name, created, computer,
                         data_datetime, seen_hardware, remove_list,
                         manufacturer, model, serial_number):
 
     # Ensure same hardware not installed on same computer multiple times
     if not created and hardware.pk in seen_hardware:
-        raise import_error("We have already seen the %s '%s' (%d) on this computer"%(type.verbose_name,hardware,hardware.pk))
+        raise import_error("We have already seen the %s '%s' (%d) on this computer"%(verbose_name,hardware,hardware.pk))
     else:
         seen_hardware[hardware.pk] = True
 
     # sanity checks
     if hardware.installed_on is not None and hardware.installed_on.pk != computer.pk:
-        raise import_error("The %s '%s' (%d) is installed on another computer"%(type.verbose_name,hardware,hardware.pk))
+        raise import_error("The %s '%s' (%d) is installed on another computer"%(verbose_name,hardware,hardware.pk))
 
     if created:
-        print u"Creating %s"%(type.verbose_name)
+        print u"Creating %s"%(verbose_name)
         hardware.seen_first = data_datetime
 
     if hardware.installed_on is None:
-        print u"Installing %s"%(type.verbose_name)
+        print u"Installing %s"%(verbose_name)
 
-    print u"Updating %s"%(type.verbose_name)
+    print u"Updating %s"%(verbose_name)
 
     # Update values
     hardware.auto_delete  = True
@@ -495,7 +495,7 @@ def sync_hardware(data_datetime, computer, data_dict):
             # synchronise hardware values
             sync_hardware_item(
                         hardware=na,
-                        type=models.network_adaptor.type,
+                        verbose_name="network adaptor",
                         created=c,
                         computer=computer,
                         data_datetime=data_datetime,
@@ -529,7 +529,7 @@ def sync_hardware(data_datetime, computer, data_dict):
             # synchronise hardware values
             sync_hardware_item(
                         hardware=s,
-                        type=models.storage.type,
+                        verbose_name="storage",
                         created=c,
                         computer=computer,
                         data_datetime=data_datetime,
@@ -594,7 +594,7 @@ def sync_hardware(data_datetime, computer, data_dict):
             # synchronise hardware values
             sync_hardware_item(
                         hardware=p,
-                        type=models.processor.type,
+                        verbose_name="processor",
                         created=c,
                         computer=computer,
                         data_datetime=data_datetime,
