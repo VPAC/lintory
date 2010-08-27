@@ -993,7 +993,7 @@ def data_add(request):
         instance.datetime = datetime.datetime.now()
         return instance
 
-    return object_add(request, webs.data_web, modal_form, template=template, get_defaults=get_defaults)
+    return object_add(request, webs.data_web(), modal_form, template=template, get_defaults=get_defaults)
 
 def data_edit(request, object_id):
     template = 'lintory/object_file_edit.html'
