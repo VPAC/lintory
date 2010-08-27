@@ -16,6 +16,10 @@
 
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.shortcuts import render_to_response, get_object_or_404
+from django.template import RequestContext, loader
+from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
 
 # META INFORMATION FOR MODELS
 
@@ -23,6 +27,69 @@ class breadcrumb(object):
     def __init__(self, url, name):
         self.url = url
         self.name = name
+
+#####################
+# PERMISSION CHECKS #
+#####################
+
+def HttpErrorResponse(request, breadcrumbs, error_list):
+    t = loader.get_template('lintory/error.html')
+    c = RequestContext(request, {
+            'title': 'Access denied',
+            'error_list': error_list,
+            'breadcrumbs': breadcrumbs
+    })
+    return HttpResponseForbidden(t.render(c))
+
+def check_list_perms(request, breadcrumbs, web):
+    error_list = []
+    if not web.has_list_perms(request.user):
+        error_list.append("You cannot list %s objects"%(webs.single_name()))
+
+    if len(error_list) > 0:
+        return HttpErrorResponse(request, breadcrumbs, error_list)
+    else:
+        return None
+
+def check_view_perms(request, breadcrumbs, web):
+    error_list = []
+    if not web.has_view_perms(request.user):
+        error_list.append("You cannot view a %s object"%(webs.single_name()))
+
+    if len(error_list) > 0:
+        return HttpErrorResponse(request, breadcrumbs, error_list)
+    else:
+        return None
+
+def check_add_perms(request, breadcrumbs, web):
+    error_list = []
+    if not web.has_add_perms(request.user):
+        error_list.append("You cannot add a %s object"%(webs.single_name()))
+
+    if len(error_list) > 0:
+        return HttpErrorResponse(request, breadcrumbs, error_list)
+    else:
+        return None
+
+def check_edit_perms(request, breadcrumbs, web):
+    error_list = []
+    if not web.has_edit_perms(request.user):
+        error_list.append("You cannot edit a %s object"%(webs.single_name()))
+
+    if len(error_list) > 0:
+        return HttpErrorResponse(request, breadcrumbs, error_list)
+    else:
+        return None
+
+def check_delete_perms(request, breadcrumbs, web):
+    error_list = []
+    if not web.has_delete_perms(request.user):
+        error_list.append("You cannot delete a %s object"%(webs.single_name()))
+
+    if len(error_list) > 0:
+        return HttpErrorResponse(request, breadcrumbs, error_list)
+    else:
+        return None
 
 ################
 # BASE METHODS #
@@ -192,6 +259,159 @@ class base_web(object):
         breadcrumbs.append(breadcrumb(self.get_delete_url(subject), "delete"))
         return breadcrumbs
 
+    #####################
+    # GENERIC FUNCTIONS #
+    #####################
+
+    def object_list(self, request, filter, table, template=None, kwargs={}, context={}):
+        breadcrumbs = self.get_list_breadcrumbs(**kwargs)
+
+        error = check_list_perms(request, breadcrumbs, self)
+        if error is not None:
+            return error
+
+        if template is None:
+            template='lintory/object_list.html'
+
+        paginator = Paginator(table.rows, 50) # Show 50 objects per page
+
+        # Make sure page request is an int. If not, deliver first page.
+        try:
+            page = int(request.GET.get('page', '1'))
+        except ValueError:
+            page = 1
+
+        # If page request (9999) is out of range, deliver last page of results.
+        try:
+            page_obj = paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            page_obj = paginator.page(paginator.num_pages)
+
+        defaults = {
+                'web': self,
+                'filter': filter,
+                'table': table,
+                'page_obj': page_obj,
+                'breadcrumbs': breadcrumbs,
+        }
+        defaults.update(context)
+        return render_to_response(template, defaults,
+                context_instance=RequestContext(request))
+
+    def object_view(self, request, subject, template=None):
+        self.assert_subject_type(subject)
+        breadcrumbs = self.get_view_breadcrumbs(subject)
+
+        error = check_view_perms(request, breadcrumbs, self)
+        if error is not None:
+            return error
+
+        if template is None:
+            template='lintory/'+self.web_id+'_detail.html'
+        return render_to_response(template, {
+                'object': subject,
+                'web': self,
+                'breadcrumbs': breadcrumbs,
+                },context_instance=RequestContext(request))
+
+    def object_add(self, request, modal_form, get_defaults=None, pre_save=None, template=None, kwargs={}):
+        breadcrumbs = self.get_add_breadcrumbs(**kwargs)
+
+        if template is None:
+            template='lintory/object_edit.html'
+
+        error = check_add_perms(request, breadcrumbs, self)
+        if error is not None:
+            return error
+
+        if request.method == 'POST':
+            form = modal_form(request.POST, request.FILES)
+
+            if form.is_valid():
+                valid = True
+                instance = form.save(commit=False)
+
+                if pre_save is not None:
+                    valid = pre_save(instance=instance, form=form)
+
+                if valid:
+                    instance.save()
+                    url=self.get_edited_url(instance)
+                    return HttpResponseRedirect(url)
+        else:
+            if get_defaults is None:
+                form = modal_form()
+            else:
+                instance = get_defaults()
+                form = modal_form(instance=instance)
+
+        return render_to_response(template, {
+                'object': None, 'web': self,
+                'breadcrumbs': breadcrumbs,
+                'form' : form,
+                'media' : form.media,
+                },context_instance=RequestContext(request))
+
+    def object_edit(self, request, subject, modal_form, pre_save=None, template=None):
+        self.assert_subject_type(subject)
+        breadcrumbs = self.get_edit_breadcrumbs(subject)
+
+        if template is None:
+            template='lintory/object_edit.html'
+
+        error = check_edit_perms(request, breadcrumbs, self)
+        if error is not None:
+            return error
+
+        if request.method == 'POST':
+            form = modal_form(request.POST, request.FILES, instance=subject)
+            if form.is_valid():
+                valid = True
+                instance = form.save(commit=False)
+
+                if pre_save is not None:
+                    valid = pre_save(instance=instance, form=form)
+
+                if valid:
+                    instance.save()
+                    url = self.get_edited_url(subject)
+                    return HttpResponseRedirect(url)
+        else:
+            form = modal_form(instance=subject)
+
+        return render_to_response(template, {
+                'object': subject,
+                'web': self,
+                'breadcrumbs': breadcrumbs,
+                'form' : form,
+                'media' : form.media,
+                },context_instance=RequestContext(request))
+
+    def object_delete(self, request, subject, template=None):
+        self.assert_subject_type(subject)
+        breadcrumbs = self.get_delete_breadcrumbs(subject)
+
+        if template is None:
+            template='lintory/object_confirm_delete.html'
+
+        error = check_delete_perms(request, breadcrumbs, self)
+        if error is not None:
+            return error
+
+        errorlist = []
+        if request.method == 'POST':
+            errorlist = subject.check_delete()
+            if len(errorlist) == 0:
+                url = self.get_deleted_url(subject)
+                subject.delete()
+                return HttpResponseRedirect(url)
+
+        return render_to_response(template, {
+                'object': subject,
+                'breadcrumbs': breadcrumbs,
+                'errorlist': errorlist,
+                },context_instance=RequestContext(request))
+
 #########
 # PARTY #
 #########
@@ -238,6 +458,7 @@ class history_item_web(base_web):
     ###############
 
     def get_view_breadcrumbs(self, object):
+        # note: object is the object containing history item, not the history item
         o_web = get_web_from_object(object.content_object)
         breadcrumbs = o_web.get_view_breadcrumbs(object.content_object)
         return breadcrumbs

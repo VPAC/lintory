@@ -16,16 +16,11 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.utils.encoding import smart_unicode
-from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, loader
-from django.http import HttpResponseRedirect
-from django.http import Http404, HttpResponseForbidden
-from django.utils.html import escape
-from django.contrib.auth.decorators import login_required, permission_required
+from django.http import HttpResponseRedirect, Http404
 from django.db.models import get_model
-import django.views.generic.list_detail
 import django.forms.util as util
 
 from lintory import models, helpers, forms, eparty, tables, filters, webs
@@ -48,222 +43,6 @@ def get_object_by_string(type_id,object_id):
 
     return get_object_or_404(model, pk=object_id)
 
-#####################
-# PERMISSION CHECKS #
-#####################
-
-def HttpErrorResponse(request, breadcrumbs, error_list):
-    t = loader.get_template('lintory/error.html')
-    c = RequestContext(request, {
-            'title': 'Access denied',
-            'error_list': error_list,
-            'breadcrumbs': breadcrumbs
-    })
-    return HttpResponseForbidden(t.render(c))
-
-def check_list_perms(request, breadcrumbs, web):
-    error_list = []
-    if not web.has_list_perms(request.user):
-        error_list.append("You cannot list %s objects"%(webs.single_name()))
-
-    if len(error_list) > 0:
-        return HttpErrorResponse(request, breadcrumbs, error_list)
-    else:
-        return None
-
-def check_view_perms(request, breadcrumbs, web):
-    error_list = []
-    if not web.has_view_perms(request.user):
-        error_list.append("You cannot view a %s object"%(webs.single_name()))
-
-    if len(error_list) > 0:
-        return HttpErrorResponse(request, breadcrumbs, error_list)
-    else:
-        return None
-
-def check_add_perms(request, breadcrumbs, web):
-    error_list = []
-    if not web.has_add_perms(request.user):
-        error_list.append("You cannot add a %s object"%(webs.single_name()))
-
-    if len(error_list) > 0:
-        return HttpErrorResponse(request, breadcrumbs, error_list)
-    else:
-        return None
-
-def check_edit_perms(request, breadcrumbs, web):
-    error_list = []
-    if not web.has_edit_perms(request.user):
-        error_list.append("You cannot edit a %s object"%(webs.single_name()))
-
-    if len(error_list) > 0:
-        return HttpErrorResponse(request, breadcrumbs, error_list)
-    else:
-        return None
-
-def check_delete_perms(request, breadcrumbs, web):
-    error_list = []
-    if not web.has_delete_perms(request.user):
-        error_list.append("You cannot delete a %s object"%(webs.single_name()))
-
-    if len(error_list) > 0:
-        return HttpErrorResponse(request, breadcrumbs, error_list)
-    else:
-        return None
-
-#####################
-# GENERIC FUNCTIONS #
-#####################
-
-def object_list(request, filter, table, web, template=None, kwargs={}, context={}):
-    breadcrumbs = web.get_list_breadcrumbs(**kwargs)
-
-    error = check_list_perms(request, breadcrumbs, web)
-    if error is not None:
-        return error
-
-    if template is None:
-        template='lintory/object_list.html'
-
-    paginator = Paginator(table.rows, 50) # Show 50 objects per page
-
-    # Make sure page request is an int. If not, deliver first page.
-    try:
-        page = int(request.GET.get('page', '1'))
-    except ValueError:
-        page = 1
-
-    # If page request (9999) is out of range, deliver last page of results.
-    try:
-        page_obj = paginator.page(page)
-    except (EmptyPage, InvalidPage):
-        page_obj = paginator.page(paginator.num_pages)
-
-    defaults = {
-            'web': web,
-            'filter': filter,
-            'table': table,
-            'page_obj': page_obj,
-            'breadcrumbs': breadcrumbs,
-    }
-    defaults.update(context)
-    return render_to_response(template, defaults,
-            context_instance=RequestContext(request))
-
-def object_detail(request, object, template=None):
-    web=webs.get_web_from_object(object)
-    breadcrumbs = web.get_view_breadcrumbs(object)
-
-    error = check_view_perms(request, breadcrumbs, web)
-    if error is not None:
-        return error
-
-    if template is None:
-        template='lintory/'+web.web_id+'_detail.html'
-    return render_to_response(template, {
-            'object': object,
-            'web': web,
-            'breadcrumbs': breadcrumbs,
-            },context_instance=RequestContext(request))
-
-def object_add(request, web, modal_form, get_defaults=None, pre_save=None, template=None, kwargs={}):
-    breadcrumbs = web.get_add_breadcrumbs(**kwargs)
-
-    if template is None:
-        template='lintory/object_edit.html'
-
-    error = check_add_perms(request, breadcrumbs, web)
-    if error is not None:
-        return error
-
-    if request.method == 'POST':
-        form = modal_form(request.POST, request.FILES)
-
-        if form.is_valid():
-            valid = True
-            instance = form.save(commit=False)
-
-            if pre_save is not None:
-                valid = pre_save(instance=instance, form=form)
-
-            if valid:
-                instance.save()
-                url=web.get_edited_url(instance)
-                return HttpResponseRedirect(url)
-    else:
-        if get_defaults is None:
-            form = modal_form()
-        else:
-            instance = get_defaults()
-            form = modal_form(instance=instance)
-
-    return render_to_response(template, {
-            'object': None, 'web': web,
-            'breadcrumbs': breadcrumbs,
-            'form' : form,
-            'media' : form.media,
-            },context_instance=RequestContext(request))
-
-def object_edit(request, object, modal_form, pre_save=None, template=None):
-    web=webs.get_web_from_object(object)
-    breadcrumbs = web.get_edit_breadcrumbs(object)
-
-    if template is None:
-        template='lintory/object_edit.html'
-
-    error = check_edit_perms(request, breadcrumbs, web)
-    if error is not None:
-        return error
-
-    if request.method == 'POST':
-        form = modal_form(request.POST, request.FILES, instance=object)
-        if form.is_valid():
-            valid = True
-            instance = form.save(commit=False)
-
-            if pre_save is not None:
-                valid = pre_save(instance=instance, form=form)
-
-            if valid:
-                instance.save()
-                url = web.get_edited_url(object)
-                return HttpResponseRedirect(url)
-    else:
-        form = modal_form(instance=object)
-
-    return render_to_response(template, {
-            'object': object,
-            'web': web,
-            'breadcrumbs': breadcrumbs,
-            'form' : form,
-            'media' : form.media,
-            },context_instance=RequestContext(request))
-
-def object_delete(request, object, template=None):
-    web=webs.get_web_from_object(object)
-    breadcrumbs = web.get_delete_breadcrumbs(object)
-
-    if template is None:
-        template='lintory/object_confirm_delete.html'
-
-    error = check_delete_perms(request, breadcrumbs, web)
-    if error is not None:
-        return error
-
-    errorlist = []
-    if request.method == 'POST':
-        errorlist = object.check_delete()
-        if len(errorlist) == 0:
-            url = web.get_deleted_url(object)
-            object.delete()
-            return HttpResponseRedirect(url)
-
-    return render_to_response(template, {
-            'object': object,
-            'breadcrumbs': breadcrumbs,
-            'errorlist': errorlist,
-            },context_instance=RequestContext(request))
-
 ###########
 # HISTORY #
 ###########
@@ -279,15 +58,17 @@ def history_item_add(request, type_id, object_id):
         return True
 
     web = webs.history_item_web()
-    return object_add(request, web, modal_form, pre_save=pre_save, kwargs={ 'object': object })
+    return web.object_add(request, modal_form, pre_save=pre_save, kwargs={ 'object': object })
 
 def history_item_edit(request, history_item_id):
+    web = webs.history_item_web()
     history_item = get_object_or_404(models.history_item, pk=history_item_id)
-    return object_edit(request, history_item, forms.history_item_form_with_date)
+    return web.object_edit(request, history_item, forms.history_item_form_with_date)
 
 def history_item_delete(request, history_item_id):
+    web = webs.history_item_web()
     history_item = get_object_or_404(models.history_item, pk=history_item_id)
-    return object_delete(request, history_item)
+    return web.object_delete(request, history_item)
 
 #########
 # PARTY #
@@ -297,7 +78,7 @@ def party_list(request):
     web = webs.party_web()
     filter = filters.party(request.GET or None)
     table = tables.party(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, web)
+    return web.object_list(request, filter, table)
 
 def party_detail(request, object_id):
     if object_id != "none":
@@ -305,19 +86,23 @@ def party_detail(request, object_id):
     else:
         object = models.Nobody()
 
-    return object_detail(request, object)
+    web = webs.party_web()
+    return web.object_view(request, object)
 
 def party_add(request):
+    web = webs.party_web()
     modal_form = forms.party_form
-    return object_add(request, webs.party_web(), modal_form)
+    return web.object_add(request, modal_form)
 
 def party_edit(request,object_id):
+    web = webs.party_web()
     object = get_object_or_404(models.party, pk=object_id)
-    return object_edit(request, object, forms.party_form)
+    return web.object_edit(request, object, forms.party_form)
 
 def party_delete(request,object_id):
+    web = webs.party_web()
     object = get_object_or_404(models.party, pk=object_id)
-    return object_delete(request, object)
+    return web.object_delete(request, object)
 
 def party_software_list(request, object_id):
     if object_id != "none":
@@ -367,23 +152,27 @@ def vendor_list(request):
     web = webs.vendor_web()
     filter = filters.vendor(request.GET or None)
     table = tables.vendor(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, web)
+    return web.object_list(request, filter, table)
 
 def vendor_detail(request, object_id):
+    web = webs.vendor_web()
     object = get_object_or_404(models.vendor, pk=object_id)
-    return object_detail(request, object)
+    return web.object_view(request, object)
 
 def vendor_add(request):
+    web = webs.vendor_web()
     modal_form = forms.vendor_form
-    return object_add(request, webs.vendor_web(), modal_form)
+    return web.object_add(request, modal_form)
 
 def vendor_edit(request,object_id):
+    web = webs.vendor_web()
     object = get_object_or_404(models.vendor, pk=object_id)
-    return object_edit(request, object, forms.vendor_form)
+    return web.object_edit(request, object, forms.vendor_form)
 
 def vendor_delete(request,object_id):
+    web = webs.vendor_web()
     object = get_object_or_404(models.vendor, pk=object_id)
-    return object_delete(request, object)
+    return web.object_delete(request, object)
 
 ########
 # TASK #
@@ -393,29 +182,34 @@ def task_list(request):
     web = webs.task_web()
     filter = filters.task(request.GET or None)
     table = tables.task(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, web)
+    return object_list(request, filter, table)
 
 def task_detail(request, object_id):
+    web = webs.task_web()
     object = get_object_or_404(models.task, pk=object_id)
-    return object_detail(request, object)
+    return web.object_view(request, object)
 
 def task_add(request):
+    web = webs.task_web()
     modal_form = forms.task_form
-    return object_add(request, webs.task_web(), modal_form)
+    return web.object_add(request, modal_form)
 
 def task_edit(request,object_id):
+    web = webs.task_web()
     object = get_object_or_404(models.task, pk=object_id)
-    return object_edit(request, object, forms.task_form)
+    return web.object_edit(request, object, forms.task_form)
 
 def task_delete(request,object_id):
+    web = webs.task_web()
     object = get_object_or_404(models.task, pk=object_id)
-    return object_delete(request, object)
+    return web.object_delete(request, object)
 
 #################
 # HARDWARE_TASK #
 #################
 
 def task_add_hardware(request, object_id):
+    web = webs.hardware_task_web()
     task = get_object_or_404(models.task, pk=object_id)
     modal_form = forms.hardware_task_form
 
@@ -424,23 +218,26 @@ def task_add_hardware(request, object_id):
         instance.task = task
         return instance
 
-    return object_add(request, webs.hardware_task_web(), modal_form, get_defaults, kwargs={ 'task': task })
+    return web.object_add(request, modal_form, get_defaults, kwargs={ 'task': task })
 
 def hardware_task_edit(request,object_id):
+    web = webs.hardware_task_web()
     object = get_object_or_404(models.hardware_task, pk=object_id)
-    return object_edit(request, object, forms.hardware_task_form)
+    return web.object_edit(request, object, forms.hardware_task_form)
 
 def hardware_task_delete(request,object_id):
+    web = webs.hardware_task_web()
     object = get_object_or_404(models.hardware_task, pk=object_id)
-    return object_delete(request, object)
+    return web.object_delete(request, object)
 
 ############
 # LOCATION #
 ############
 
 def location_detail(request, object_id):
+    web = webs.location_web()
     object = get_object_or_404(models.location, pk=object_id)
-    return object_detail(request, object)
+    return web.object_view(request, object)
 
 def location_task_list(request, object_id):
     object = get_object_or_404(models.location, pk=object_id)
@@ -476,6 +273,7 @@ def location_redirect(request,object_id):
     return HttpResponseRedirect(object.get_view_url())
 
 def location_add(request, object_id):
+    web = webs.location_web()
     parent = get_object_or_404(models.location, pk=object_id)
     modal_form = forms.location_form
 
@@ -484,15 +282,17 @@ def location_add(request, object_id):
         instance.parent = parent
         return instance
 
-    return object_add(request, webs.location_web(), modal_form, get_defaults=get_defaults, kwargs={ 'parent': parent })
+    return web.object_add(request, modal_form, get_defaults=get_defaults, kwargs={ 'parent': parent })
 
 def location_edit(request,object_id):
+    web = webs.location_web()
     object = get_object_or_404(models.location, pk=object_id)
-    return object_edit(request, object, forms.location_form)
+    return web.object_edit(request, object, forms.location_form)
 
 def location_delete(request,object_id):
+    web = webs.location_web()
     object = get_object_or_404(models.location, pk=object_id)
-    return object_delete(request, object)
+    return web.object_delete(request, object)
 
 class location_hardware_lookup:
     def __init__(self, location):
@@ -626,19 +426,22 @@ def hardware_list(request):
     web = webs.hardware_web()
     filter = filters.hardware(request.GET or None)
     table = tables.hardware(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, web)
+    return web.object_list(request, filter, table)
 
 def hardware_detail(request, object_id):
     object = get_object_or_404(models.hardware, pk=object_id)
     object = object.get_object()
-    return object_detail(request, object)
+    web = webs.get_web_from_object(object)
+    return web.object_view(request, object)
 
 def hardware_add(request, type_id=None, object_id=None):
-    web = webs.hardware_web()
     if object_id is None:
+        web = webs.hardware_web()
         breadcrumbs = web.get_add_breadcrumbs()
     else:
         object = get_object_or_404(models.hardware, pk=object_id)
+        object = object.get_object()
+        web = webs.get_web_from_object(object)
         breadcrumbs = web.get_view_breadcrumbs(object)
         breadcrumbs.append(webs.breadcrumb(web.get_add_to_subject_url(object,type_id),"add hardware"))
 
@@ -670,8 +473,9 @@ def hardware_edit(request, object_id):
         raise Http404(u"Hardware type '%s' not found"%(type_id))
 
     object = object.get_object()
+    web = webs.get_web_from_object(object)
     modal_form = type_dict[type_id].modal_form
-    return object_edit(request, object, modal_form)
+    return web.object_edit(request, object, modal_form)
 
 def hardware_install(request, object_id):
     object = get_object_or_404(models.hardware, pk=object_id)
@@ -698,7 +502,8 @@ def hardware_install(request, object_id):
 def hardware_delete(request, object_id):
     object = get_object_or_404(models.hardware, pk=object_id)
     object = object.get_object()
-    return object_delete(request, object)
+    web = webs.get_web_from_object(object)
+    return web.object_delete(request, object)
 
 def hardware_type_add(request, type_id, object_id=None):
     if type_id not in type_dict:
@@ -729,23 +534,27 @@ def software_list(request):
     web = webs.software_web()
     filter = filters.software(request.GET or None)
     table = tables.software(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, web)
+    return web.object_list(request, filter, table)
 
 def software_detail(request, object_id):
+    web = webs.software_web()
     object = get_object_or_404(models.software, pk=object_id)
-    return object_detail(request, object)
+    return web.object_view(request, object)
 
 def software_add(request):
+    web = webs.software_web()
     modal_form = forms.software_form
-    return object_add(request, webs.software_web(), modal_form)
+    return web.object_add(request, modal_form)
 
 def software_edit(request,object_id):
+    web = webs.software_web()
     object = get_object_or_404(models.software, pk=object_id)
-    return object_edit(request, object, forms.software_form)
+    return web.object_edit(request, object, forms.software_form)
 
 def software_delete(request,object_id):
+    web = webs.software_web()
     object = get_object_or_404(models.software, pk=object_id)
-    return object_delete(request, object)
+    return web.object_delete(request, object)
 
 ###########
 # LICENSE #
@@ -755,19 +564,22 @@ def license_list(request):
     web = webs.license_web()
     filter = filters.license(request.GET or None)
     table = tables.license(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, web)
+    return web.object_list(request, filter, table)
 
 def license_detail(request, object_id):
+    web = webs.license_web()
     object = get_object_or_404(models.license, pk=object_id)
-    return object_detail(request, object)
+    return web.object_view(request, object)
 
 def license_add(request):
+    web = webs.license_web()
     modal_form = forms.license_form
-    return object_add(request, webs.license_web(), modal_form)
+    return web.object_add(request, webs.license_web(), modal_form)
 
 def license_edit(request,object_id):
+    web = webs.license_web()
     object = get_object_or_404(models.license, pk=object_id)
-    return object_edit(request, object, forms.license_form)
+    return web.object_edit(request, object, forms.license_form)
 
 def software_add_license(request,object_id):
     object = get_object_or_404(models.software, pk=object_id)
@@ -836,18 +648,21 @@ def software_add_license(request,object_id):
             },context_instance=RequestContext(request))
 
 def license_delete(request,object_id):
+    web = webs.license_web()
     object = get_object_or_404(models.license, pk=object_id)
-    return object_delete(request, object)
+    return web.object_delete(request, object)
 
 ###############
 # LICENSE KEY #
 ###############
 
 def license_key_detail(request, object_id):
+    web = webs.license_key_web()
     object = get_object_or_404(models.license_key, pk=object_id)
-    return object_detail(request, object)
+    return web.object_view(request, object)
 
 def license_add_license_key(request, object_id):
+    web = webs.license_key_web()
     license = get_object_or_404(models.license, pk=object_id)
     modal_form = forms.license_key_form
 
@@ -856,21 +671,24 @@ def license_add_license_key(request, object_id):
         instance.license = license
         return instance
 
-    return object_add(request, webs.license_key_web(), modal_form, get_defaults, kwargs={ 'license': license })
+    return web.object_add(request, modal_form, get_defaults, kwargs={ 'license': license })
 
 def license_key_edit(request, object_id):
+    web = webs.license_key_web()
     object = get_object_or_404(models.license_key, pk=object_id)
-    return object_edit(request, object, forms.license_key_form)
+    return web.object_edit(request, object, forms.license_key_form)
 
 def license_key_delete(request,object_id):
+    web = webs.license_key_web()
     object = get_object_or_404(models.license_key, pk=object_id)
-    return object_delete(request, object)
+    return web.object_delete(request, object)
 
 #########################
 # SOFTWARE INSTALLATION #
 #########################
 
 def software_add_software_installation(request, object_id):
+    web = webs.software_installation_web()
     software = get_object_or_404(models.software, pk=object_id)
     modal_form = forms.software_installation_form
 
@@ -881,7 +699,7 @@ def software_add_software_installation(request, object_id):
         instance.seen_last = datetime.datetime.now()
         return instance
 
-    return object_add(request, webs.software_installation_web(), modal_form, get_defaults, kwargs={ 'software': software })
+    return web.object_add(request, modal_form, get_defaults, kwargs={ 'software': software })
 
 def software_installation_edit_license_key(request,object_id):
     object = get_object_or_404(models.software_installation, pk=object_id)
@@ -923,6 +741,7 @@ def software_installation_edit_license_key(request,object_id):
             },context_instance=RequestContext(request))
 
 def software_installation_edit(request, object_id):
+    web = webs.software_installation_web()
     object = get_object_or_404(models.software_installation, pk=object_id)
 
     def pre_save(instance, form):
@@ -934,21 +753,24 @@ def software_installation_edit(request, object_id):
                 valid = False
         return valid
 
-    return object_edit(request, object, forms.software_installation_form, pre_save=pre_save)
+    return web.object_edit(request, object, forms.software_installation_form, pre_save=pre_save)
 
 def software_installation_delete(request,object_id):
+    web = webs.software_installation_web()
     object = get_object_or_404(models.software_installation, pk=object_id)
-    return object_delete(request, object)
+    return web.object_delete(request, object)
 
 ######
 # OS #
 ######
 
 def os_detail(request, object_id):
+    web = webs.os_web()
     object = get_object_or_404(models.os, pk=object_id)
-    return object_detail(request, object)
+    return web.object_view(request, object)
 
 def os_add(request, object_id):
+    web = webs.os_web()
     storage = get_object_or_404(models.storage, pk=object_id)
     modal_form = forms.os_form
 
@@ -959,15 +781,17 @@ def os_add(request, object_id):
         instance.seen_last = datetime.datetime.now()
         return instance
 
-    return object_add(request, webs.os_web(), modal_form, get_defaults, kwargs={ 'storage': storage })
+    return web.object_add(request, modal_form, get_defaults, kwargs={ 'storage': storage })
 
 def os_edit(request, object_id):
+    web = webs.os_web()
     object = get_object_or_404(models.os, pk=object_id)
-    return object_edit(request, object, forms.os_form)
+    return web.object_edit(request, object, forms.os_form)
 
 def os_delete(request,object_id):
+    web = webs.os_web()
     object = get_object_or_404(models.os, pk=object_id)
-    return object_delete(request, object)
+    return web.object_delete(request, object)
 
 
 ########
@@ -978,13 +802,15 @@ def data_list(request):
     web = webs.data_web()
     filter = filters.data(request.GET or None)
     table = tables.data(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, web)
+    return object_list(request, filter, table)
 
 def data_detail(request, object_id):
+    web = webs.data_web()
     object = get_object_or_404(models.data, pk=object_id)
-    return object_detail(request, object)
+    return web.object_view(request, object)
 
 def data_add(request):
+    web = webs.data_web()
     modal_form = forms.data_form
     template = 'lintory/object_file_edit.html'
 
@@ -993,14 +819,16 @@ def data_add(request):
         instance.datetime = datetime.datetime.now()
         return instance
 
-    return object_add(request, webs.data_web(), modal_form, template=template, get_defaults=get_defaults)
+    return web.object_add(request, modal_form, template=template, get_defaults=get_defaults)
 
 def data_edit(request, object_id):
+    web = webs.data_web()
     template = 'lintory/object_file_edit.html'
     object = get_object_or_404(models.data, pk=object_id)
-    return object_edit(request, object, forms.data_form, template=template)
+    return web.object_edit(request, object, forms.data_form, template=template)
 
 def data_delete(request,object_id):
+    web = webs.data_web()
     object = get_object_or_404(models.data, pk=object_id)
-    return object_delete(request, object)
+    return web.object_delete(request, object)
 
