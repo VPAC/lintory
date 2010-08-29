@@ -118,7 +118,7 @@ class base_web(object):
         return self.web_id
 
     @property
-    def link_prefix(self):
+    def url_prefix(self):
         return self.web_id
 
     @property
@@ -134,7 +134,7 @@ class base_web(object):
     def get_breadcrumbs(self):
         breadcrumbs = []
         breadcrumbs.append(breadcrumb(reverse("lintory_root"), "home"))
-        breadcrumbs.append(breadcrumb(reverse(self.link_prefix+"_list"), self.verbose_name_plural))
+        breadcrumbs.append(breadcrumb(reverse(self.url_prefix+"_list"), self.verbose_name_plural))
         return breadcrumbs
 
     ###############
@@ -154,7 +154,7 @@ class base_web(object):
             buttons.append({
                 'class': 'addlink',
                 'text': 'Add %s'%(self.verbose_name),
-                'link': self.get_add_url(),
+                'url': self.get_add_url(),
             })
 
         return buttons
@@ -171,7 +171,7 @@ class base_web(object):
     @m.permalink
     def get_view_url(self, instance):
         self.assert_instance_type(instance)
-        return(self.link_prefix+'_detail', [ str(instance.pk) ])
+        return(self.url_prefix+'_detail', [ str(instance.pk) ])
 
     # get the breadcrumbs to show while displaying this object
     def get_view_breadcrumbs(self, instance):
@@ -187,14 +187,14 @@ class base_web(object):
             buttons.append({
                 'class': 'changelink',
                 'text': 'Edit',
-                'link': self.get_edit_url(instance),
+                'url': self.get_edit_url(instance),
             })
 
         if self.has_delete_perms(user):
             buttons.append({
                 'class': 'deletelink',
                 'text': 'Delete',
-                'link': self.get_delete_url(instance),
+                'url': self.get_delete_url(instance),
             })
 
         return buttons
@@ -208,7 +208,7 @@ class base_web(object):
 
     @m.permalink
     def get_add_url(self):
-        return(self.link_prefix+"_add",)
+        return(self.url_prefix+"_add",)
 
     def get_add_breadcrumbs(self, **kwargs):
         breadcrumbs = self.get_breadcrumbs()
@@ -226,9 +226,9 @@ class base_web(object):
     @m.permalink
     def get_edit_url(self, instance):
         self.assert_instance_type(instance)
-        return(self.link_prefix+'_edit', [ str(instance.pk) ])
+        return(self.url_prefix+'_edit', [ str(instance.pk) ])
 
-    # find link we should go to after editing this object
+    # find url we should go to after editing this object
     def get_edit_finished_url(self, instance):
         self.assert_instance_type(instance)
         return self.get_view_url(instance)
@@ -251,13 +251,13 @@ class base_web(object):
     @m.permalink
     def get_delete_url(self, instance):
         self.assert_instance_type(instance)
-        return(self.link_prefix+'_delete', [ str(instance.pk) ])
+        return(self.url_prefix+'_delete', [ str(instance.pk) ])
 
-    # find link we should go to after deleting object
+    # find url we should go to after deleting object
     @m.permalink
     def get_delete_finished_url(self, instance):
         self.assert_instance_type(instance)
-        return(self.link_prefix+"_list",)
+        return(self.url_prefix+"_list",)
 
     # get breadcrumbs to show while deleting this object
     def get_delete_breadcrumbs(self, instance):
@@ -435,7 +435,7 @@ class party_web(base_web):
             buttons.insert(0,{
                 'class': 'viewlink',
                 'text': 'Software',
-                'link': self.get_software_list_url(instance),
+                'url': self.get_software_list_url(instance),
             })
 
         return buttons
@@ -587,7 +587,7 @@ class location_web(base_web):
             buttons.insert(0,{
                 'class': 'addlink',
                 'text': 'Add location',
-                'link': self.get_add_url(instance),
+                'url': self.get_add_url(instance),
             })
 
         return buttons
@@ -628,7 +628,7 @@ class hardware_web(base_web):
     web_id = "hardware"
     verbose_name_plural = "hardware"
     perm_prefix = "hardware"
-    link_prefix = "hardware"
+    url_prefix = "hardware"
     form = forms.hardware_form
 
     def assert_instance_type(self, instance):
@@ -663,14 +663,14 @@ class hardware_web(base_web):
             buttons.insert(0,{
                 'class': 'addlink',
                 'text': 'Add hardware',
-                'link': self.get_add_to_instance_url(instance),
+                'url': self.get_add_to_instance_url(instance),
             })
 
         if self.has_edit_perms(user):
             buttons.insert(1,{
                 'class': 'changelink',
                 'text': 'Install hardware',
-                'link': self.get_install_url(instance),
+                'url': self.get_install_url(instance),
             })
 
         return buttons
@@ -823,14 +823,14 @@ class software_web(base_web):
             buttons.append({
                 'class': 'addlink',
                 'text': 'Add license',
-                'link': self.get_add_license_url(instance),
+                'url': self.get_add_license_url(instance),
             })
 
         if self.has_add_software_installation_perms(user):
             buttons.append({
                 'class': 'addlink',
                 'text': 'Add installation',
-                'link': self.get_add_software_installation_url(instance),
+                'url': self.get_add_software_installation_url(instance),
             })
 
         return buttons
@@ -888,7 +888,7 @@ class license_web(base_web):
             buttons.append({
                 'class': 'addlink',
                 'text': 'Add key',
-                'link': self.get_add_license_key_url(instance),
+                'url': self.get_add_license_key_url(instance),
             })
 
         return buttons
