@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.core.urlresolvers import reverse
-from django.db import models
+from django.db import models as m
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, loader
@@ -168,7 +168,7 @@ class base_web(object):
 
     # get the URL to display this object
     # note this may not always make sense
-    @models.permalink
+    @m.permalink
     def get_view_url(self, subject):
         self.assert_subject_type(subject)
         return(self.link_prefix+'_detail', [ str(subject.pk) ])
@@ -206,7 +206,7 @@ class base_web(object):
     def has_add_perms(self, user):
         return self.has_name_perms(user, "add")
 
-    @models.permalink
+    @m.permalink
     def get_add_url(self):
         return(self.link_prefix+"_add",)
 
@@ -223,7 +223,7 @@ class base_web(object):
         return self.has_name_perms(user, "edit")
 
     # get the URL to edit this object
-    @models.permalink
+    @m.permalink
     def get_edit_url(self, subject):
         self.assert_subject_type(subject)
         return(self.link_prefix+'_edit', [ str(subject.pk) ])
@@ -248,13 +248,13 @@ class base_web(object):
         return self.has_name_perms(user, "delete")
 
     # get the URL to delete this object
-    @models.permalink
+    @m.permalink
     def get_delete_url(self, subject):
         self.assert_subject_type(subject)
         return(self.link_prefix+'_delete', [ str(subject.pk) ])
 
     # find link we should go to after deleting object
-    @models.permalink
+    @m.permalink
     def get_delete_finished_url(self, subject):
         self.assert_subject_type(subject)
         return(self.link_prefix+"_list",)
@@ -440,12 +440,12 @@ class party_web(base_web):
 
         return buttons
 
-    @models.permalink
+    @m.permalink
     def get_software_list_url(self, subject):
         self.assert_subject_type(subject)
         return('party_software_list', [ str(subject.pk) ])
 
-    @models.permalink
+    @m.permalink
     def get_software_view_url(self, subject, software):
         self.assert_subject_type(subject)
         return('party_software_detail', [ str(subject.pk), str(software.pk) ])
@@ -476,7 +476,7 @@ class history_item_web(base_web):
     # ADD ACTION #
     ##############
 
-    @models.permalink
+    @m.permalink
     def get_add_url(self, object):
         # note: object is the object containing history item, not the history item
         o_web = get_web_from_object(object)
@@ -493,7 +493,7 @@ class history_item_web(base_web):
     # EDIT ACTION #
     ###############
 
-    @models.permalink
+    @m.permalink
     def get_edit_url(self, subject):
         self.assert_subject_type(subject)
         return('history_item_edit', [ str(subject.pk) ])
@@ -514,7 +514,7 @@ class history_item_web(base_web):
     # DELETE ACTION #
     #################
 
-    @models.permalink
+    @m.permalink
     def get_delete_url(self, subject):
         self.assert_subject_type(subject)
         return('history_item_delete', [ str(subject.pk) ])
@@ -557,7 +557,7 @@ class location_web(base_web):
     # VIEW ACTION #
     ###############
 
-    @models.permalink
+    @m.permalink
     def get_svg_url(self, subject):
         self.assert_subject_type(subject)
         return('location_svg', [ str(subject.pk) ])
@@ -596,7 +596,7 @@ class location_web(base_web):
     # ADD ACTION #
     ##############
 
-    @models.permalink
+    @m.permalink
     def get_add_url(self, parent):
         return("location_add", [ parent.pk ] )
 
@@ -679,14 +679,14 @@ class hardware_web(base_web):
     # ADD ACTION #
     ##############
 
-    @models.permalink
+    @m.permalink
     def get_add_url(self, type_id=None):
         if type_id==None:
             return("hardware_add",)
         else:
             return("hardware_type_add",[ type_id ])
 
-    @models.permalink
+    @m.permalink
     def get_add_to_subject_url(self, subject, type_id=None):
         if type_id is None:
             return('hardware_add', [ str(subject.pk) ])
@@ -697,7 +697,7 @@ class hardware_web(base_web):
     # EDIT ACTION #
     ###############
 
-    @models.permalink
+    @m.permalink
     def get_install_url(self, subject):
         self.assert_subject_type(subject)
         return('hardware_install', [ str(subject.pk) ])
@@ -847,12 +847,12 @@ class software_web(base_web):
         web = license_web()
         return web.has_add_perms(user)
 
-    @models.permalink
+    @m.permalink
     def get_add_software_installation_url(self, subject):
         self.assert_subject_type(subject)
         return('software_add_software_installation', [ str(subject.pk) ])
 
-    @models.permalink
+    @m.permalink
     def get_add_license_url(self, subject):
         self.assert_subject_type(subject)
         return('software_add_license', [ str(subject.pk) ])
@@ -901,7 +901,7 @@ class license_web(base_web):
         web = license_web()
         return web.has_add_perms(user)
 
-    @models.permalink
+    @m.permalink
     def get_add_license_key_url(self, subject):
         self.assert_subject_type(subject)
         return('license_add_license_key', [ str(subject.pk) ])
@@ -941,7 +941,7 @@ class license_key_web(base_web):
     # ADD ACTION #
     ##############
 
-    @models.permalink
+    @m.permalink
     def get_add_url(self, license):
         return("license_add_license_key", [ license.pk ] )
 
@@ -989,7 +989,7 @@ class software_installation_web(base_web):
     # ADD ACTION #
     ##############
 
-    @models.permalink
+    @m.permalink
     def get_add_url(self, software):
         return("software_add_software_installation", [ software.pk ] )
 
@@ -1002,7 +1002,7 @@ class software_installation_web(base_web):
     # EDIT ACTION #
     ###############
 
-    @models.permalink
+    @m.permalink
     def get_edit_license_key_url(self, subject):
         self.assert_subject_type(subject)
         return('software_installation_edit_license_key', [ str(subject.pk) ])
@@ -1054,7 +1054,7 @@ class task_web(base_web):
     # EDIT ACTION #
     ###############
 
-    @models.permalink
+    @m.permalink
     def get_add_hardware_url(self, subject):
         return('task_add_hardware', [ str(subject.pk) ])
 
@@ -1090,7 +1090,7 @@ class hardware_task_web(base_web):
     # ADD ACTION #
     ##############
 
-    @models.permalink
+    @m.permalink
     def get_add_url(self, task):
         return("task_add_hardware", [ task.pk ] )
 
