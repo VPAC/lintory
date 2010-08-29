@@ -150,7 +150,7 @@ def vendor_list(request):
     web = webs.vendor_web()
     filter = filters.vendor(request.GET or None)
     table = tables.vendor(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return web.object_list(request, filter, table)
+    return web.object_list(request, filter.form, table)
 
 def vendor_detail(request, object_id):
     web = webs.vendor_web()
@@ -179,7 +179,7 @@ def task_list(request):
     web = webs.task_web()
     filter = filters.task(request.GET or None)
     table = tables.task(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return web.object_list(request, filter, table)
+    return web.object_list(request, filter.form, table)
 
 def task_detail(request, object_id):
     web = webs.task_web()
@@ -420,7 +420,7 @@ def hardware_list(request):
     web = webs.hardware_web()
     filter = filters.hardware(request.GET or None)
     table = tables.hardware(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return web.object_list(request, filter, table)
+    return web.object_list(request, filter.form, table)
 
 def hardware_detail(request, object_id):
     object = get_object_or_404(models.hardware, pk=object_id)
@@ -485,7 +485,7 @@ def hardware_install(request, object_id):
     web = webs.hardware_web()
     filter = filters.hardware(request.GET or {'is_installed': '3'})
     table = tables.hardware_list_form(pks, request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table, web, template="lintory/hardware_list_form.html",
+    return object_list(request, filter.form, table, web, template="lintory/hardware_list_form.html",
             context={ 'object': object, 'error_list': error_list })
 
 def hardware_delete(request, object_id):
@@ -522,7 +522,7 @@ def software_list(request):
     web = webs.software_web()
     filter = filters.software(request.GET or None)
     table = tables.software(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return web.object_list(request, filter, table)
+    return web.object_list(request, filter.form, table)
 
 def software_detail(request, object_id):
     web = webs.software_web()
@@ -551,7 +551,7 @@ def license_list(request):
     web = webs.license_web()
     filter = filters.license(request.GET or None)
     table = tables.license(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return web.object_list(request, filter, table)
+    return web.object_list(request, filter.form, table)
 
 def license_detail(request, object_id):
     web = webs.license_web()
@@ -785,7 +785,7 @@ def data_list(request):
     web = webs.data_web()
     filter = filters.data(request.GET or None)
     table = tables.data(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter, table)
+    return object_list(request, filter.form, table)
 
 def data_detail(request, object_id):
     web = webs.data_web()

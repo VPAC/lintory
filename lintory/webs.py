@@ -270,7 +270,7 @@ class base_web(object):
     # GENERIC FUNCTIONS #
     #####################
 
-    def object_list(self, request, filter, table, template=None, kwargs={}, context={}):
+    def object_list(self, request, form, table, template=None, kwargs={}, context={}):
         breadcrumbs = self.get_list_breadcrumbs(**kwargs)
 
         error = check_list_perms(request, breadcrumbs, self)
@@ -296,11 +296,15 @@ class base_web(object):
 
         defaults = {
                 'web': self,
-                'filter': filter,
                 'table': table,
                 'page_obj': page_obj,
                 'breadcrumbs': breadcrumbs,
         }
+
+        if form is not None:
+            defaults['form'] = form
+            defaults['media'] = form.media
+
         defaults.update(context)
         return render_to_response(template, defaults,
                 context_instance=RequestContext(request))

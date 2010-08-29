@@ -16,10 +16,13 @@
 {% show_list_buttons web user %}
 {% endblock %}
 
+{% if form %}
+<h2>Search</h2>
 <form method="get">
-<table>{{ filter.form.as_table }}</table>
+<table>{{ form.as_table }}</table>
 <input type="submit" />
 </form>
+{% endif %}
 
 {% show_list table page_obj.object_list web %}
 
