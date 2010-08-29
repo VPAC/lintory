@@ -181,6 +181,7 @@ class base_web(object):
         return breadcrumbs
 
     def get_view_buttons(self, user, instance):
+        self.assert_instance_type(instance)
         buttons = []
 
         if self.has_edit_perms(user):
@@ -434,6 +435,7 @@ class party_web(base_web):
     form = forms.party_form
 
     def get_view_buttons(self, user, instance):
+        self.assert_instance_type(instance)
         buttons = super(party_web, self).get_view_buttons(user, instance)
 
         if self.has_view_perms(user):
@@ -589,6 +591,7 @@ class location_web(base_web):
         return breadcrumbs
 
     def get_view_buttons(self, user, instance):
+        self.assert_instance_type(instance)
         buttons = super(location_web, self).get_view_buttons(user, instance)
 
         if self.has_add_perms(user):
@@ -666,6 +669,7 @@ class hardware_web(base_web):
     ###############
 
     def get_view_buttons(self, user, instance):
+        self.assert_instance_type(instance)
         buttons = super(hardware_web, self).get_view_buttons(user, instance)
 
         if self.has_add_perms(user):
@@ -697,6 +701,7 @@ class hardware_web(base_web):
 
     @m.permalink
     def get_add_to_instance_url(self, instance, type_id=None):
+        self.assert_instance_type(instance)
         if type_id is None:
             return('hardware_add', [ str(instance.pk) ])
         else:
@@ -821,6 +826,7 @@ class os_web(base_web):
     #################
 
     def get_delete_finished_url(self, instance):
+        self.assert_instance_type(instance)
         return instance.storage.get_view_url()
 
 ############
@@ -841,6 +847,7 @@ class software_web(base_web):
     ###############
 
     def get_view_buttons(self, user, instance):
+        self.assert_instance_type(instance)
         buttons = super(software_web, self).get_view_buttons(user, instance)
 
         if self.has_add_license_perms(user):
@@ -907,6 +914,7 @@ class license_web(base_web):
     ###############
 
     def get_view_buttons(self, user, instance):
+        self.assert_instance_type(instance)
         buttons = super(license_web, self).get_view_buttons(user, instance)
 
         if self.has_add_license_key_perms(user):
@@ -986,6 +994,7 @@ class license_key_web(base_web):
     #################
 
     def get_delete_finished_url(self, instance):
+        self.assert_instance_type(instance)
         return instance.software.get_view_url()
 
 #########################
@@ -1084,6 +1093,7 @@ class task_web(base_web):
 
     @m.permalink
     def get_add_hardware_url(self, instance):
+        self.assert_instance_type(instance)
         return('task_add_hardware', [ str(instance.pk) ])
 
     #################
