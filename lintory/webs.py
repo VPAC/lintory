@@ -97,8 +97,8 @@ def check_delete_perms(request, breadcrumbs, web):
 # BASE METHODS #
 ################
 class base_web(object):
-    def assert_subject_type(self, subject):
-        type_name = type(subject).__name__
+    def assert_instance_type(self, instance):
+        type_name = type(instance).__name__
         expected_type = self.web_id
 
         if type_name != expected_type:
@@ -169,32 +169,32 @@ class base_web(object):
     # get the URL to display this object
     # note this may not always make sense
     @m.permalink
-    def get_view_url(self, subject):
-        self.assert_subject_type(subject)
-        return(self.link_prefix+'_detail', [ str(subject.pk) ])
+    def get_view_url(self, instance):
+        self.assert_instance_type(instance)
+        return(self.link_prefix+'_detail', [ str(instance.pk) ])
 
     # get the breadcrumbs to show while displaying this object
-    def get_view_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
+    def get_view_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
         breadcrumbs = self.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(self.get_view_url(subject), subject))
+        breadcrumbs.append(breadcrumb(self.get_view_url(instance), instance))
         return breadcrumbs
 
-    def get_view_buttons(self, user, subject):
+    def get_view_buttons(self, user, instance):
         buttons = []
 
         if self.has_edit_perms(user):
             buttons.append({
                 'class': 'changelink',
                 'text': 'Edit',
-                'link': self.get_edit_url(subject),
+                'link': self.get_edit_url(instance),
             })
 
         if self.has_delete_perms(user):
             buttons.append({
                 'class': 'deletelink',
                 'text': 'Delete',
-                'link': self.get_delete_url(subject),
+                'link': self.get_delete_url(instance),
             })
 
         return buttons
@@ -224,20 +224,20 @@ class base_web(object):
 
     # get the URL to edit this object
     @m.permalink
-    def get_edit_url(self, subject):
-        self.assert_subject_type(subject)
-        return(self.link_prefix+'_edit', [ str(subject.pk) ])
+    def get_edit_url(self, instance):
+        self.assert_instance_type(instance)
+        return(self.link_prefix+'_edit', [ str(instance.pk) ])
 
     # find link we should go to after editing this object
-    def get_edit_finished_url(self, subject):
-        self.assert_subject_type(subject)
-        return self.get_view_url(subject)
+    def get_edit_finished_url(self, instance):
+        self.assert_instance_type(instance)
+        return self.get_view_url(instance)
 
     # get breadcrumbs to show while editing this object
-    def get_edit_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
-        breadcrumbs = self.get_view_breadcrumbs(subject)
-        breadcrumbs.append(breadcrumb(self.get_edit_url(subject), "edit"))
+    def get_edit_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
+        breadcrumbs = self.get_view_breadcrumbs(instance)
+        breadcrumbs.append(breadcrumb(self.get_edit_url(instance), "edit"))
         return breadcrumbs
 
     #################
@@ -249,21 +249,21 @@ class base_web(object):
 
     # get the URL to delete this object
     @m.permalink
-    def get_delete_url(self, subject):
-        self.assert_subject_type(subject)
-        return(self.link_prefix+'_delete', [ str(subject.pk) ])
+    def get_delete_url(self, instance):
+        self.assert_instance_type(instance)
+        return(self.link_prefix+'_delete', [ str(instance.pk) ])
 
     # find link we should go to after deleting object
     @m.permalink
-    def get_delete_finished_url(self, subject):
-        self.assert_subject_type(subject)
+    def get_delete_finished_url(self, instance):
+        self.assert_instance_type(instance)
         return(self.link_prefix+"_list",)
 
     # get breadcrumbs to show while deleting this object
-    def get_delete_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
-        breadcrumbs = self.get_view_breadcrumbs(subject)
-        breadcrumbs.append(breadcrumb(self.get_delete_url(subject), "delete"))
+    def get_delete_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
+        breadcrumbs = self.get_view_breadcrumbs(instance)
+        breadcrumbs.append(breadcrumb(self.get_delete_url(instance), "delete"))
         return breadcrumbs
 
     #####################
@@ -305,9 +305,9 @@ class base_web(object):
         return render_to_response(template, defaults,
                 context_instance=RequestContext(request))
 
-    def object_view(self, request, subject, template=None):
-        self.assert_subject_type(subject)
-        breadcrumbs = self.get_view_breadcrumbs(subject)
+    def object_view(self, request, instance, template=None):
+        self.assert_instance_type(instance)
+        breadcrumbs = self.get_view_breadcrumbs(instance)
 
         error = check_view_perms(request, breadcrumbs, self)
         if error is not None:
@@ -316,7 +316,7 @@ class base_web(object):
         if template is None:
             template='lintory/'+self.template_prefix+'_detail.html'
         return render_to_response(template, {
-                'object': subject,
+                'object': instance,
                 'web': self,
                 'breadcrumbs': breadcrumbs,
                 },context_instance=RequestContext(request))
@@ -359,9 +359,9 @@ class base_web(object):
                 'media' : form.media,
                 },context_instance=RequestContext(request))
 
-    def object_edit(self, request, subject, pre_save=None, template=None):
-        self.assert_subject_type(subject)
-        breadcrumbs = self.get_edit_breadcrumbs(subject)
+    def object_edit(self, request, instance, pre_save=None, template=None):
+        self.assert_instance_type(instance)
+        breadcrumbs = self.get_edit_breadcrumbs(instance)
 
         if template is None:
             template='lintory/object_edit.html'
@@ -371,7 +371,7 @@ class base_web(object):
             return error
 
         if request.method == 'POST':
-            form = self.form(request.POST, request.FILES, instance=subject)
+            form = self.form(request.POST, request.FILES, instance=instance)
             if form.is_valid():
                 valid = True
                 instance = form.save(commit=False)
@@ -381,22 +381,22 @@ class base_web(object):
 
                 if valid:
                     instance.save()
-                    url = self.get_edit_finished_url(subject)
+                    url = self.get_edit_finished_url(instance)
                     return HttpResponseRedirect(url)
         else:
-            form = self.form(instance=subject)
+            form = self.form(instance=instance)
 
         return render_to_response(template, {
-                'object': subject,
+                'object': instance,
                 'web': self,
                 'breadcrumbs': breadcrumbs,
                 'form' : form,
                 'media' : form.media,
                 },context_instance=RequestContext(request))
 
-    def object_delete(self, request, subject, template=None):
-        self.assert_subject_type(subject)
-        breadcrumbs = self.get_delete_breadcrumbs(subject)
+    def object_delete(self, request, instance, template=None):
+        self.assert_instance_type(instance)
+        breadcrumbs = self.get_delete_breadcrumbs(instance)
 
         if template is None:
             template='lintory/object_confirm_delete.html'
@@ -407,14 +407,14 @@ class base_web(object):
 
         errorlist = []
         if request.method == 'POST':
-            errorlist = subject.check_delete()
+            errorlist = instance.check_delete()
             if len(errorlist) == 0:
-                url = self.get_delete_finished_url(subject)
-                subject.delete()
+                url = self.get_delete_finished_url(instance)
+                instance.delete()
                 return HttpResponseRedirect(url)
 
         return render_to_response(template, {
-                'object': subject,
+                'object': instance,
                 'breadcrumbs': breadcrumbs,
                 'errorlist': errorlist,
                 },context_instance=RequestContext(request))
@@ -428,27 +428,27 @@ class party_web(base_web):
     verbose_name_plural = "parties"
     form = forms.party_form
 
-    def get_view_buttons(self, user, subject):
-        buttons = super(party_web, self).get_view_buttons(user, subject)
+    def get_view_buttons(self, user, instance):
+        buttons = super(party_web, self).get_view_buttons(user, instance)
 
         if self.has_view_perms(user):
             buttons.insert(0,{
                 'class': 'viewlink',
                 'text': 'Software',
-                'link': self.get_software_list_url(subject),
+                'link': self.get_software_list_url(instance),
             })
 
         return buttons
 
     @m.permalink
-    def get_software_list_url(self, subject):
-        self.assert_subject_type(subject)
-        return('party_software_list', [ str(subject.pk) ])
+    def get_software_list_url(self, instance):
+        self.assert_instance_type(instance)
+        return('party_software_list', [ str(instance.pk) ])
 
     @m.permalink
-    def get_software_view_url(self, subject, software):
-        self.assert_subject_type(subject)
-        return('party_software_detail', [ str(subject.pk), str(software.pk) ])
+    def get_software_view_url(self, instance, software):
+        self.assert_instance_type(instance)
+        return('party_software_detail', [ str(instance.pk), str(software.pk) ])
 
 ###########
 # HISTORY #
@@ -494,20 +494,20 @@ class history_item_web(base_web):
     ###############
 
     @m.permalink
-    def get_edit_url(self, subject):
-        self.assert_subject_type(subject)
-        return('history_item_edit', [ str(subject.pk) ])
+    def get_edit_url(self, instance):
+        self.assert_instance_type(instance)
+        return('history_item_edit', [ str(instance.pk) ])
 
-    def get_edit_finished_url(self, subject):
-        self.assert_subject_type(subject)
-        web = get_web_from_object(subject.content_object)
-        return web.get_view_url(subject.content_object)
+    def get_edit_finished_url(self, instance):
+        self.assert_instance_type(instance)
+        web = get_web_from_object(instance.content_object)
+        return web.get_view_url(instance.content_object)
 
     # get breadcrumbs to show while editing this object
-    def get_edit_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
-        breadcrumbs = self.get_view_breadcrumbs(subject)
-        breadcrumbs.append(breadcrumb(self.get_edit_url(subject), "edit history"))
+    def get_edit_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
+        breadcrumbs = self.get_view_breadcrumbs(instance)
+        breadcrumbs.append(breadcrumb(self.get_edit_url(instance), "edit history"))
         return breadcrumbs
 
     #################
@@ -515,20 +515,20 @@ class history_item_web(base_web):
     #################
 
     @m.permalink
-    def get_delete_url(self, subject):
-        self.assert_subject_type(subject)
-        return('history_item_delete', [ str(subject.pk) ])
+    def get_delete_url(self, instance):
+        self.assert_instance_type(instance)
+        return('history_item_delete', [ str(instance.pk) ])
 
-    def get_delete_finished_url(self, subject):
-        self.assert_subject_type(subject)
-        web = get_web_from_object(subject.content_object)
-        return web.get_view_url(subject.content_object)
+    def get_delete_finished_url(self, instance):
+        self.assert_instance_type(instance)
+        web = get_web_from_object(instance.content_object)
+        return web.get_view_url(instance.content_object)
 
     # get breadcrumbs to show while deleting this object
-    def get_delete_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
-        breadcrumbs = self.get_view_breadcrumbs(subject)
-        breadcrumbs.append(breadcrumb(self.get_delete_url(subject), "delete history"))
+    def get_delete_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
+        breadcrumbs = self.get_view_breadcrumbs(instance)
+        breadcrumbs.append(breadcrumb(self.get_delete_url(instance), "delete history"))
         return breadcrumbs
 
 
@@ -558,17 +558,17 @@ class location_web(base_web):
     ###############
 
     @m.permalink
-    def get_svg_url(self, subject):
-        self.assert_subject_type(subject)
-        return('location_svg', [ str(subject.pk) ])
+    def get_svg_url(self, instance):
+        self.assert_instance_type(instance)
+        return('location_svg', [ str(instance.pk) ])
 
-    def get_view_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
+    def get_view_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
 
         breadcrumbs = []
         breadcrumbs.append(breadcrumb(reverse("lintory_root"), "home"))
 
-        object=subject
+        object=instance
         seen = {}
         while object is not None and object.pk not in seen:
             breadcrumbs.insert(1,breadcrumb(self.get_view_url(object),object))
@@ -580,14 +580,14 @@ class location_web(base_web):
 
         return breadcrumbs
 
-    def get_view_buttons(self, user, subject):
-        buttons = super(location_web, self).get_view_buttons(user, subject)
+    def get_view_buttons(self, user, instance):
+        buttons = super(location_web, self).get_view_buttons(user, instance)
 
         if self.has_add_perms(user):
             buttons.insert(0,{
                 'class': 'addlink',
                 'text': 'Add location',
-                'link': self.get_add_url(subject),
+                'link': self.get_add_url(instance),
             })
 
         return buttons
@@ -613,10 +613,10 @@ class location_web(base_web):
     # DELETE ACTION #
     #################
 
-    def get_delete_finished_url(self, subject):
-        self.assert_subject_type(subject)
-        if subject.parent is not None:
-                return subject.parent.get_view_url()
+    def get_delete_finished_url(self, instance):
+        self.assert_instance_type(instance)
+        if instance.parent is not None:
+                return instance.parent.get_view_url()
         else:
                 return reverse("lintory_root")
 
@@ -631,8 +631,8 @@ class hardware_web(base_web):
     link_prefix = "hardware"
     form = forms.hardware_form
 
-    def assert_subject_type(self, subject):
-        type_name = type(subject).__name__
+    def assert_instance_type(self, instance):
+        type_name = type(instance).__name__
         expected_type = self.web_id
 
         if expected_type == "hardware":
@@ -656,21 +656,21 @@ class hardware_web(base_web):
     # VIEW ACTION #
     ###############
 
-    def get_view_buttons(self, user, subject):
-        buttons = super(hardware_web, self).get_view_buttons(user, subject)
+    def get_view_buttons(self, user, instance):
+        buttons = super(hardware_web, self).get_view_buttons(user, instance)
 
         if self.has_add_perms(user):
             buttons.insert(0,{
                 'class': 'addlink',
                 'text': 'Add hardware',
-                'link': self.get_add_to_subject_url(subject),
+                'link': self.get_add_to_instance_url(instance),
             })
 
         if self.has_edit_perms(user):
             buttons.insert(1,{
                 'class': 'changelink',
                 'text': 'Install hardware',
-                'link': self.get_install_url(subject),
+                'link': self.get_install_url(instance),
             })
 
         return buttons
@@ -687,20 +687,20 @@ class hardware_web(base_web):
             return("hardware_type_add",[ type_id ])
 
     @m.permalink
-    def get_add_to_subject_url(self, subject, type_id=None):
+    def get_add_to_instance_url(self, instance, type_id=None):
         if type_id is None:
-            return('hardware_add', [ str(subject.pk) ])
+            return('hardware_add', [ str(instance.pk) ])
         else:
-            return('hardware_add', [ str(subject.pk), str(type_id) ])
+            return('hardware_add', [ str(instance.pk), str(type_id) ])
 
     ###############
     # EDIT ACTION #
     ###############
 
     @m.permalink
-    def get_install_url(self, subject):
-        self.assert_subject_type(subject)
-        return('hardware_install', [ str(subject.pk) ])
+    def get_install_url(self, instance):
+        self.assert_instance_type(instance)
+        return('hardware_install', [ str(instance.pk) ])
 
     #################
     # DELETE ACTION #
@@ -778,11 +778,11 @@ class os_web(base_web):
     # VIEW ACTION #
     ###############
 
-    def get_view_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
+    def get_view_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
         web = storage_web()
-        breadcrumbs = web.get_view_breadcrumbs(subject.storage)
-        breadcrumbs.append(breadcrumb(self.get_view_url(subject), subject))
+        breadcrumbs = web.get_view_breadcrumbs(instance.storage)
+        breadcrumbs.append(breadcrumb(self.get_view_url(instance), instance))
         return breadcrumbs
 
     ##############
@@ -797,8 +797,8 @@ class os_web(base_web):
     # DELETE ACTION #
     #################
 
-    def get_delete_finished_url(self, subject):
-        return subject.storage.get_view_url()
+    def get_delete_finished_url(self, instance):
+        return instance.storage.get_view_url()
 
 ############
 # SOFTWARE #
@@ -816,21 +816,21 @@ class software_web(base_web):
     # VIEW ACTION #
     ###############
 
-    def get_view_buttons(self, user, subject):
-        buttons = super(software_web, self).get_view_buttons(user, subject)
+    def get_view_buttons(self, user, instance):
+        buttons = super(software_web, self).get_view_buttons(user, instance)
 
         if self.has_add_license_perms(user):
             buttons.append({
                 'class': 'addlink',
                 'text': 'Add license',
-                'link': self.get_add_license_url(subject),
+                'link': self.get_add_license_url(instance),
             })
 
         if self.has_add_software_installation_perms(user):
             buttons.append({
                 'class': 'addlink',
                 'text': 'Add installation',
-                'link': self.get_add_software_installation_url(subject),
+                'link': self.get_add_software_installation_url(instance),
             })
 
         return buttons
@@ -848,14 +848,14 @@ class software_web(base_web):
         return web.has_add_perms(user)
 
     @m.permalink
-    def get_add_software_installation_url(self, subject):
-        self.assert_subject_type(subject)
-        return('software_add_software_installation', [ str(subject.pk) ])
+    def get_add_software_installation_url(self, instance):
+        self.assert_instance_type(instance)
+        return('software_add_software_installation', [ str(instance.pk) ])
 
     @m.permalink
-    def get_add_license_url(self, subject):
-        self.assert_subject_type(subject)
-        return('software_add_license', [ str(subject.pk) ])
+    def get_add_license_url(self, instance):
+        self.assert_instance_type(instance)
+        return('software_add_license', [ str(instance.pk) ])
 
     ###############
     # EDIT ACTION #
@@ -881,14 +881,14 @@ class license_web(base_web):
     # VIEW ACTION #
     ###############
 
-    def get_view_buttons(self, user, subject):
-        buttons = super(license_web, self).get_view_buttons(user, subject)
+    def get_view_buttons(self, user, instance):
+        buttons = super(license_web, self).get_view_buttons(user, instance)
 
         if self.has_add_license_key_perms(user):
             buttons.append({
                 'class': 'addlink',
                 'text': 'Add key',
-                'link': self.get_add_license_key_url(subject),
+                'link': self.get_add_license_key_url(instance),
             })
 
         return buttons
@@ -902,9 +902,9 @@ class license_web(base_web):
         return web.has_add_perms(user)
 
     @m.permalink
-    def get_add_license_key_url(self, subject):
-        self.assert_subject_type(subject)
-        return('license_add_license_key', [ str(subject.pk) ])
+    def get_add_license_key_url(self, instance):
+        self.assert_instance_type(instance)
+        return('license_add_license_key', [ str(instance.pk) ])
 
     ###############
     # EDIT ACTION #
@@ -930,11 +930,11 @@ class license_key_web(base_web):
     # VIEW ACTION #
     ###############
 
-    def get_view_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
+    def get_view_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
         web = license_web()
-        breadcrumbs = web.get_view_breadcrumbs(subject.license)
-        breadcrumbs.append(breadcrumb(web.get_view_url(subject.license), subject))
+        breadcrumbs = web.get_view_breadcrumbs(instance.license)
+        breadcrumbs.append(breadcrumb(web.get_view_url(instance.license), instance))
         return breadcrumbs
 
     ##############
@@ -959,8 +959,8 @@ class license_key_web(base_web):
     # DELETE ACTION #
     #################
 
-    def get_delete_finished_url(self, subject):
-        return subject.software.get_view_url()
+    def get_delete_finished_url(self, instance):
+        return instance.software.get_view_url()
 
 #########################
 # SOFTWARE_INSTALLATION #
@@ -978,11 +978,11 @@ class software_installation_web(base_web):
     # VIEW ACTION #
     ###############
 
-    def get_view_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
-        web = get_web_for_object(subject.software)
-        breadcrumbs = web.get_breadcrumbs(subject.software)
-        breadcrumbs.append(breadcrumb(web.get_view_url(subject.software), subject))
+    def get_view_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
+        web = get_web_for_object(instance.software)
+        breadcrumbs = web.get_breadcrumbs(instance.software)
+        breadcrumbs.append(breadcrumb(web.get_view_url(instance.software), instance))
         return breadcrumbs
 
     ##############
@@ -1003,18 +1003,18 @@ class software_installation_web(base_web):
     ###############
 
     @m.permalink
-    def get_edit_license_key_url(self, subject):
-        self.assert_subject_type(subject)
-        return('software_installation_edit_license_key', [ str(subject.pk) ])
+    def get_edit_license_key_url(self, instance):
+        self.assert_instance_type(instance)
+        return('software_installation_edit_license_key', [ str(instance.pk) ])
 
-    def get_edit_finished_url(self, subject):
-        self.assert_subject_type(subject)
-        return subject.software.get_view_url()
+    def get_edit_finished_url(self, instance):
+        self.assert_instance_type(instance)
+        return instance.software.get_view_url()
 
-    def get_edit_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
-        breadcrumbs = subject.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(subject.get_edit_url(), "edit installation"))
+    def get_edit_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
+        breadcrumbs = instance.get_breadcrumbs()
+        breadcrumbs.append(breadcrumb(instance.get_edit_url(), "edit installation"))
         return breadcrumbs
 
 
@@ -1022,14 +1022,14 @@ class software_installation_web(base_web):
     # DELETE ACTION #
     #################
 
-    def get_delete_finished_url(self, subject):
-        self.assert_subject_type(subject)
-        return subject.software.get_view_url()
+    def get_delete_finished_url(self, instance):
+        self.assert_instance_type(instance)
+        return instance.software.get_view_url()
 
-    def get_delete_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
-        breadcrumbs = subject.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(subject.get_delete_url(), "delete installation"))
+    def get_delete_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
+        breadcrumbs = instance.get_breadcrumbs()
+        breadcrumbs.append(breadcrumb(instance.get_delete_url(), "delete installation"))
         return breadcrumbs
 
 
@@ -1055,8 +1055,8 @@ class task_web(base_web):
     ###############
 
     @m.permalink
-    def get_add_hardware_url(self, subject):
-        return('task_add_hardware', [ str(subject.pk) ])
+    def get_add_hardware_url(self, instance):
+        return('task_add_hardware', [ str(instance.pk) ])
 
     #################
     # DELETE ACTION #
@@ -1079,11 +1079,11 @@ class hardware_task_web(base_web):
     # VIEW ACTION #
     ###############
 
-    def get_view_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
-        web = get_web_for_object(subject.task)
-        breadcrumbs = web.get_breadcrumbs(subject.task)
-        breadcrumbs.append(breadcrumb(web.get_view_url(subject.task), subject))
+    def get_view_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
+        web = get_web_for_object(instance.task)
+        breadcrumbs = web.get_breadcrumbs(instance.task)
+        breadcrumbs.append(breadcrumb(web.get_view_url(instance.task), instance))
         return breadcrumbs
 
     ##############
@@ -1103,31 +1103,31 @@ class hardware_task_web(base_web):
     # EDIT ACTION #
     ###############
 
-    def get_edit_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
-        breadcrumbs = subject.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(subject.get_edit_url(), "edit hardware todo"))
+    def get_edit_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
+        breadcrumbs = instance.get_breadcrumbs()
+        breadcrumbs.append(breadcrumb(instance.get_edit_url(), "edit hardware todo"))
         return breadcrumbs
 
-    def get_edit_finished_url(self, subject):
-        self.assert_subject_type(subject)
+    def get_edit_finished_url(self, instance):
+        self.assert_instance_type(instance)
         web = task_web()
-        return web.get_view_url(subject.task)
+        return web.get_view_url(instance.task)
 
     #################
     # DELETE ACTION #
     #################
 
-    def get_delete_breadcrumbs(self, subject):
-        self.assert_subject_type(subject)
-        breadcrumbs = subject.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(subject.get_delete_url(), "delete hardware todo"))
+    def get_delete_breadcrumbs(self, instance):
+        self.assert_instance_type(instance)
+        breadcrumbs = instance.get_breadcrumbs()
+        breadcrumbs.append(breadcrumb(instance.get_delete_url(), "delete hardware todo"))
         return breadcrumbs
 
-    def get_delete_finished_url(self, subject):
-        self.assert_subject_type(subject)
+    def get_delete_finished_url(self, instance):
+        self.assert_instance_type(instance)
         web = task_web()
-        return web.get_view_url(subject.task)
+        return web.get_view_url(instance.task)
 
 
 ########
