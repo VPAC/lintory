@@ -21,7 +21,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, loader
 from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
 
-from lintory import forms
+from lintory import models,forms
 
 # META INFORMATION FOR MODELS
 
@@ -426,6 +426,7 @@ class base_web(object):
 class party_web(base_web):
     web_id = "party"
     verbose_name_plural = "parties"
+    model = models.party
     form = forms.party_form
 
     def get_view_buttons(self, user, instance):
@@ -456,6 +457,7 @@ class party_web(base_web):
 
 class history_item_web(base_web):
     web_id = "history_item"
+    model = models.history
     form = forms.history_item_form
 
     ###############
@@ -539,6 +541,7 @@ class history_item_web(base_web):
 
 class vendor_web(base_web):
     web_id = "vendor"
+    model = models.vendor
     form = forms.vendor_form
 
 ############
@@ -547,6 +550,7 @@ class vendor_web(base_web):
 
 class location_web(base_web):
     web_id = "location"
+    model = models.location
     form = forms.location_form
 
     ###############
@@ -629,6 +633,7 @@ class hardware_web(base_web):
     verbose_name_plural = "hardware"
     perm_prefix = "hardware"
     url_prefix = "hardware"
+    model = models.hardware
     form = forms.hardware_form
 
     def assert_instance_type(self, instance):
@@ -709,56 +714,69 @@ class hardware_web(base_web):
 
 class motherboard_web(hardware_web):
     web_id = "motherboard"
+    model = models.motherboard
     form = forms.motherboard_form
 
 class processor_web(hardware_web):
     web_id = "processor"
+    model = models.processor
     form = forms.processor_form
 
 class video_controller_web(hardware_web):
     web_id = "video_controller"
+    model = models.video_controller
     form = forms.video_controller_form
 
 class network_adaptor_web(hardware_web):
     web_id = "network_adaptor"
+    model = models.network_adaptor
     form = forms.network_adaptor_form
 
 class storage_web(hardware_web):
     web_id = "storage"
     verbose_name_plural = "storage"
+    model = models.storage_web
     form = forms.storage_form
 
 class power_supply_web(hardware_web):
     web_id = "power_supply"
     verbose_name_plural = "power supplies"
+    model = models.power_supply
     form = forms.power_supply_form
 
 class computer_web(hardware_web):
     web_id = "computer"
+    model = models.computer
     form = forms.computer_form
 
 class monitor_web(hardware_web):
     web_id = "monitor"
+    model = models.monitor
     form = forms.monitor_form
 
 class multifunction_web(hardware_web):
     web_id = "multifunction"
+    model = models.multifunction
     form = forms.multifunction_form
 
 class printer_web(hardware_web):
     web_id = "printer"
+    model = models.printer
     form = forms.printer_form
 
 class scanner_web(hardware_web):
     web_id = "scanner"
+    model = models.scanner
     form = forms.scanner_form
 
 class docking_station_web(hardware_web):
     web_id = "docking_station"
+    model = models.docking_station
     form = forms.docking_station_form
 
 class camera_web(hardware_web):
     web_id = "camera"
+    model = models.camera
     form = forms.camera_form
 
 ######
@@ -768,6 +786,7 @@ class camera_web(hardware_web):
 class os_web(base_web):
     web_id = "os"
     verbose_name_plural = "os"
+    model = models.os
     form = forms.os_form
 
     ###############
@@ -806,6 +825,7 @@ class os_web(base_web):
 class software_web(base_web):
     web_id = "software"
     verbose_name_plural = "software"
+    model = models.software
     form = forms.software_form
 
     ###############
@@ -871,6 +891,7 @@ class software_web(base_web):
 
 class license_web(base_web):
     web_id = "license"
+    model = models.license
     form = forms.license_form
 
     ###############
@@ -920,6 +941,7 @@ class license_web(base_web):
 
 class license_key_web(base_web):
     web_id = "license_key"
+    model = models.license_key
     form = forms.license_key_form
 
     ###############
@@ -968,6 +990,7 @@ class license_key_web(base_web):
 
 class software_installation_web(base_web):
     web_id = "software_installation"
+    model = models.software_installation
     form = forms.software_installation_form
 
     ###############
@@ -1039,6 +1062,7 @@ class software_installation_web(base_web):
 
 class task_web(base_web):
     web_id = "task"
+    model = models.task
     form = forms.task_form
 
     ###############
@@ -1069,6 +1093,7 @@ class task_web(base_web):
 
 class hardware_task_web(base_web):
     web_id = "hardware_task"
+    model = models.hardware_task
     form = forms.hardware_task_form
 
     ###############
@@ -1136,6 +1161,7 @@ class hardware_task_web(base_web):
 
 class data_web(base_web):
     web_id = "data"
+    model = models.data
     form = forms.data_form
 
     ###############
