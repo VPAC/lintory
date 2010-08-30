@@ -1040,11 +1040,12 @@ class software_installation_web(base_web):
     model = models.software_installation
     form = forms.software_installation_form
 
-    def get_instance(self):
+    def get_instance(self, software):
         instance = models.software_installation()
         instance.active = True
         instance.seen_first = datetime.datetime.now()
         instance.seen_last = datetime.datetime.now()
+        instance.software = software
         return instance
 
     def pre_save(self, instance, form):
@@ -1079,9 +1080,10 @@ class software_installation_web(base_web):
     def get_add_url(self, software):
         return("software_add_software_installation", [ software.pk ] )
 
-    def get_add_breadcrumbs(self, **kwargs):
-        breadcrumbs = self.get_breadcrumbs(**kwargs)
-        breadcrumbs.append(breadcrumb(self.get_add_url(**kwargs), "add installation"))
+    def get_add_breadcrumbs(self, software):
+        web = software_web()
+        breadcrumbs = web.get_view_breadcrumbs(software)
+        breadcrumbs.append(breadcrumb(self.get_add_url(software), "add installation"))
         return breadcrumbs
 
     ###############
