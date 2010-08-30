@@ -11,12 +11,6 @@ class history_item_form(forms.ModelForm):
 
     class Meta:
         model = models.history_item
-        exclude = ('list','date','content_type','object_pk')
-
-class history_item_form_with_date(forms.ModelForm):
-
-    class Meta:
-        model = models.history_item
         exclude = ('list','content_type','object_pk')
 
 class vendor_form(forms.ModelForm):

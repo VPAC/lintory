@@ -1,9 +1,9 @@
-DJANGO="$HOME/tree/Django-1.1.1"
 APP=inventory
 DIR=$PWD
 
-export PYTHONPATH="$DIR:$DJANGO"
+export PYTHONPATH="$PYTHONPATH:$DIR"
 export DJANGO_SETTINGS_MODULE="inventory.settings"
 
 "$DIR/inventory/manage.py" syncdb
+"$DIR/inventory/manage.py" migrate
 "$DIR/inventory/manage.py" "$@"

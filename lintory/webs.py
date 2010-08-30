@@ -16,6 +16,7 @@
 
 import datetime
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models as m
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -385,7 +386,7 @@ class base_web(object):
             if form.is_valid():
                 valid = True
                 instance = form.save(commit=False)
-                valid = pre_save(instance=instance, form=form)
+                valid = self.pre_save(instance=instance, form=form)
 
                 if valid:
                     instance.save()
@@ -469,10 +470,15 @@ class history_item_web(base_web):
     model = models.history_item
     form = forms.history_item_form
 
+    def pre_save(self, instance, form):
+        object = self.initial_object
+        if object is not None:
+            instance.content_type = ContentType.objects.get_for_model(object)
+            instance.object_pk = object.pk
+        return True
+
     def get_instance(self, object):
         instance = models.history_item()
-        instance.content_type = ContentType.objects.get_for_model(object)
-        instance.object_pk = object.pk
         instance.date = datetime.datetime.now()
         return instance
 

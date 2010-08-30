@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_unicode
 from django.shortcuts import render_to_response, get_object_or_404
@@ -47,16 +46,22 @@ def get_object_by_string(type_id,object_id):
 
 def history_item_add(request, type_id, object_id):
     object = get_object_by_string(type_id,object_id)
+
     web = webs.history_item_web()
+    web.initial_object = object
     return web.object_add(request, kwargs={ 'object': object })
 
 def history_item_edit(request, history_item_id):
     web = webs.history_item_web()
+    web.initial_object = None
+
     history_item = get_object_or_404(models.history_item, pk=history_item_id)
-    return web.object_edit(request, history_item, forms.history_item_form_with_date)
+    return web.object_edit(request, history_item)
 
 def history_item_delete(request, history_item_id):
     web = webs.history_item_web()
+    web.initial_object = None
+
     history_item = get_object_or_404(models.history_item, pk=history_item_id)
     return web.object_delete(request, history_item)
 
@@ -68,7 +73,7 @@ def party_list(request):
     web = webs.party_web()
     filter = filters.party(request.GET or None)
     table = tables.party(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return web.object_list(request, filter, table)
+    return web.object_list(request, filter.form, table)
 
 def party_detail(request, object_id):
     if object_id != "none":
@@ -725,7 +730,7 @@ def data_list(request):
     web = webs.data_web()
     filter = filters.data(request.GET or None)
     table = tables.data(request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter.form, table)
+    return web.object_list(request, filter.form, table)
 
 def data_detail(request, object_id):
     web = webs.data_web()
