@@ -25,8 +25,6 @@ import django.forms.util as util
 
 from lintory import models, helpers, forms, eparty, tables, filters, webs
 
-import datetime
-
 def lintory_root(request):
     breadcrumbs = [ ]
     breadcrumbs.append(webs.breadcrumb(reverse("lintory_root"),"home"))
@@ -49,15 +47,8 @@ def get_object_by_string(type_id,object_id):
 
 def history_item_add(request, type_id, object_id):
     object = get_object_by_string(type_id,object_id)
-
-    def pre_save(instance, form):
-        instance.content_type = ContentType.objects.get_for_model(object)
-        instance.object_pk = object.pk
-        instance.date = datetime.datetime.now()
-        return True
-
     web = webs.history_item_web()
-    return web.object_add(request, pre_save=pre_save, kwargs={ 'object': object })
+    return web.object_add(request, kwargs={ 'object': object })
 
 def history_item_edit(request, history_item_id):
     web = webs.history_item_web()
@@ -207,13 +198,7 @@ def task_delete(request,object_id):
 def task_add_hardware(request, object_id):
     web = webs.hardware_task_web()
     task = get_object_or_404(models.task, pk=object_id)
-
-    def get_defaults():
-        instance = models.hardware_task()
-        instance.task = task
-        return instance
-
-    return web.object_add(request, get_defaults, kwargs={ 'task': task })
+    return web.object_add(request, kwargs={ 'task': task })
 
 def hardware_task_edit(request,object_id):
     web = webs.hardware_task_web()
@@ -270,13 +255,7 @@ def location_redirect(request,object_id):
 def location_add(request, object_id):
     web = webs.location_web()
     parent = get_object_or_404(models.location, pk=object_id)
-
-    def get_defaults():
-        instance = models.location()
-        instance.parent = parent
-        return instance
-
-    return web.object_add(request, get_defaults=get_defaults, kwargs={ 'parent': parent })
+    return web.object_add(request, kwargs={ 'parent': parent })
 
 def location_edit(request,object_id):
     web = webs.location_web()
@@ -498,21 +477,14 @@ def hardware_type_add(request, type_id, object_id=None):
     if type_id not in type_dict:
         raise Http404(u"Hardware type '%s' not found"%(type_id))
 
-    if object_id is not None:
-        object = get_object_or_404(models.hardware, pk=object_id)
 
     web = type_dict[type_id].web()
-    type_class = type_dict[type_id].type_class
-
-    def get_defaults():
-        instance = type_class()
-        if object_id is not None:
-            instance.installed_on = object
-        instance.seen_first = datetime.datetime.now()
-        instance.seen_last = datetime.datetime.now()
-        return instance
-
-    return web.object_add(request, get_defaults)
+    web.initial_model_class = type_dict[type_id].type_class
+    if object_id is not None:
+        web.initial_installed_on = get_object_or_404(models.hardware, pk=object_id)
+    else:
+        web.initial_installed_on = None
+    return web.object_add(request)
 
 ############
 # SOFTWARE #
@@ -650,13 +622,7 @@ def license_key_detail(request, object_id):
 def license_add_license_key(request, object_id):
     web = webs.license_key_web()
     license = get_object_or_404(models.license, pk=object_id)
-
-    def get_defaults():
-        instance = models.license_key()
-        instance.license = license
-        return instance
-
-    return web.object_add(request, get_defaults, kwargs={ 'license': license })
+    return web.object_add(request, kwargs={ 'license': license })
 
 def license_key_edit(request, object_id):
     web = webs.license_key_web()
@@ -675,15 +641,7 @@ def license_key_delete(request,object_id):
 def software_add_software_installation(request, object_id):
     web = webs.software_installation_web()
     software = get_object_or_404(models.software, pk=object_id)
-
-    def get_defaults():
-        instance = models.software_installation()
-        instance.active = True
-        instance.seen_first = datetime.datetime.now()
-        instance.seen_last = datetime.datetime.now()
-        return instance
-
-    return web.object_add(request, get_defaults, kwargs={ 'software': software })
+    return web.object_add(request, kwargs={ 'software': software })
 
 def software_installation_edit_license_key(request,object_id):
     object = get_object_or_404(models.software_installation, pk=object_id)
@@ -727,17 +685,7 @@ def software_installation_edit_license_key(request,object_id):
 def software_installation_edit(request, object_id):
     web = webs.software_installation_web()
     object = get_object_or_404(models.software_installation, pk=object_id)
-
-    def pre_save(instance, form):
-        valid = True
-        if instance.license_key is not None:
-            if instance.license_key.software != instance.software:
-                msg = u"Software must match license key %s"%(instance.license_key.software)
-                form._errors["software"] = util.ErrorList([msg])
-                valid = False
-        return valid
-
-    return web.object_edit(request, object, pre_save=pre_save)
+    return web.object_edit(request, object)
 
 def software_installation_delete(request,object_id):
     web = webs.software_installation_web()
@@ -756,15 +704,7 @@ def os_detail(request, object_id):
 def os_add(request, object_id):
     web = webs.os_web()
     storage = get_object_or_404(models.storage, pk=object_id)
-
-    def get_defaults():
-        instance = models.os()
-        instance.storage = storage
-        instance.seen_first = datetime.datetime.now()
-        instance.seen_last = datetime.datetime.now()
-        return instance
-
-    return web.object_add(request, get_defaults, kwargs={ 'storage': storage })
+    return web.object_add(request, kwargs={ 'storage': storage })
 
 def os_edit(request, object_id):
     web = webs.os_web()
@@ -795,13 +735,7 @@ def data_detail(request, object_id):
 def data_add(request):
     web = webs.data_web()
     template = 'lintory/object_file_edit.html'
-
-    def get_defaults():
-        instance = models.data()
-        instance.datetime = datetime.datetime.now()
-        return instance
-
-    return web.object_add(request, template=template, get_defaults=get_defaults)
+    return web.object_add(request, template=template)
 
 def data_edit(request, object_id):
     web = webs.data_web()

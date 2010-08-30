@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
+
 from django.core.urlresolvers import reverse
 from django.db import models as m
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -136,6 +138,13 @@ class base_web(object):
         breadcrumbs.append(breadcrumb(reverse("lintory_root"), "home"))
         breadcrumbs.append(breadcrumb(reverse(self.url_prefix+"_list"), self.verbose_name_plural))
         return breadcrumbs
+
+    def get_instance(self):
+        return self.model()
+
+    def pre_save(self, instance, form):
+        self.assert_instance_type(instance)
+        return True
 
     ###############
     # LIST ACTION #
@@ -326,7 +335,7 @@ class base_web(object):
                 'breadcrumbs': breadcrumbs,
                 },context_instance=RequestContext(request))
 
-    def object_add(self, request, get_defaults=None, pre_save=None, template=None, kwargs={}):
+    def object_add(self, request, template=None, kwargs={}):
         breadcrumbs = self.get_add_breadcrumbs(**kwargs)
 
         if template is None:
@@ -342,20 +351,16 @@ class base_web(object):
             if form.is_valid():
                 valid = True
                 instance = form.save(commit=False)
-
-                if pre_save is not None:
-                    valid = pre_save(instance=instance, form=form)
+                valid = self.pre_save(instance=instance, form=form)
 
                 if valid:
                     instance.save()
                     url=self.get_edit_finished_url(instance)
                     return HttpResponseRedirect(url)
         else:
-            if get_defaults is None:
-                form = self.form()
-            else:
-                instance = get_defaults()
-                form = self.form(instance=instance)
+            instance = self.get_instance(**kwargs)
+            self.assert_instance_type(instance)
+            form = self.form(instance=instance)
 
         return render_to_response(template, {
                 'object': None, 'web': self,
@@ -364,7 +369,7 @@ class base_web(object):
                 'media' : form.media,
                 },context_instance=RequestContext(request))
 
-    def object_edit(self, request, instance, pre_save=None, template=None):
+    def object_edit(self, request, instance, template=None):
         self.assert_instance_type(instance)
         breadcrumbs = self.get_edit_breadcrumbs(instance)
 
@@ -380,9 +385,7 @@ class base_web(object):
             if form.is_valid():
                 valid = True
                 instance = form.save(commit=False)
-
-                if pre_save is not None:
-                    valid = pre_save(instance=instance, form=form)
+                valid = pre_save(instance=instance, form=form)
 
                 if valid:
                     instance.save()
@@ -463,8 +466,15 @@ class party_web(base_web):
 
 class history_item_web(base_web):
     web_id = "history_item"
-    model = models.history
+    model = models.history_item
     form = forms.history_item_form
+
+    def get_instance(self, object):
+        instance = models.history_item()
+        instance.content_type = ContentType.objects.get_for_model(object)
+        instance.object_pk = object.pk
+        instance.date = datetime.datetime.now()
+        return instance
 
     ###############
     # LIST ACTION #
@@ -558,6 +568,11 @@ class location_web(base_web):
     web_id = "location"
     model = models.location
     form = forms.location_form
+
+    def get_instance(self, parent):
+        instance = models.location()
+        instance.parent = parent
+        return instance
 
     ###############
     # LIST ACTION #
@@ -660,6 +675,14 @@ class hardware_web(base_web):
         breadcrumbs.append(breadcrumb(reverse("hardware_list"), "hardware"))
         return breadcrumbs
 
+    def get_instance(self):
+        instance = self.initial_model_class()
+        if object_id is not None:
+            instance.installed_on = self.initial_installed_on
+        instance.seen_first = datetime.datetime.now()
+        instance.seen_last = datetime.datetime.now()
+        return instance
+
     ###############
     # LIST ACTION #
     ###############
@@ -744,7 +767,7 @@ class network_adaptor_web(hardware_web):
 class storage_web(hardware_web):
     web_id = "storage"
     verbose_name_plural = "storage"
-    model = models.storage_web
+    model = models.storage
     form = forms.storage_form
 
 class power_supply_web(hardware_web):
@@ -956,6 +979,11 @@ class license_key_web(base_web):
     model = models.license_key
     form = forms.license_key_form
 
+    def get_instance(self, license):
+        instance = models.license_key()
+        instance.license = license
+        return instance
+
     ###############
     # LIST ACTION #
     ###############
@@ -1005,6 +1033,22 @@ class software_installation_web(base_web):
     web_id = "software_installation"
     model = models.software_installation
     form = forms.software_installation_form
+
+    def get_instance(self):
+        instance = models.software_installation()
+        instance.active = True
+        instance.seen_first = datetime.datetime.now()
+        instance.seen_last = datetime.datetime.now()
+        return instance
+
+    def pre_save(self, instance, form):
+        valid = True
+        if instance.license_key is not None:
+            if instance.license_key.software != instance.software:
+                msg = u"Software must match license key %s"%(instance.license_key.software)
+                form._errors["software"] = util.ErrorList([msg])
+                valid = False
+        return valid
 
     ###############
     # LIST ACTION #
@@ -1110,6 +1154,11 @@ class hardware_task_web(base_web):
     model = models.hardware_task
     form = forms.hardware_task_form
 
+    def get_instance(self, task):
+        instance = models.hardware_task()
+        instance.task = task
+        return instance
+
     ###############
     # LIST ACTION #
     ###############
@@ -1177,6 +1226,11 @@ class data_web(base_web):
     web_id = "data"
     model = models.data
     form = forms.data_form
+
+    def get_instance(self):
+        instance = models.data()
+        instance.datetime = datetime.datetime.now()
+        return instance
 
     ###############
     # LIST ACTION #
