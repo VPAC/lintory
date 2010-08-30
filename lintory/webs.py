@@ -683,7 +683,7 @@ class hardware_web(base_web):
 
     def get_instance(self):
         instance = self.initial_model_class()
-        if object_id is not None:
+        if self.initial_installed_on is not None:
             instance.installed_on = self.initial_installed_on
         instance.seen_first = datetime.datetime.now()
         instance.seen_last = datetime.datetime.now()
@@ -1131,12 +1131,28 @@ class task_web(base_web):
     ###############
     # LIST ACTION #
     ###############
+
     ###############
     # VIEW ACTION #
     ###############
+
+    def get_view_buttons(self, user, instance):
+        self.assert_instance_type(instance)
+        buttons = super(task_web, self).get_view_buttons(user, instance)
+
+        if self.has_add_hardware_perms(user):
+            buttons.insert(0,{
+                'class': 'addlink',
+                'text': 'Add hardware',
+                'url': self.get_add_hardware_url(instance),
+            })
+
+        return buttons
+
     ##############
     # ADD ACTION #
     ##############
+
     ###############
     # EDIT ACTION #
     ###############
@@ -1145,6 +1161,10 @@ class task_web(base_web):
     def get_add_hardware_url(self, instance):
         self.assert_instance_type(instance)
         return('task_add_hardware', [ str(instance.pk) ])
+
+    def has_add_hardware_perms(self, user):
+        web = hardware_task_web()
+        return web.has_add_perms(user)
 
     #################
     # DELETE ACTION #
@@ -1188,9 +1208,10 @@ class hardware_task_web(base_web):
     def get_add_url(self, task):
         return("task_add_hardware", [ task.pk ] )
 
-    def get_add_breadcrumbs(self, **kwargs):
-        breadcrumbs = self.get_breadcrumbs(**kwargs)
-        breadcrumbs.append(breadcrumb(self.get_add_url(**kwargs), "add hardware"))
+    def get_add_breadcrumbs(self, task):
+        web = task_web()
+        breadcrumbs = web.get_view_breadcrumbs(task)
+        breadcrumbs.append(breadcrumb(self.get_add_url(task), "add hardware"))
         return breadcrumbs
 
     ###############

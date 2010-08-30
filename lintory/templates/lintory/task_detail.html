@@ -10,19 +10,9 @@
 
 <h1>{{ object }}</h1>
 
-{% if perms.lintory.change_task or perms.inventory.delete_task or perms.inventory.add_hardware_task %}
-<ul class="object-tools">
-{% if perms.lintory.change_task %}
-<li><a class="changelink" href="{{ object.get_edit_url }}">Edit</a></li>
-{% endif %}
-{% if perms.lintory.delete_task %}
-<li><a class="deletelink" href="{{ object.get_delete_url }}">Delete</a></li>
-{% endif %}
-{% if perms.lintory.add_hardware_task %}
-<li><a class="addlink" href="{{ object.get_add_hardware_url }}">Add hardware</a></li>
-{% endif %}
-</ul>
-{% endif %}
+{% block tools %}
+{% show_view_buttons web user object %}
+{% endblock %}
 
 <dl class="infobox">
 <dt>Task</dt><dd>{{ object }}</dd>
