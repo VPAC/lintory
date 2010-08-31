@@ -550,7 +550,8 @@ def software_add_license(request,object_id):
     breadcrumbs = web.get_view_breadcrumbs(object)
     breadcrumbs.append(webs.breadcrumb(web.get_add_license_url(object),"add software license"))
 
-    error = check_add_perms(request, breadcrumbs, webs.license_web())
+    l_web = webs.license_web()
+    error = l_web.check_add_perms(request, breadcrumbs)
     if error is not None:
         return error
 
@@ -654,7 +655,7 @@ def software_installation_edit_license_key(request,object_id):
     breadcrumbs.append(models.breadcrumb(object.get_edit_license_key_url(),"edit license key"))
 
     web = webs.software_installation_web()
-    error = check_edit_perms(request, breadcrumbs, web)
+    error = web.check_edit_perms(request, breadcrumbs)
     if error is not None:
         return error
 
