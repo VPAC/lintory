@@ -71,16 +71,17 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os_path.join(PROJECT_DIR, 'media')
+MEDIA_ROOT = "/usr/share/lintory/media"
 
+# URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # URL that handles the media served from MEDIA_ROOT.
 # Example: "http://media.lawrence.com"
-MEDIA_URL = '/lintory_media/'
+MEDIA_URL = '/media/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/admin_media/'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -110,19 +111,22 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os_path.join(PROJECT_DIR, 'templates'),
+    "/etc/lintory/templates",
 )
 
 INSTALLED_APPS = (
+    'inventory',
+    'lintory',
     'django.contrib.auth',
+    'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'django.contrib.admin',
-    'lintory',
     'south',
 )
 
 LOGIN_REDIRECT_URL = "/"
 LOGIN_URL = "/account/login/"
 LOGOUT_URL = "/account/login/"
+
+execfile("/etc/spud/settings.py")
