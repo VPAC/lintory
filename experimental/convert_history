@@ -1,0 +1,12 @@
+#!/usr/bin/python
+from lintory import models
+from django.contrib.contenttypes.models import ContentType
+
+for hi in models.history_item.objects.all():
+    object = hi.content_object
+    if type(object) == models.hardware:
+        object = object.get_object()
+
+    hi.content_type = ContentType.objects.get_for_model(object)
+    hi.object_pk = object.pk
+    hi.save()

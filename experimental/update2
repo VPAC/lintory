@@ -1,0 +1,68 @@
+#!/usr/bin/python
+
+from lintory import models
+
+i_list = models.interface.objects.all()
+for i in i_list:
+    print "-----"
+    print i.name
+    print i.computer
+
+    try:
+        na =  models.network_adaptor.objects.get(installed_on=i.computer, mac_address=i.ethernet_address)
+    except  models.network_adaptor.DoesNotExist, e:
+        na =  models.network_adaptor()
+
+    na.installed_on = i.computer
+    na.mac_address = i.ethernet_address
+    na.seen_first = i.computer.seen_first
+    na.seen_last = i.computer.seen_last
+    na.network_type = "Ethernet 802.3"
+    na.name = i.name
+    na.IPv4_address = i.IPv4_address
+    na.save()
+
+exit(0)
+
+os_list = [
+        "Microsoft Windows XP",
+        "Windows Vista (TM) Ultimate",
+        "Windows Vista (TM) Home Premium",
+        "Microsoft Windows Server 2003",
+        "Windows Server (R) 2008 Standard"
+    ]
+for os in os_list:
+    models.os.objects.filter(software_installation__software__name=os).update(name=os)
+exit(0)
+
+c_list = models.computer.objects.all()
+for computer in c_list:
+    si_list = models.software_installation.objects.filter(computer=computer.pk)
+
+    if si_list.count() > 0:
+        storage_list = computer.used_storage.all()
+        if storage_list.count() > 0:
+            storage = storage_list[0]
+#            storage.type = "storage"
+#            storage.save()
+        else:
+            storage = models.storage()
+            storage.installed_on = computer
+            storage.used_by = computer
+            storage.seen_first = computer.seen_first
+            storage.seen_last = computer.seen_last
+            storage.save()
+
+        os_list = storage.os_set.all()
+        if os_list.count() > 0:
+            os = os_list[0]
+        else:
+            os = models.os()
+            os.computer_name = computer.name
+            os.storage = storage
+            os.name = "default"
+            os.seen_first = computer.seen_first
+            os.seen_last = computer.seen_last
+            os.save()
+
+        si_list.update(os=os)
