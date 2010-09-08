@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+case "$1" in
+    (configure)
+        if [ ! -f /etc/lintory/settings.py ]
+        then
+            cp /usr/share/doc/lintory/examples/settings.py /etc/lintory/settings.py
+        fi
+        lintory_update_secret_key
+    ;;
+    (abort-upgrade|abort-remove|abort-deconfigure)
+        exit 0
+    ;;
+    (*)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 0
+    ;;
+esac
+
+
+#DEBHELPER#
