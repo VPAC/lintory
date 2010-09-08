@@ -1,0 +1,2 @@
+conf/apache2.conf /etc/lintory
+conf/lintory.wsgi /usr/share/lintory

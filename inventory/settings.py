@@ -129,4 +129,4 @@ LOGIN_REDIRECT_URL = "/"
 LOGIN_URL = "/account/login/"
 LOGOUT_URL = "/account/login/"
 
-execfile("/etc/spud/settings.py")
+execfile("/etc/lintory/settings.py")

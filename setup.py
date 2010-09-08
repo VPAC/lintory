@@ -75,7 +75,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'bdist_wininst':
 
 scripts = [
     'bin/lintory',
-    'bin/import',
+    'bin/lintory_import',
     'bin/lintory_update_secret_key',
 ]
 

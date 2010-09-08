@@ -3,20 +3,29 @@ set -e
 
 case "$1" in
     (configure)
+        for i in /var/lib/lintory
+        do
+            # only do something when no setting exists
+            if ! dpkg-statoverride --list $i >/dev/null 2>&1
+            then
+                dpkg-statoverride --update --add root www-data 775 $i
+            fi
+        done
+
         if [ ! -f /etc/lintory/settings.py ]
         then
             cp /usr/share/doc/lintory/examples/settings.py /etc/lintory/settings.py
         fi
-        lintory_update_secret_key
-    ;;
-    (abort-upgrade|abort-remove|abort-deconfigure)
-        exit 0
-    ;;
-    (*)
-        echo "postinst called with unknown argument \`$1'" >&2
-        exit 0
     ;;
 esac
 
 
 #DEBHELPER#
+
+case "$1" in
+    (configure)
+        lintory_update_secret_key
+        lintory syncdb --migrate
+        chown www-data:www-data /var/lib/lintory/lintory.db
+    ;;
+esac

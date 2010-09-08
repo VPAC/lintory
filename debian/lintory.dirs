@@ -1,2 +1,3 @@
 /etc/lintory
-/var/run/lintory
+/var/lib/lintory
+/usr/share/lintory
