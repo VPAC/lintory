@@ -37,5 +37,5 @@ SECRET_KEY = ''
 EMAIL_HOST="mail.example.org"
 DEFAULT_FROM_EMAIL = "Name <email@example.org>"
 
-IMAGE_URL="http://website.example.org/images/"
-IMAGE_PATH="/var/lib/spud/"
+LOGIN_URL="/lintory/accounts/login/"
+LOGIN_REDIRECT_URL="/lintory/"
