@@ -20,6 +20,17 @@ DATABASES = {
     }
 }
 
+# LDAP configuration
+NAMES_ENGINE='LDAP'
+LDAP_URI = 'ldap://ldap.example.org/'
+LDAP_PORT = '389'
+LDAP_PEOPLE = 'ou=People, dc=example, dc=org'
+LDAP_GROUPS = 'ou=Group, dc=example, dc=org'
+LDAP_BASE = 'dc=example, dc=org'
+AUTHENTICATION_BACKENDS = (
+ 'inventory.backends.auth.LDAPBackend',
+)
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -37,5 +48,6 @@ SECRET_KEY = ''
 EMAIL_HOST="mail.example.org"
 DEFAULT_FROM_EMAIL = "Name <email@example.org>"
 
-LOGIN_URL="/lintory/accounts/login/"
+LOGIN_URL="/lintory/account/login/"
+LOGOUT_URL = "/lintory/account/login/"
 LOGIN_REDIRECT_URL="/lintory/"

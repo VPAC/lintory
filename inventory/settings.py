@@ -11,17 +11,6 @@ ADMINS = (
     ('Administrator', 'admin@example.org'),
 )
 
-# LDAP configuration
-NAMES_ENGINE='LDAP'
-LDAP_URI = 'ldap://ldap.example.org/'
-LDAP_PORT = '389'
-LDAP_PEOPLE = 'ou=People, dc=example, dc=org'
-LDAP_GROUPS = 'ou=Group, dc=example, dc=org'
-LDAP_BASE = 'dc=example, dc=org'
-AUTHENTICATION_BACKENDS = (
- 'inventory.backends.auth.LDAPBackend',
- )
-
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = ''
 
