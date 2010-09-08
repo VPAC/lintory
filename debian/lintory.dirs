@@ -1,3 +1,4 @@
 /etc/lintory
 /var/lib/lintory
+/var/lib/lintory/data
 /usr/share/lintory

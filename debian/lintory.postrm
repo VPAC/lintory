@@ -3,7 +3,7 @@ set -e
 
 case "$1" in
     (purge)
-        for i in /var/lib/lintory
+        for i in /var/lib/lintory /var/lib/lintory/data
         do
             if dpkg-statoverride --list $i >/dev/null 2>&1
             then

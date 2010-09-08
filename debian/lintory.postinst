@@ -3,7 +3,7 @@ set -e
 
 case "$1" in
     (configure)
-        for i in /var/lib/lintory
+        for i in /var/lib/lintory /var/lib/lintory/data
         do
             # only do something when no setting exists
             if ! dpkg-statoverride --list $i >/dev/null 2>&1
