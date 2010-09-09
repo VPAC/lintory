@@ -293,7 +293,8 @@ class location_hardware_lookup:
 
     # Short cut
     def url(self):
-        return self.location.get_view_url()
+        web = webs.location_web()
+        return web.get_view_url(self.location)
 
     def __getitem__(self, key):
         value = getattr(self.location, key)
