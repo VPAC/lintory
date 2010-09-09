@@ -22,11 +22,8 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$',
-     'django.views.generic.simple.direct_to_template',
-     {'template': 'index.html'}, name="root"),
 
-    (r'^inventory/', include('lintory.urls')),
+    (r'^', include('lintory.urls')),
     (r'^admin/(.*)', admin.site.root),
 
     url(r'^account/login/$', 'django.contrib.auth.views.login', name='login'),
