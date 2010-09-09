@@ -26,6 +26,16 @@ from django.db.models import Q
 
 register = template.Library()
 
+@register.simple_tag
+def get_svg_url(instance):
+    web = webs.get_web_from_object(instance)
+    return mark_safe(web.get_svg_url(instance))
+
+@register.simple_tag
+def get_view_url(instance):
+    web = webs.get_web_from_object(instance)
+    return mark_safe(web.get_view_url(instance))
+
 @register.filter
 def bytes(value):
     units = "bytes"
