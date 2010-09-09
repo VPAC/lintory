@@ -22,7 +22,7 @@
 
 <dt>Computer</dt><dd>
 {% if object.computer %}
-        <a href="{{ object.computer.get_absolute_url }}">{{ object.computer }}</a>
+        <a href="{% get_view_url object.computer %}">{{ object.computer }}</a>
 {% else %}
     {% if object.create_computer %}
         create
@@ -34,7 +34,7 @@
 
 <dt>OS</dt><dd>
 {% if object.os %}
-        <a href="{{ object.os.get_absolute_url }}">{{ object.os }}</a>
+        <a href="{% get_view_url object.os %}">{{ object.os }}</a>
 {% else %}
     {% if object.create_os %}
         create
