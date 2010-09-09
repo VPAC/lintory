@@ -1,0 +1,8 @@
+build
+debian/files
+debian/lintory
+debian/lintory.debhelper.log
+debian/lintory.postinst.debhelper
+debian/lintory.prerm.debhelper
+debian/lintory.substvars
+debian/python-module-stampdir
