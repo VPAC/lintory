@@ -856,7 +856,8 @@ class os_web(base_web):
 
     def get_delete_finished_url(self, instance):
         self.assert_instance_type(instance)
-        return instance.storage.get_view_url()
+        web = storage_web()
+        return web.get_view_url(instance.storage)
 
 ############
 # SOFTWARE #
