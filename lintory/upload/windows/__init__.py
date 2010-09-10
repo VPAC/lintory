@@ -35,7 +35,6 @@ def upload(request):
 
     path = data.file.path
     tmppath = path + ".tmp"
-    print path
 
     (head,tail) = os.path.split(path)
     if not os.path.exists(head):
