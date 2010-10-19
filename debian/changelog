@@ -1,3 +1,9 @@
+lintory (0.1-2) lucid; urgency=low
+
+  * Various bugs resolved.
+
+ -- Brian May <bam@debian.org>  Tue, 19 Oct 2010 11:37:29 +1100
+
 lintory (0.1-1) unstable; urgency=low
 
   * Initial release.
