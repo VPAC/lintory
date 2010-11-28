@@ -46,7 +46,7 @@ LANGUAGE_CODE = 'en-AU'
 SECRET_KEY = ''
 
 EMAIL_HOST="mail.example.org"
-DEFAULT_FROM_EMAIL = "Name <email@example.org>"
+SERVER_EMAIL = "Name <email@example.org>"
 
 # All uploads of raw data will go to this directory.  This directory must
 # exist, the webserver must have write access, and the done directory must
