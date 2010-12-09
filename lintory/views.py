@@ -470,7 +470,7 @@ def hardware_install(request, object_id):
     web = webs.hardware_web()
     filter = filters.hardware(request.GET or {'is_installed': '3'})
     table = tables.hardware_list_form(pks, request.user, web, filter.qs, order_by=request.GET.get('sort'))
-    return object_list(request, filter.form, table, web, template="lintory/hardware_list_form.html",
+    return web.object_list(request, filter.form, table, template="lintory/hardware_list_form.html",
             context={ 'object': object, 'error_list': error_list })
 
 def hardware_delete(request, object_id):
