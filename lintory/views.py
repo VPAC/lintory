@@ -422,7 +422,7 @@ def hardware_add(request, type_id=None, object_id=None):
         object = object.get_object()
         web = webs.get_web_from_object(object)
         breadcrumbs = web.get_view_breadcrumbs(object)
-        breadcrumbs.append(webs.breadcrumb(web.get_add_to_subject_url(object,type_id),"add hardware"))
+        breadcrumbs.append(webs.breadcrumb(web.get_add_to_instance_url(object,type_id),"add hardware"))
 
     if request.method == 'POST':
         form = forms.hardware_type_form(request.POST, request.FILES)
@@ -651,9 +651,11 @@ def software_add_software_installation(request, object_id):
     return web.object_add(request, kwargs={ 'software': software })
 
 def software_installation_edit_license_key(request,object_id):
+    web = webs.software_installation_web()
+    software_web = webs.software_web()
     object = get_object_or_404(models.software_installation, pk=object_id)
-    breadcrumbs = object.software.get_breadcrumbs()
-    breadcrumbs.append(models.breadcrumb(object.get_edit_license_key_url(),"edit license key"))
+    breadcrumbs = software_web.get_view_breadcrumbs(object.software)
+    breadcrumbs.append(webs.breadcrumb(web.get_edit_license_key_url(object),"edit license key"))
 
     web = webs.software_installation_web()
     error = web.check_edit_perms(request, breadcrumbs)

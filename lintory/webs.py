@@ -230,50 +230,50 @@ class base_web(object):
     def check_list_perms(self, request, breadcrumbs):
         error_list = []
         if not self.has_list_perms(request.user):
-            error_list.append("You cannot list %s objects"%(selfs.verbose_name))
+            error_list.append("You cannot list %s objects"%(self.verbose_name))
 
         if len(error_list) > 0:
-            return permission_denied_response(request, breadcrumbs, error_list)
+            return self.permission_denied_response(request, breadcrumbs, error_list)
         else:
             return None
 
     def check_view_perms(self, request, breadcrumbs):
         error_list = []
         if not self.has_view_perms(request.user):
-            error_list.append("You cannot view a %s object"%(selfs.verbose_name))
+            error_list.append("You cannot view a %s object"%(self.verbose_name))
 
         if len(error_list) > 0:
-            return permission_denied_response(request, breadcrumbs, error_list)
+            return self.permission_denied_response(request, breadcrumbs, error_list)
         else:
             return None
 
     def check_add_perms(self, request, breadcrumbs):
         error_list = []
         if not self.has_add_perms(request.user):
-            error_list.append("You cannot add a %s object"%(selfs.verbose_name))
+            error_list.append("You cannot add a %s object"%(self.verbose_name))
 
         if len(error_list) > 0:
-            return permission_denied_response(request, breadcrumbs, error_list)
+            return self.permission_denied_response(request, breadcrumbs, error_list)
         else:
             return None
 
     def check_edit_perms(self, request, breadcrumbs):
         error_list = []
         if not self.has_edit_perms(request.user):
-            error_list.append("You cannot edit a %s object"%(selfs.verbose_name))
+            error_list.append("You cannot edit a %s object"%(self.verbose_name))
 
         if len(error_list) > 0:
-            return permission_denied_response(request, breadcrumbs, error_list)
+            return self.permission_denied_response(request, breadcrumbs, error_list)
         else:
             return None
 
     def check_delete_perms(self, request, breadcrumbs):
         error_list = []
         if not self.has_delete_perms(request.user):
-            error_list.append("You cannot delete a %s object"%(selfs.verbose_name))
+            error_list.append("You cannot delete a %s object"%(self.verbose_name))
 
         if len(error_list) > 0:
-            return permission_denied_response(request, breadcrumbs, error_list)
+            return self.permission_denied_response(request, breadcrumbs, error_list)
         else:
             return None
 
@@ -1098,12 +1098,14 @@ class software_installation_web(base_web):
 
     def get_edit_finished_url(self, instance):
         self.assert_instance_type(instance)
-        return instance.software.get_view_url()
+        web = software_web()
+        return web.get_view_url(instance.software)
 
     def get_edit_breadcrumbs(self, instance):
         self.assert_instance_type(instance)
-        breadcrumbs = instance.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(instance.get_edit_url(), "edit installation"))
+        web = software_web()
+        breadcrumbs = web.get_view_breadcrumbs(instance.software)
+        breadcrumbs.append(breadcrumb(self.get_edit_url(instance), "edit installation"))
         return breadcrumbs
 
 
