@@ -673,7 +673,7 @@ def software_installation_edit_license_key(request,object_id):
             object.license_key = license_key
             object.save()
 
-            url = web.get_view_url(software)
+            url = web.get_view_url(object.software)
             return HttpResponseRedirect(url)
     else:
         if object.license_key is None:
