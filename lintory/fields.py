@@ -153,7 +153,7 @@ class mac_address_field(forms.CharField):
         if value in ('',None):
             return None
 
-        value = value.upper()
+        value = value.upper().strip()
 
         g = u"[A-F0-9][A-F0-9]";
         m = re.match(u"^(%s)-(%s)-(%s)-(%s)-(%s)-(%s)$"
@@ -164,7 +164,7 @@ class mac_address_field(forms.CharField):
         m = re.match(u"^(%s):(%s):(%s):(%s):(%s):(%s)$"
                      %(g,g,g,g,g,g),value)
         if m == None:
-            raise ValidationError(u"Unrecognised MAC address %s" % (value))
+            raise ValidationError(u"Invalid MAC address %s" % (value))
 
         return value
 
