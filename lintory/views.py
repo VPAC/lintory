@@ -324,8 +324,8 @@ class location_lookup:
 def location_svg(request, object_id):
     object = get_object_or_404(models.location, pk=object_id)
 
-    # FIXME!
-    if False:
+    web = webs.location_web()
+    if not web.has_svg_file(object):
         raise Http404
 
     return render_to_response('lintory/locations/%i.svg'%object.pk,

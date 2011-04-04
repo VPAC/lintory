@@ -23,7 +23,10 @@
 {% if object.parent %}
 <dt>Parent</dt><dd><a href="{% get_view_url object.parent %}">{{ object.parent }}</a></dd>
 {% endif %}
+{% has_svg_file svg object %}
+{% if svg %}
 <dt>Diagram</dt><dd><a href="{% get_svg_url object %}">SVG</a></dd>
+{% endif %}
 <dt>Comments</dt><dd>{{ object.comments|urlizetrunc:40|linebreaks }}</dd>
 </dl>
 

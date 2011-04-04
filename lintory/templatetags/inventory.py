@@ -26,6 +26,26 @@ from django.db.models import Q
 
 register = template.Library()
 
+@register.tag
+def has_svg_file(parser, token):
+    try:
+        tag_name, result, location = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError, "%r tag requires exactly two arguments" % token.contents.split()[0]
+    return has_svg_file_node(location, result)
+
+class has_svg_file_node(template.Node):
+    def __init__(self, location, result):
+        self.result = result
+        self.location = template.Variable(location)
+    def render(self, context):
+        result = self.result
+        location = self.location.resolve(context)
+
+        web = webs.location_web()
+        context[result] = web.has_svg_file(location)
+        return ''
+
 @register.simple_tag
 def get_svg_url(instance):
     web = webs.get_web_from_object(instance)

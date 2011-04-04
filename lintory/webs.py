@@ -28,6 +28,8 @@ from django.utils.translation import ugettext as _
 
 from lintory import models,forms
 
+import os.path
+
 # META INFORMATION FOR MODELS
 
 class breadcrumb(object):
@@ -589,6 +591,9 @@ class location_web(base_web):
     ###############
     # VIEW ACTION #
     ###############
+
+    def has_svg_file(self, instance):
+        return os.path.exists("/etc/lintory/templates/lintory/locations/%i.svg"%instance.pk)
 
     @m.permalink
     def get_svg_url(self, instance):
