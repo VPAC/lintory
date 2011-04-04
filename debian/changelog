@@ -1,3 +1,13 @@
+lintory (0.3-1) lucid; urgency=low
+
+  * Fix numerous errors.
+  * Transaction support by default.
+  * Use secure cookies by default.
+  * Update templates.
+  * Add missing 404.html and 500.html templates.
+
+ -- Brian May <bam@debian.org>  Mon, 04 Apr 2011 14:29:30 +1000
+
 lintory (0.2) lucid; urgency=low
 
   * Fix error installing hardware.
