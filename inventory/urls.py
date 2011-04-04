@@ -32,7 +32,7 @@ urlpatterns = patterns('',
     url(r'^account/password_change/done/$', 'django.contrib.auth.views.password_change_done', name='password_change_done'),
 )
 
-if settings.DEBUG or True:
+if settings.DEBUG:
     urlpatterns += patterns('',
         (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
     )
