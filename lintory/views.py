@@ -25,9 +25,9 @@ from django.utils.translation import ugettext as _
 
 from lintory import models, helpers, forms, eparty, tables, filters, webs
 
-def lintory_root(request):
+def root(request):
     breadcrumbs = [ ]
-    breadcrumbs.append(webs.breadcrumb(reverse("lintory_root"),_("Home")))
+    breadcrumbs.append(webs.breadcrumb(reverse("root"),_("Home")))
 
     return render_to_response('lintory/index.html', {
                                 'breadcrumbs': breadcrumbs,

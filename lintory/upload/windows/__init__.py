@@ -4,7 +4,7 @@ import os
 import datetime
 import re
 
-from lintory.views import lintory_root
+from lintory.views import root
 from lintory import helpers, models
 from lintory.upload.windows import hacks
 
@@ -46,7 +46,7 @@ def upload(request):
     os.rename(tmppath, path)
 
     data.save()
-    return lintory_root(request)
+    return root(request)
 
 # Used for stripping non-ascii characters
 t = "".join(map(chr, range(256)))

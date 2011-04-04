@@ -25,8 +25,8 @@ object_list = login_required(django.views.generic.list_detail.object_list)
 
 urlpatterns = patterns('',
     url(r'^$',
-    'lintory.views.lintory_root',
-    name='lintory_root'),
+    'lintory.views.root',
+    name='root'),
 
 
     url(r'^vendor/$',

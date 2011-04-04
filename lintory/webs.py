@@ -75,7 +75,7 @@ class base_web(object):
 
     def get_breadcrumbs(self):
         breadcrumbs = []
-        breadcrumbs.append(breadcrumb(reverse("lintory_root"), _("Home")))
+        breadcrumbs.append(breadcrumb(reverse("root"), _("Home")))
         breadcrumbs.append(breadcrumb(reverse(self.url_prefix+"_list"), self.verbose_name_plural))
         return breadcrumbs
 
@@ -599,7 +599,7 @@ class location_web(base_web):
         self.assert_instance_type(instance)
 
         breadcrumbs = []
-        breadcrumbs.append(breadcrumb(reverse("lintory_root"), _("Home")))
+        breadcrumbs.append(breadcrumb(reverse("root"), _("Home")))
 
         object=instance
         seen = {}
@@ -652,7 +652,7 @@ class location_web(base_web):
         if instance.parent is not None:
                 return instance.parent.get_view_url()
         else:
-                return reverse("lintory_root")
+                return reverse("root")
 
 ############
 # HARDWARE #
@@ -679,7 +679,7 @@ class hardware_web(base_web):
 
     def get_breadcrumbs(self):
         breadcrumbs = []
-        breadcrumbs.append(breadcrumb(reverse("lintory_root"), _("Home")))
+        breadcrumbs.append(breadcrumb(reverse("root"), _("Home")))
         breadcrumbs.append(breadcrumb(reverse("hardware_list"), "hardware"))
         return breadcrumbs
 
