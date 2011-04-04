@@ -21,12 +21,13 @@ from django.template import RequestContext, loader
 from django.http import HttpResponseRedirect, Http404
 from django.db.models import get_model
 import django.forms.util as util
+from django.utils.translation import ugettext as _
 
 from lintory import models, helpers, forms, eparty, tables, filters, webs
 
 def lintory_root(request):
     breadcrumbs = [ ]
-    breadcrumbs.append(webs.breadcrumb(reverse("lintory_root"),"home"))
+    breadcrumbs.append(webs.breadcrumb(reverse("lintory_root"),_("Home")))
 
     return render_to_response('lintory/index.html', {
                                 'breadcrumbs': breadcrumbs,

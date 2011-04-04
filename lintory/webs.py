@@ -24,6 +24,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext, loader
 from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404
 from django.forms import util
+from django.utils.translation import ugettext as _
 
 from lintory import models,forms
 
@@ -74,7 +75,7 @@ class base_web(object):
 
     def get_breadcrumbs(self):
         breadcrumbs = []
-        breadcrumbs.append(breadcrumb(reverse("lintory_root"), "home"))
+        breadcrumbs.append(breadcrumb(reverse("lintory_root"), _("Home")))
         breadcrumbs.append(breadcrumb(reverse(self.url_prefix+"_list"), self.verbose_name_plural))
         return breadcrumbs
 
@@ -598,7 +599,7 @@ class location_web(base_web):
         self.assert_instance_type(instance)
 
         breadcrumbs = []
-        breadcrumbs.append(breadcrumb(reverse("lintory_root"), "home"))
+        breadcrumbs.append(breadcrumb(reverse("lintory_root"), _("Home")))
 
         object=instance
         seen = {}
@@ -678,7 +679,7 @@ class hardware_web(base_web):
 
     def get_breadcrumbs(self):
         breadcrumbs = []
-        breadcrumbs.append(breadcrumb(reverse("lintory_root"), "home"))
+        breadcrumbs.append(breadcrumb(reverse("lintory_root"), _("Home")))
         breadcrumbs.append(breadcrumb(reverse("hardware_list"), "hardware"))
         return breadcrumbs
 
