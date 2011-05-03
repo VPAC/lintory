@@ -17,39 +17,51 @@
 from lintory import models, webs
 import django_tables as tables
 
+from django.http import QueryDict
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
+def get_next_url(request):
+    qd = QueryDict("",mutable=True)
+    qd["next"] = request.get_full_path()
+    return qd.urlencode()
+
 class action_table(tables.ModelTable):
-    def __init__(self, user, web, *args, **kwargs):
+    def __init__(self, request, web, *args, **kwargs):
         super(action_table,self).__init__(*args, **kwargs)
-        self.user = user
+        self.request = request
+        self.user = request.user
         self.web = web
 
-        if web.has_edit_perms(user):
+        if web.has_edit_perms(self.user):
             self.base_columns["edit"] = tables.Column(sortable=False)
-        if web.has_delete_perms(user):
+        if web.has_delete_perms(self.user):
             self.base_columns["delete"] = tables.Column(sortable=False)
 
     def render_edit(self, data):
         web = webs.get_web_from_object(data)
-        return mark_safe("<a class='changelink' href='%s'>%s</a>"%(
+        return mark_safe("<a class='changelink' href='%s?%s'>%s</a>"%(
                 web.get_edit_url(data),
+                get_next_url(self.request),
                 "edit"))
 
     def render_delete(self, data):
         web = webs.get_web_from_object(data)
-        return mark_safe("<a class='deletelink' href='%s'>%s</a>"%(
+        return mark_safe("<a class='deletelink' href='%s?%s'>%s</a>"%(
                 web.get_delete_url(data),
+                get_next_url(self.request),
                 "delete"))
 
-def render_link(data, title=None):
+def render_link(request, data, title=None):
     if title is None:
         title=u"%s"%(data)
 
     if data is not None:
         web = webs.get_web_from_object(data)
-        return mark_safe(u"<a href='%s'>%s</a>"%(web.get_view_url(data),conditional_escape(title)))
+        return mark_safe(u"<a href='%s?%s'>%s</a>"%(
+                web.get_view_url(data),
+                request.get_full_path(),
+                conditional_escape(title)))
     else:
         return mark_safe(u"-")
 
@@ -58,7 +70,10 @@ class party(action_table):
     name = tables.Column()
 
     def render_name(self, data):
-        return mark_safe(u"<a href='%s'>%s</a>"%(self.web.get_view_url(data),conditional_escape(data)))
+        return mark_safe(u"<a href='%s?%s'>%s</a>"%(
+                self.web.get_view_url(data),
+                get_next_url(self.request),
+                conditional_escape(data)))
 
     class Meta:
         model = models.party
@@ -71,7 +86,7 @@ class vendor(action_table):
     name = tables.Column()
 
     def render_name(self, data):
-        return render_link(data)
+        return render_link(self.request, data)
 
     class Meta:
         model = models.vendor
@@ -84,13 +99,13 @@ class location(action_table):
     user = tables.Column()
 
     def render_name(self, data):
-        return render_link(data)
+        return render_link(self.request, data)
 
     def render_owner(self, data):
-        return render_link(data.owner)
+        return render_link(self.request, data.owner)
 
     def render_user(self, data):
-        return render_link(data.user)
+        return render_link(self.request, data.user)
 
     class Meta:
         model = models.location
@@ -111,19 +126,19 @@ class hardware(action_table):
     installed_on = tables.Column()
 
     def render_name(self, data):
-        return render_link(data)
+        return render_link(self.request, data)
 
     def render_owner(self, data):
-        return render_link(data.owner)
+        return render_link(self.request, data.owner)
 
     def render_user(self, data):
-        return render_link(data.user)
+        return render_link(self.request, data.user)
 
     def render_location(self, data):
-        return render_link(data.location)
+        return render_link(self.request, data.location)
 
     def render_installed_on(self, data):
-        return render_link(data.installed_on)
+        return render_link(self.request, data.installed_on)
 
     def render_edit(self, data):
         return super(hardware, self).render_edit(data.get_object())
@@ -173,13 +188,13 @@ class os(action_table):
     storage = tables.Column()
 
     def render_name(self, data):
-        return render_link(data)
+        return render_link(self.request, data)
 
     def render_computer(self, data):
-        return render_link(data.storage.used_by)
+        return render_link(self.request, data.storage.used_by)
 
     def render_storage(self, data):
-        return render_link(data.storage)
+        return render_link(self.request, data.storage)
 
     class Meta:
         model = models.os
@@ -194,10 +209,10 @@ class software(action_table):
     left = tables.Column(data="software_installations_left", sortable=False)
 
     def render_name(self, data):
-        return render_link(data)
+        return render_link(self.request, data)
 
     def render_vendor(self, data):
-        return render_link(data.vendor)
+        return render_link(self.request, data.vendor)
 
     class Meta:
         model = models.software
@@ -215,16 +230,16 @@ class license(action_table):
     comments = tables.Column()
 
     def render_name(self, data):
-        return render_link(data)
+        return render_link(self.request, data)
 
     def render_vendor(self, data):
-        return render_link(data.vendor)
+        return render_link(self.request, data.vendor)
 
     def render_computer(self, data):
-        return render_link(data.computer)
+        return render_link(self.request, data.computer)
 
     def render_owner(self, data):
-        return render_link(data.owner)
+        return render_link(self.request, data.owner)
 
     class Meta:
         pass
@@ -237,19 +252,19 @@ class license_key(action_table):
     comments = tables.Column()
 
     def render_key(self, data):
-        return render_link(data)
+        return render_link(self.request, data)
 
     def render_software(self, data):
-        return render_link(data.software)
+        return render_link(self.request, data.software)
 
     def render_license(self, data):
-        return render_link(data.license)
+        return render_link(self.request, data.license)
 
     def render_key(self, data):
         if self.web.has_name_perms(self.user,"can_see_key"):
-            return render_link(data, data.key)
+            return render_link(self.request, data, data.key)
         else:
-            return render_link(data)
+            return render_link(self.request, data)
 
     class Meta:
         pass
@@ -265,24 +280,24 @@ class software_installation(action_table):
     comments = tables.Column()
 
     def render_software(self, data):
-        return render_link(data.software)
+        return render_link(self.request, data.software)
 
     def render_computer(self, data):
-        return render_link(data.os.storage.used_by)
+        return render_link(self.request, data.os.storage.used_by)
 
     def render_storage(self, data):
-        return render_link(data.os.storage)
+        return render_link(self.request, data.os.storage)
 
     def render_os(self, data):
-        return render_link(data.os)
+        return render_link(self.request, data.os)
 
     def render_license_key(self, data):
         if data.license_key is None:
             return "-"
         elif self.web.has_name_perms(self.user,"can_see_key"):
-            return render_link(data.license_key, data.license_key.key)
+            return render_link(self.request, data.license_key, data.license_key.key)
         else:
-            return render_link(data.license_key)
+            return render_link(self.request, data.license_key)
 
     def __init__(self, user, web, *args, **kwargs):
         super(software_installation,self).__init__(user, web, *args, **kwargs)
@@ -291,8 +306,9 @@ class software_installation(action_table):
 
     def render_edit_key(self, data):
         web = webs.get_web_from_object(data)
-        return mark_safe("<a class='changelink' href='%s'>%s</a>"%(
+        return mark_safe("<a class='changelink' href='%s?%s'>%s</a>"%(
                 web.get_edit_license_key_url(data),
+                get_next_url(self.request),
                 "key"))
 
     class Meta:
@@ -306,7 +322,7 @@ class task(action_table):
     todo = tables.Column(sortable=False)
 
     def render_name(self, data):
-        return render_link(data)
+        return render_link(self.request, data)
 
     def render_total(self, data):
         return data.hardware_tasks_all().count()
@@ -328,16 +344,16 @@ class hardware_task(action_table):
     assigned = tables.Column()
 
     def render_task(self, data):
-        return render_link(data.task)
+        return render_link(self.request, data.task)
 
     def render_hardware(self, data):
-        return render_link(data.hardware)
+        return render_link(self.request, data.hardware)
 
     def render_user(self, data):
-        return render_link(data.hardware.user)
+        return render_link(self.request, data.hardware.user)
 
     def render_assigned(self, data):
-        return render_link(data.assigned)
+        return render_link(self.request, data.assigned)
 
     class Meta:
         model = models.hardware_task
@@ -354,13 +370,13 @@ class data(action_table):
     comments = tables.Column()
 
     def render_name(self, data):
-        return render_link(data)
+        return render_link(self.request, data)
 
     def render_computer(self, data):
-        return render_link(data.computer)
+        return render_link(self.request, data.computer)
 
     def render_os(self, data):
-        return render_link(data.os)
+        return render_link(self.request, data.os)
 
     class Meta:
         pass
