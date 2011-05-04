@@ -431,6 +431,7 @@ def hardware_add(request, type_id=None, object_id=None):
         if form.is_valid():
             new_type = form.cleaned_data['type']
             url = web.get_add_url(new_type)
+            url = request.GET.get("next",url)
             return HttpResponseRedirect(url)
     else:
         form = forms.hardware_type_form()
@@ -601,7 +602,8 @@ def software_add_license(request,object_id):
 
                 # we finished
                 license_web = webs.license_web()
-                url=license_web.get_view_url(license)
+                url = license_web.get_view_url(license)
+                url = request.GET.get("next",url)
                 return HttpResponseRedirect(url)
     else:
         form = forms.license_add_form()
@@ -675,6 +677,7 @@ def software_installation_edit_license_key(request,object_id):
             object.save()
 
             url = software_web.get_view_url(object.software)
+            url = request.GET.get("next",url)
             return HttpResponseRedirect(url)
     else:
         if object.license_key is None:
