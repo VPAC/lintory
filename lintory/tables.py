@@ -295,9 +295,9 @@ class software_installation(action_table):
         else:
             return render_link(data.license_key)
 
-    def __init__(self, user, web, *args, **kwargs):
-        super(software_installation,self).__init__(user, web, *args, **kwargs)
-        if web.has_edit_perms(user):
+    def __init__(self, request, web, *args, **kwargs):
+        super(software_installation,self).__init__(request, web, *args, **kwargs)
+        if web.has_edit_perms(request.user):
             self.base_columns["edit_key"] = tables.Column(sortable=False)
 
     def render_edit_key(self, data):
