@@ -1,3 +1,10 @@
+lintory (0.4-1) unstable; urgency=low
+
+  * Delete obsolete files.
+  * Add handling of next parameter.
+
+ -- Brian May <bam@debian.org>  Wed, 04 May 2011 10:51:14 +1000
+
 lintory (0.3-1) lucid; urgency=low
 
   * Fix numerous errors.
