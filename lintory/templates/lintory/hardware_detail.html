@@ -28,20 +28,20 @@
 <dt>Date of Disposal</dt><dd>{{ object.date_of_disposal }}</dd>
 <dt>Asset ID</dt><dd>{{ object.asset_id }}</dd>
 {% if object.get_owner %}
-<dt>Owner</dt><dd><a href="{{ object.get_owner.get_absolute_url }}">{{ object.get_owner }}</a></dd>
+<dt>Owner</dt><dd><a href="{% get_view_url object.get_owner %}">{{ object.get_owner }}</a></dd>
 {% endif %}
 {% if object.get_user %}
-<dt>User</dt><dd><a href="{{ object.get_user.get_absolute_url }}">{{ object.get_user }}</a></dd>
+<dt>User</dt><dd><a href="{% get_view_url object.get_user %}">{{ object.get_user }}</a></dd>
 {% endif %}
 {% if object.location %}
-<dt>Location</dt><dd><a href="{{object.location.get_absolute_url }}">{{object.location }}</a></dd>
+<dt>Location</dt><dd><a href="{% get_view_url object.location %}">{{object.location }}</a></dd>
 {% endif %}
 {% if object.vendor %}
-<dt>Vendor</dt><dd><a href="{{ object.vendor.get_absolute_url }}">{{ object.vendor }}</a></dd>
+<dt>Vendor</dt><dd><a href="{% get_view_url object.vendor %}">{{ object.vendor }}</a></dd>
 {% endif %}
 {% if object.installed_on %}
 {% with object.installed_on.get_object as installed_on %}
-<dt>Installed on</dt><dd><a href="{{ installed_on.get_absolute_url }}">{{ installed_on }}</a></dd>
+<dt>Installed on</dt><dd><a href="{% get_view_url installed_on %}">{{ installed_on }}</a></dd>
 {% endwith %}
 {% endif %}
 <dt>Comments</dt><dd>{{object.comments|urlizetrunc:40|linebreaks }}</dd>
