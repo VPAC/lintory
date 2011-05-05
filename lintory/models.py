@@ -88,7 +88,7 @@ class Nobody:
 
     def __init__(self):
         self.pk = "none"
-        self.eparty = None
+        self.LDAP_DN = None
         self.assigned_hardware_tasks = hardware_task.objects.filter(assigned__isnull=True,
                 date_complete__isnull=True)
         self.owns_locations = location.objects.filter(owner__isnull=True)
