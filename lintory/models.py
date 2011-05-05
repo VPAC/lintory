@@ -55,7 +55,6 @@ class base_model(models.Model):
 
 class party(base_model):
     name     = fields.char_field(max_length=30)
-    eparty   = fields.char_field(max_length=104, null=True, blank=True, db_index=True)
     LDAP_DN  = fields.char_field(max_length=104, null=True, blank=True, db_index=True)
     comments = fields.text_field(null=True, blank=True)
 
