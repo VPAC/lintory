@@ -39,6 +39,7 @@ class object_name_field(forms.CharField):
 
     def __init__(self, object_class, *args, **kwargs):
         self.object_class = object_class
+        kwargs['widget'] = object_widget(models.party)
         super(object_name_field, self).__init__(*args, **kwargs)
 
     def clean(self, value):
@@ -49,7 +50,7 @@ class object_name_field(forms.CharField):
 
         try:
             clean=self.object_class.objects.get(name=value)
-        except self.object.DoesNotExist, e:
+        except self.object_class.DoesNotExist, e:
             raise ValidationError(u"Cannot find object %s: %s" % (value,e))
 
         return clean
