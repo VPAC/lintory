@@ -21,7 +21,6 @@ DATABASES = {
 }
 
 # LDAP configuration
-NAMES_ENGINE='LDAP'
 LDAP_URI = 'ldap://ldap.example.org/'
 LDAP_PORT = '389'
 LDAP_PEOPLE = 'ou=People, dc=example, dc=org'

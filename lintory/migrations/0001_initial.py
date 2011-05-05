@@ -561,7 +561,7 @@ class Migration(SchemaMigration):
         'lintory.party': {
             'Meta': {'object_name': 'party'},
             'comments': ('lintory.mfields.text_field', [], {'null': 'True', 'blank': 'True'}),
-            'eparty': ('lintory.eparty.fields.name_model_field', [], {'db_index': 'True', 'max_length': '104', 'null': 'True', 'blank': 'True'}),
+            'eparty': ('lintory.mfields.char_field', [], {'db_index': 'True', 'max_length': '104', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('lintory.mfields.char_field', [], {'max_length': '30'})
         },

@@ -19,7 +19,6 @@ from django import forms
 from django.utils.encoding import smart_unicode
 
 import lintory.models as models
-import lintory.eparty as eparty
 import re
 
 import pyparsing as p
@@ -38,7 +37,7 @@ class object_widget(forms.widgets.TextInput):
 
 class object_name_field(forms.CharField):
 
-    def __init__(self, object, queryset=None, to_field_name=None, *args, **kwargs):
+    def __init__(self, object_class, *args, **kwargs):
         self.object_class = object_class
         super(object_name_field, self).__init__(*args, **kwargs)
 
@@ -104,34 +103,9 @@ class license_field(forms.IntegerField):
 
         return value
 
-class party_field(forms.CharField):
+class party_field(object_name_field):
     def __init__(self, *args, **kwargs):
-        kwargs['widget'] = object_widget(models.party)
-        super(party_field, self).__init__(*args, **kwargs)
-
-    def clean(self, value):
-        value=super(party_field, self).clean(value)
-
-        if value in ('',None):
-            return None
-
-        try:
-            party=models.party.objects.get(name=value)
-        except models.party.DoesNotExist, e:
-            try:
-                n = eparty.connection.lookup_user_input(value)
-            except eparty.Not_Found_Error, e:
-                raise forms.util.ValidationError(u"Cannot find eparty %s: %s" % (value,e))
-
-            try:
-                party=models.party.objects.get(eparty=n)
-            except models.party.DoesNotExist, e:
-                party = models.party()
-                party.name = smart_unicode(n)
-                party.eparty = n
-                party.save()
-
-        return party
+        super(party_field, self).__init__(models.party, *args, **kwargs)
 
 class hardware_type_field(forms.CharField):
     def clean(self, value):
@@ -211,12 +185,7 @@ class hardware_field(forms.CharField):
                 hardware=hardware.filter(computer__name__isnull=False)
             elif check[0] == "user":
                 try:
-                    n = eparty.connection.lookup_user_input(check[1])
-                except eparty.Not_Found_Error, e:
-                    raise forms.util.ValidationError(u"Cannot find eparty '%s': %s" % (check[1],e))
-
-                try:
-                    party=models.party.objects.get(eparty=n)
+                    party=models.party.objects.get(name = check[1])
                 except models.party.DoesNotExist, e:
                     raise forms.util.ValidationError(u"Cannot find party for '%s': %s" % (check[1],e))
                 hardware=hardware.filter(user=party)

@@ -23,7 +23,6 @@ from django.utils.encoding import smart_unicode
 from django.db import models
 from django.template import loader
 
-import lintory.eparty.fields as eparty
 import lintory.mfields as fields
 
 from datetime import *
@@ -56,7 +55,8 @@ class base_model(models.Model):
 
 class party(base_model):
     name     = fields.char_field(max_length=30)
-    eparty   = eparty.name_model_field(null=True,blank=True,db_index=True)
+    eparty   = fields.char_field(max_length=104, null=True, blank=True, db_index=True)
+    LDAP_DN  = fields.char_field(max_length=104, null=True, blank=True, db_index=True)
     comments = fields.text_field(null=True, blank=True)
 
     def owns_software(self):
@@ -64,12 +64,6 @@ class party(base_model):
 
     def __unicode__(self):
         return self.name
-
-    def error_list(self):
-        error_list = super(party,self).error_list()
-        if isinstance(self.eparty,eparty.Error_Name):
-            error_list.append("E-Party entry does not exist")
-        return error_list
 
     # are there any reasons why this object should not be deleted?
     def check_delete(self):

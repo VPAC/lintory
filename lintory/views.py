@@ -23,7 +23,7 @@ from django.db.models import get_model
 import django.forms.util as util
 from django.utils.translation import ugettext as _
 
-from lintory import models, helpers, forms, eparty, tables, filters, webs
+from lintory import models, helpers, forms, tables, filters, webs
 
 def root(request):
     breadcrumbs = [ ]

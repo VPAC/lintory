@@ -8,14 +8,14 @@ class Migration(SchemaMigration):
     
     def forwards(self, orm):
         
-        # Deleting field 'network_adaptor.IPv4_address'
-        db.delete_column('lintory_network_adaptor', 'IPv4_address')
+        # Adding field 'party.LDAP_DN'
+        db.add_column('lintory_party', 'LDAP_DN', self.gf('lintory.mfields.char_field')(db_index=True, max_length=104, null=True, blank=True), keep_default=False)
     
     
     def backwards(self, orm):
         
-        # Adding field 'network_adaptor.IPv4_address'
-        db.add_column('lintory_network_adaptor', 'IPv4_address', self.gf('django.db.models.fields.IPAddressField')(max_length=15, null=True, blank=True), keep_default=False)
+        # Deleting field 'party.LDAP_DN'
+        db.delete_column('lintory_party', 'LDAP_DN')
     
     
     models = {
@@ -151,7 +151,8 @@ class Migration(SchemaMigration):
         },
         'lintory.motherboard': {
             'Meta': {'object_name': 'motherboard', '_ormbases': ['lintory.hardware']},
-            'hardware_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['lintory.hardware']", 'unique': 'True', 'primary_key': 'True'})
+            'hardware_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['lintory.hardware']", 'unique': 'True', 'primary_key': 'True'}),
+            'type': ('lintory.mfields.char_field', [], {'max_length': '20'})
         },
         'lintory.multifunction': {
             'Meta': {'object_name': 'multifunction', '_ormbases': ['lintory.hardware']},
@@ -181,6 +182,7 @@ class Migration(SchemaMigration):
             'storage': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['lintory.storage']"})
         },
         'lintory.party': {
+            'LDAP_DN': ('lintory.mfields.char_field', [], {'db_index': 'True', 'max_length': '104', 'null': 'True', 'blank': 'True'}),
             'Meta': {'object_name': 'party'},
             'comments': ('lintory.mfields.text_field', [], {'null': 'True', 'blank': 'True'}),
             'eparty': ('lintory.mfields.char_field', [], {'db_index': 'True', 'max_length': '104', 'null': 'True', 'blank': 'True'}),
