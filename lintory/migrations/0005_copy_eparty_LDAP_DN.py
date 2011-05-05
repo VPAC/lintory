@@ -7,10 +7,10 @@ from django.db import models
 class Migration(DataMigration):
     
     def forwards(self, orm):
-        orm.party.objects.all().update(LDAP_DN = models.F('eparty')
+        orm.party.objects.all().update(LDAP_DN = models.F('eparty'))
     
     def backwards(self, orm):
-        orm.party.objects.all().update(eparty = models.F('LDAP_DN')
+        orm.party.objects.all().update(eparty = models.F('LDAP_DN'))
     
     models = {
         'contenttypes.contenttype': {
