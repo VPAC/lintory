@@ -53,8 +53,13 @@ class vendor(django_filters.FilterSet):
     class Meta:
         model = models.vendor
 
+HARDWARE_CHOICES = [
+( "", "Any type")
+]
+HARDWARE_CHOICES.extend(models.HARDWARE_CHOICES)
+
 class hardware(django_filters.FilterSet):
-    type_id = django_filters.ChoiceFilter(label="Type",choices=models.HARDWARE_CHOICES)
+    type_id = django_filters.ChoiceFilter(label="Type",choices=HARDWARE_CHOICES)
     computer = django_filters.CharFilter(name="computer__name",lookup_type='icontains')
     is_installed = inverted_boolean_filter(lookup_type='isnull', name="installed_on")
     mac_address = mac_address_filter(name="network_adaptor__mac_address")

@@ -8,6 +8,10 @@
 
 {% block title %}{{ type.plural_name }}{% endblock %}
 
+{% block extrahead %}{{ block.super }}
+{{ media }}
+{% endblock %}
+
 {% block content %}
 
 <h1>{{ type.plural_name }}</h1>

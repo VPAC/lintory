@@ -60,10 +60,15 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'south',
+    'ajax_select',
 )
 
 LOGIN_URL = "/lintory/account/login/"
 LOGIN_REDIRECT_URL = "/lintory"
 LOGOUT_URL = "/lintory/account/login/"
+
+AJAX_LOOKUP_CHANNELS = {
+    'party' : ('lintory.lookup', 'party_lookup'),
+}
 
 execfile("/etc/lintory/settings.py")

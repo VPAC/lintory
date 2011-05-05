@@ -314,4 +314,6 @@ urlpatterns = patterns('',
     'lintory.views.data_delete',
     name='data_delete'),
 
+
+    url(r'^ajax/', include('ajax_select.urls')),
 )

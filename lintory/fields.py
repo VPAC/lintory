@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.forms.util import ValidationError
+from django.utils.translation import ugettext as _
 from django import forms
 from django.utils.encoding import smart_unicode
 
@@ -22,6 +23,38 @@ import lintory.models as models
 import re
 
 import pyparsing as p
+
+import ajax_select.fields
+
+class select_widget(ajax_select.fields.AutoCompleteSelectWidget):
+    class Media:
+        css = {
+            'all': ( 'css/jquery.autocomplete.css', )
+        }
+        js = ('js/jquery.js','js/jquery.autocomplete.js',)
+
+class select_field(ajax_select.fields.AutoCompleteSelectField):
+
+    def __init__(self, channel, *args, **kwargs):
+        widget = kwargs.get("widget", None)
+        if widget is None:
+            kwargs["widget"] = select_widget(channel=channel,help_text=kwargs.get('help_text',_('Enter text to search.')))
+        super(select_field, self).__init__(channel, *args, **kwargs)
+
+class select_multiple_widget(ajax_select.fields.AutoCompleteSelectMultipleWidget):
+    class Media:
+        css = {
+            'all': ( 'css/jquery.autocomplete.css', )
+        }
+        js = ('js/jquery.js','js/jquery.autocomplete.js',)
+
+class select_multiple_field(ajax_select.fields.AutoCompleteSelectMultipleField):
+
+    def __init__(self, channel, *args, **kwargs):
+        widget = kwargs.get("widget", None)
+        if widget is None:
+            kwargs["widget"] = select_widget(channel=channel,help_text=kwargs.get('help_text',_('Enter text to search.')))
+        super(select_multiple_field, self).__init__(channel, *args, **kwargs)
 
 class object_widget(forms.widgets.TextInput):
 
@@ -104,9 +137,9 @@ class license_field(forms.IntegerField):
 
         return value
 
-class party_field(object_name_field):
+class party_field(select_field):
     def __init__(self, *args, **kwargs):
-        super(party_field, self).__init__(models.party, *args, **kwargs)
+        super(party_field, self).__init__("party", *args, **kwargs)
 
 class mac_address_field(forms.CharField):
     def clean(self, value):

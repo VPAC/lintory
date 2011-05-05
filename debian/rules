@@ -9,3 +9,7 @@ include /usr/share/cdbs/1/class/python-distutils.mk
 clean::
 	rm -rf build build-stamp configure-stamp build/ MANIFEST
 	dh_clean
+
+install/lintory::
+	rm debian/lintory/usr/share/lintory/media/js/jquery.js
+	ln -s /usr/share/javascript/jquery/jquery.js debian/lintory/usr/share/lintory/media/js/jquery.js
