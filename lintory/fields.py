@@ -106,12 +106,6 @@ class email_field(forms.EmailField):
             return None
         return value
 
-class computer_field(object_name_field):
-
-    def __init__(self, *args, **kwargs):
-        super(computer_field, self).__init__(models.computer, *args, **kwargs)
-
-
 class software_field(object_name_field):
 
     def __init__(self, *args, **kwargs):
