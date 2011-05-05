@@ -321,10 +321,41 @@ class hardware(base_model):
     def network_adaptors(self):
         return network_adaptor.objects.filter(installed_on=self)
 
+    def _update_installed_hardware(self, user, owner, location, seen):
+        if self.pk in seen:
+            return []
+
+        seen[self.pk] = True
+
+        installed_hardware = hardware.objects.filter(installed_on=self)
+        installed_hardware.update(user=user, owner=owner, location=location)
+
+        for child in installed_hardware:
+            child._update_installed_hardware(user, owner, location, seen)
+
+    def update_installed_hardware(self, user, owner, location):
+        seen = {}
+        self._update_installed_hardware(user, owner, location, seen)
+
     # We need to make sure that type_id is set before saving
     def save(self, *args,**kwargs):
         self.type_id = self.get_object_type_id()
+
+        if self.installed_on is not None:
+            user = self.installed_on.user
+            owner = self.installed_on.owner
+            location = self.installed_on.location
+            self.user = user
+            self.owner = owner
+            self.location = location
+        else:
+            user = self.user
+            owner = self.owner
+            location = self.location
+
         super(hardware,self).save(*args, **kwargs)
+        self.update_installed_hardware(user=user, owner=owner, location=location)
+
     save.alters_data = True
 
     def error_list(self):
