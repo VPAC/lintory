@@ -108,19 +108,6 @@ class party_field(object_name_field):
     def __init__(self, *args, **kwargs):
         super(party_field, self).__init__(models.party, *args, **kwargs)
 
-class hardware_type_field(forms.CharField):
-    def clean(self, value):
-        value=super(hardware_type_field, self).clean(value)
-
-        if value in ('',None):
-            return None
-
-        value = value.lower()
-        if value not in models.hardware_types:
-            raise forms.util.ValidationError(u"'%s' is not a known hardware type" % (value))
-
-        return value
-
 class mac_address_field(forms.CharField):
     def clean(self, value):
         value=super(mac_address_field, self).clean(value)

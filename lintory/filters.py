@@ -21,9 +21,6 @@ import django_filters
 class party_filter(django_filters.ModelChoiceFilter):
     field_class = fields.party_field
 
-class hardware_type_filter(django_filters.CharFilter):
-    field_class = fields.hardware_type_field
-
 class mac_address_filter(django_filters.CharFilter):
     field_class = fields.mac_address_field
 
@@ -57,7 +54,7 @@ class vendor(django_filters.FilterSet):
         model = models.vendor
 
 class hardware(django_filters.FilterSet):
-    type_id = hardware_type_filter(label="Type")
+    type_id = django_filters.ChoiceFilter(label="Type",choices=models.HARDWARE_CHOICES)
     computer = django_filters.CharFilter(name="computer__name",lookup_type='icontains')
     is_installed = inverted_boolean_filter(lookup_type='isnull', name="installed_on")
     mac_address = mac_address_filter(name="network_adaptor__mac_address")

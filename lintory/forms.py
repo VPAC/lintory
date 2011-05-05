@@ -38,7 +38,7 @@ class task_form(forms.ModelForm):
         model = models.task
 
 class hardware_type_form(forms.Form):
-    type = fields.hardware_type_field()
+    type = forms.ChoiceField(choices=models.HARDWARE_CHOICES)
 
 class hardware_form(forms.ModelForm):
     owner    = fields.party_field(required=False)

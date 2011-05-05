@@ -243,8 +243,10 @@ hardware_types = {
     'camera': True,
 }
 
+HARDWARE_CHOICES = [ (t, t.replace("_", " ")) for t in hardware_types ]
+
 class hardware(base_model):
-    type_id       = fields.char_field(max_length=20)
+    type_id       = fields.char_field(max_length=20, choices=HARDWARE_CHOICES)
     seen_first    = models.DateTimeField()
     seen_last     = models.DateTimeField()
     manufacturer  = fields.char_field(max_length=50,null=True,blank=True)
