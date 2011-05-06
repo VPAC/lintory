@@ -1241,8 +1241,9 @@ class hardware_task_web(base_web):
 
     def get_edit_breadcrumbs(self, instance):
         self.assert_instance_type(instance)
-        breadcrumbs = instance.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(instance.get_edit_url(), "edit hardware todo"))
+        web = task_web()
+        breadcrumbs = web.get_view_breadcrumbs(instance.task)
+        breadcrumbs.append(breadcrumb(self.get_edit_url(instance), "edit hardware todo"))
         return breadcrumbs
 
     def get_edit_finished_url(self, instance):
@@ -1256,8 +1257,10 @@ class hardware_task_web(base_web):
 
     def get_delete_breadcrumbs(self, instance):
         self.assert_instance_type(instance)
-        breadcrumbs = instance.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(instance.get_delete_url(), "delete hardware todo"))
+        self.assert_instance_type(instance)
+        web = task_web()
+        breadcrumbs = web.get_view_breadcrumbs(instance.task)
+        breadcrumbs.append(breadcrumb(self.get_delete_url(instance), "delete hardware todo"))
         return breadcrumbs
 
     def get_delete_finished_url(self, instance):
