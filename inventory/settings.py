@@ -69,6 +69,8 @@ LOGOUT_URL = "/lintory/account/login/"
 
 AJAX_LOOKUP_CHANNELS = {
     'party' : ('lintory.lookup', 'party_lookup'),
+    'location' : ('lintory.lookup', 'location_lookup'),
+    'software' : ('lintory.lookup', 'software_lookup'),
 }
 
 execfile("/etc/lintory/settings.py")

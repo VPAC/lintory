@@ -106,17 +106,6 @@ class email_field(forms.EmailField):
             return None
         return value
 
-class software_field(object_name_field):
-
-    def __init__(self, *args, **kwargs):
-        super(software_field, self).__init__(models.software, *args, **kwargs)
-
-
-class location_field(object_name_field):
-    def __init__(self, *args, **kwargs):
-        super(location_field, self).__init__(models.location, *args, **kwargs)
-
-
 class license_field(forms.IntegerField):
     def clean(self, value):
         value=super(license_field, self).clean(value)
@@ -134,6 +123,14 @@ class license_field(forms.IntegerField):
 class party_field(select_field):
     def __init__(self, *args, **kwargs):
         super(party_field, self).__init__("party", *args, **kwargs)
+
+class location_field(select_field):
+    def __init__(self, *args, **kwargs):
+        super(location_field, self).__init__("location", *args, **kwargs)
+
+class software_field(select_field):
+    def __init__(self, *args, **kwargs):
+        super(software_field, self).__init__("software", *args, **kwargs)
 
 class mac_address_field(forms.CharField):
     def clean(self, value):

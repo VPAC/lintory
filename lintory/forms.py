@@ -28,6 +28,7 @@ class hardware_task_form(forms.ModelForm):
 class location_form(forms.ModelForm):
     owner    = fields.party_field(required=False)
     user     = fields.party_field(required=False)
+    location = fields.location_field(required=False)
 
     class Meta:
         model = models.location
@@ -44,6 +45,7 @@ class hardware_form(forms.ModelForm):
     owner    = fields.party_field(required=False)
     user     = fields.party_field(required=False)
     installed_on = fields.hardware_field(required=False)
+    location = fields.location_field(required=False)
 
     class Meta:
         model = models.hardware
@@ -117,11 +119,13 @@ class license_form(forms.ModelForm):
         model = models.license
 
 class license_key_form(forms.ModelForm):
+    software    = fields.software_field()
 
     class Meta:
         model = models.license_key
 
 class software_installation_form(forms.ModelForm):
+    software    = fields.software_field()
 
     class Meta:
         model = models.software_installation
