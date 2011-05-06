@@ -670,7 +670,16 @@ class os(base_model):
     comments = fields.text_field(null=True,blank=True)
 
     def __unicode__(self):
-        return self.name
+        name = self.name
+        name = name.replace("Microsoft ","")
+        name = name.replace(" Home","")
+        name = name.replace(" Premium","")
+        name = name.replace(" Professional","")
+        name = name.replace(" (R)","")
+        name = name.replace(" Standard","")
+        name = name.replace(" (TM)","")
+        name = name.replace(" Ultimate","")
+        return "%s (%s)"%(self.computer_name,name)
 
     class Meta:
         ordering = ('storage', 'name')
