@@ -1,12 +1,10 @@
-{% extends "base_site.html" %}
+{% extends "django_webs/object_detail.html" %}
 {% load i18n %}
 {% load inventory %}
 
-{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
-
 {% block title %}{{ software }} by {{ party }}{% endblock %}
 
-{% block content %}
+{% block object %}
 <h1>{{ software }} by {{ party }}</h1>
 
 {% block tools %}
@@ -31,8 +29,6 @@
 </dd>
 <dt>Comments</dt><dd>{{software.comments|urlizetrunc:40|linebreaks }}</dd>
 </dl>
-
-{% show_error_list software.error_list %}
 
 <h2>Licenses</h2>
 

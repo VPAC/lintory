@@ -1,21 +1,9 @@
-{% extends "base_site.html" %}
+{% extends "django_webs/object_detail.html" %}
 {% load i18n %}
 {% load inventory %}
+{% load webs %}
 
-{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
-
-{% block title %}{{ object }}{% endblock %}
-
-{% block content %}
-
-<h1>{{ object }}</h1>
-
-{% block tools %}
-{% show_view_buttons web user object %}
-{% endblock %}
-
-{% show_error_list object.error_list %}
-
+{% block object %}
 <dl class="infobox">
 <dt>Date</dt><dd>{{object.datetime}}</dd>
 <dt>File</dt><dd>{{object.file}}</dd>

@@ -1,34 +1,25 @@
-{% extends "base_site.html" %}
+{% extends "django_webs/object_detail.html" %}
 {% load i18n %}
 {% load inventory %}
-
-{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
+{% load webs %}
 
 {% block title %}{% if perms.lintory.can_see_key %}{{ object.key }}{% else %}LK{{ object.pk }}{% endif %}{% endblock %}
+{% block object_title %}{% if perms.lintory.can_see_key %}{{ object.key }}{% else %}LK{{ object.pk }}{% endif %}{% endblock %}
 
-{% block content %}
-
-<h1>{% if perms.lintory.can_see_key %}{{ object.key }}{% else %}LK{{ object.pk }}{% endif %}</h1>
-
-{% block tools %}
-{% show_view_buttons web user object %}
-{% endblock %}
-
+{% block object %}
 <dl class="infobox">
 <dt>License key</dt><dd>{% if perms.lintory.can_see_key %}{{ object.key }}{% else %}LK{{ object.pk }}{% endif %}</dd>
 <dt>Num installations</dt><dd>{{object.software_installations_found}}</dd>
 <dt>Comments</dt><dd>{{object.comments|urlizetrunc:40|linebreaks }}</dd>
 </dl>
 
-{% show_error_list object.error_list %}
-
 <h2>Software</h2>
 
-<a href="{{object.software.get_absolute_url}}">{{object.software}}</a>
+<a href="{% get_view_url object.software %}">{{object.software}}</a>
 
 <h2>License</h2>
 
-<a href="{{object.license.get_absolute_url}}">{{object.license}}</a>
+<a href="{% get_view_url object.license %}">{{object.license}}</a>
 
 <h2>Active Software Installations</h2>
 

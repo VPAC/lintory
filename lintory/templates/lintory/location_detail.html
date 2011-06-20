@@ -1,12 +1,10 @@
-{% extends "base_site.html" %}
+{% extends "django_webs/object_detail.html" %}
 {% load i18n %}
 {% load inventory %}
 
-{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
-
 {% block title %}{{ object }}{% endblock %}
 
-{% block content %}
+{% block object %}
 <h1>{{ object }}</h1>
 
 {% block tools %}
@@ -29,8 +27,6 @@
 {% endif %}
 <dt>Comments</dt><dd>{{ object.comments|urlizetrunc:40|linebreaks }}</dd>
 </dl>
-
-{% show_error_list object.error_list %}
 
 {% if object.children.all %}
 <h2>Sublocations</h2>

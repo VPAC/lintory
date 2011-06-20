@@ -1,19 +1,8 @@
-{% extends "base_site.html" %}
+{% extends "django_webs/object_detail.html" %}
 {% load i18n %}
 {% load inventory %}
 
-{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
-
-{% block title %}{{ object }}{% endblock %}
-
-{% block content %}
-
-<h1>{{ object }}</h1>
-
-{% block tools %}
-{% show_view_buttons web user object %}
-{% endblock %}
-
+{% block object %}
 <dl class="infobox">
 <dt>OS</dt><dd>{{ object }}</dd>
 <dt>Name</dt><dd>{{ object.name }}</dd>
@@ -25,8 +14,6 @@
 <dt>Used by</dt><dd><a href="{{ object.storage.used_by.get_absolute_url }}">{{ object.storage.used_by }}</a></dd>
 {% endif %}
 </dl>
-
-{% show_error_list object.error_list %}
 
 {% if object.active_software_installations %}
 <h2>Active Software Installations</h2>

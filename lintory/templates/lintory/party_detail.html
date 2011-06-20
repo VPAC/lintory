@@ -1,25 +1,13 @@
-{% extends "base_site.html" %}
+{% extends "django_webs/object_detail.html" %}
 {% load i18n %}
 {% load inventory %}
 
-{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
-
-{% block title %}{{ object }}{% endblock %}
-
-{% block content %}
-<h1>{{ object }}</h1>
-
-{% block tools %}
-{% show_view_buttons web user object %}
-{% endblock %}
-
+{% block object %}
 <dl class="infobox">
 <dt>Party</dt><dd>{{ object }}</dd>
 <dt>LDAP DN</dt><dd>{{ object.LDAP_DN }}</dd>
 <dt>Comments</dt><dd>{{object.comments|urlizetrunc:40|linebreaks }}</dd>
 </dl>
-
-{% show_error_list object.error_list %}
 
 {% if object.assigned_hardware_tasks.all %}
 <h2>Tasks</h2>

@@ -1,17 +1,8 @@
-{% extends "base_site.html" %}
+{% extends "django_webs/object_detail.html" %}
 {% load i18n %}
 {% load inventory %}
 
-{% block breadcrumbs %}{% show_breadcrumbs breadcrumbs %}{% endblock %}
-
-{% block title %}{{ object }}{% endblock %}
-
-{% block content %}
-
-{% block tools %}
-{% show_view_buttons web user object %}
-{% endblock %}
-
+{% block object %}
 <dl class="infobox">
 <dt>Software</dt><dd>{{ object }}</dd>
 <dt>Num installations</dt><dd>
@@ -28,8 +19,6 @@
 {% endif %}
 <dt>Comments</dt><dd>{{object.comments|urlizetrunc:40|linebreaks }}</dd>
 </dl>
-
-{% show_error_list object.error_list %}
 
 <h2>Licenses</h2>
 

@@ -51,11 +51,6 @@ def get_svg_url(instance):
     web = webs.get_web_from_object(instance)
     return mark_safe(web.get_svg_url(instance))
 
-@register.simple_tag
-def get_view_url(instance):
-    web = webs.get_web_from_object(instance)
-    return mark_safe(web.get_view_url(instance))
-
 @register.filter
 def bytes(value):
     units = "bytes"
@@ -88,22 +83,7 @@ def defaults(context):
         'MEDIA_URL': context['MEDIA_URL'],
     }
 
-@register.inclusion_tag('lintory/show_error_list.html')
-def show_error_list(error_list):
-    return {
-        'error_list': error_list,
-    };
-
-@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
-def show_list(context, table, rows, web, sort="sort"):
-    dict = defaults(context)
-    dict['table'] = table
-    dict['web'] = web
-    dict['rows'] = rows
-    dict['sort'] = sort
-    return dict
-
-@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+@register.inclusion_tag('django_webs/show_object_list.html', takes_context=True)
 def show_hardware_list(context, object_list, sort="hardware_sort"):
     request = context['request']
     web = webs.hardware_web()
@@ -114,7 +94,7 @@ def show_hardware_list(context, object_list, sort="hardware_sort"):
     dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+@register.inclusion_tag('django_webs/show_object_list.html', takes_context=True)
 def show_location_list(context, object_list, sort="location_sort"):
     request = context['request']
     web = webs.location_web()
@@ -125,7 +105,7 @@ def show_location_list(context, object_list, sort="location_sort"):
     dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+@register.inclusion_tag('django_webs/show_object_list.html', takes_context=True)
 def show_license_list(context, object_list, sort="license_sort"):
     request = context['request']
     web = webs.license_web()
@@ -136,7 +116,7 @@ def show_license_list(context, object_list, sort="license_sort"):
     dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+@register.inclusion_tag('django_webs/show_object_list.html', takes_context=True)
 def show_license_key_list(context, object_list, sort="license_key_sort"):
     request = context['request']
     web = webs.license_key_web()
@@ -147,7 +127,7 @@ def show_license_key_list(context, object_list, sort="license_key_sort"):
     dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+@register.inclusion_tag('django_webs/show_object_list.html', takes_context=True)
 def show_software_list(context, object_list, sort="software_sort"):
     request = context['request']
     web = webs.software_web()
@@ -158,7 +138,7 @@ def show_software_list(context, object_list, sort="software_sort"):
     dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+@register.inclusion_tag('django_webs/show_object_list.html', takes_context=True)
 def show_software_installation_list(context, object_list, sort="software_installation_sort"):
     request = context['request']
     web = webs.software_installation_web()
@@ -169,7 +149,7 @@ def show_software_installation_list(context, object_list, sort="software_install
     dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+@register.inclusion_tag('django_webs/show_object_list.html', takes_context=True)
 def show_task_list(context, object_list, sort="task_sort"):
     request = context['request']
     web = webs.task_web()
@@ -180,7 +160,7 @@ def show_task_list(context, object_list, sort="task_sort"):
     dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+@register.inclusion_tag('django_webs/show_object_list.html', takes_context=True)
 def show_hardware_task_list(context, object_list, sort="hardware_task_sort"):
     request = context['request']
     web = webs.hardware_task_web()
@@ -198,7 +178,7 @@ def show_history(context, object):
     dict['object'] = object
     return dict
 
-@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+@register.inclusion_tag('django_webs/show_object_list.html', takes_context=True)
 def show_os_list(context, object_list, sort="os_sort"):
     request = context['request']
     web = webs.os_web()
@@ -209,7 +189,7 @@ def show_os_list(context, object_list, sort="os_sort"):
     dict['sort'] = sort
     return dict
 
-@register.inclusion_tag('lintory/show_object_list.html', takes_context=True)
+@register.inclusion_tag('django_webs/show_object_list.html', takes_context=True)
 def show_data_list(context, object_list, sort="data_sort"):
     request = context['request']
     web = webs.data_web()
@@ -219,11 +199,6 @@ def show_data_list(context, object_list, sort="data_sort"):
     dict['web'] = web
     dict['sort'] = sort
     return dict
-
-@register.inclusion_tag('lintory/show_breadcrumbs.html')
-def show_breadcrumbs(breadcrumbs):
-        return {'breadcrumbs': breadcrumbs[:-1], 'object': breadcrumbs[-1] };
-
 
 @register.tag
 def get_licenses_by_software_owner(parser, token):
@@ -357,111 +332,3 @@ class get_active_software_installations_by_software_owner_node(template.Node):
         return ''
 
 
-DOT='.'
-
-@register.inclusion_tag('lintory/pagination.html', takes_context=True)
-def pagination(context, page_obj):
-    paginator, page_num = page_obj.paginator, page_obj.number
-
-    if paginator.num_pages <= 1:
-        pagination_required = False
-        page_range = []
-    else:
-        pagination_required = True
-        ON_EACH_SIDE = 3
-        ON_ENDS = 2
-
-        # If there are 10 or fewer pages, display links to every page.
-        # Otherwise, do some fancy
-        if paginator.num_pages <= 10:
-            page_range = range(1,paginator.num_pages+1)
-        else:
-            # Insert "smart" pagination links, so that there are always ON_ENDS
-            # links at either end of the list of pages, and there are always
-            # ON_EACH_SIDE links at either end of the "current page" link.
-            page_range = []
-            if page_num > (ON_EACH_SIDE + ON_ENDS + 1):
-                page_range.extend(range(1, ON_ENDS+1))
-                page_range.append(DOT)
-                page_range.extend(range(page_num - ON_EACH_SIDE, page_num))
-            else:
-                page_range.extend(range(1, page_num))
-
-            if page_num < (paginator.num_pages - ON_EACH_SIDE - ON_ENDS):
-                page_range.extend(range(page_num, page_num + ON_EACH_SIDE + 1))
-                page_range.append(DOT)
-                page_range.extend(range(paginator.num_pages - ON_ENDS + 1, paginator.num_pages + 1))
-            else:
-                page_range.extend(range(page_num, paginator.num_pages + 1))
-
-    if page_obj.number <= 1:
-        page_prev = None
-    else:
-        page_prev = page_obj.number-1
-
-    if page_obj.number >= page_obj.paginator.num_pages:
-        page_next = None
-    else:
-        page_next = page_obj.number+1
-
-    return {
-        'pagination_required': pagination_required,
-        'page_prev': page_prev,
-        'page_next': page_next,
-        'page_obj': page_obj,
-        'page_range': page_range,
-        'request': context['request'],
-    }
-
-class url_with_param_node(template.Node):
-    def __init__(self, changes):
-        self.changes = []
-        for key, newvalue in changes:
-            key = template.Variable(key)
-            newvalue = template.Variable(newvalue)
-            self.changes.append( (key,newvalue,) )
-
-    def render(self, context):
-        if 'request' not in context:
-            raise template.TemplateSyntaxError, "request not in context"
-
-        request = context['request']
-
-        result = {}
-        for key, newvalue in request.GET.items():
-            result[key] = newvalue
-
-        for key, newvalue in self.changes:
-            key = key.resolve(context)
-            newvalue = newvalue.resolve(context)
-            result[key] = newvalue
-
-        quoted = []
-        for key, newvalue in result.items():
-            quoted.append("%s=%s"%(urlquote(key),urlquote(newvalue)))
-
-        return conditional_escape('?'+"&".join(quoted))
-
-@register.tag
-def url_with_param(parser, token):
-    bits = token.split_contents()
-    qschanges = []
-    for i in bits[1:]:
-        try:
-            key, newvalue = i.split('=', 1);
-            qschanges.append( (key,newvalue,) )
-        except ValueError:
-            raise template.TemplateSyntaxError, "Argument syntax wrong: should be key=value"
-    return url_with_param_node(qschanges)
-
-@register.inclusion_tag('lintory/show_buttons.html', takes_context=True)
-def show_list_buttons(context, web, user):
-    dict = defaults(context)
-    dict['buttons'] = web.get_list_buttons(user)
-    return dict
-
-@register.inclusion_tag('lintory/show_buttons.html', takes_context=True)
-def show_view_buttons(context, web, user, subject):
-    dict = defaults(context)
-    dict['buttons'] = web.get_view_buttons(user, subject)
-    return dict
