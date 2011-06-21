@@ -29,13 +29,6 @@ from lintory import models,forms
 
 import os.path
 
-# META INFORMATION FOR MODELS
-
-class breadcrumb(object):
-    def __init__(self, url, name):
-        self.url = url
-        self.name = name
-
 ################
 # BASE METHODS #
 ################
@@ -43,6 +36,7 @@ class base_web(django_webs.web):
     app_label = "lintory"
 
 get_web_from_object = django_webs.get_web_from_object
+breadcrumb = django_webs.breadcrumb
 
 #########
 # PARTY #

@@ -1,16 +1,9 @@
 {% extends "django_webs/object_detail.html" %}
 {% load i18n %}
 {% load inventory %}
-
-{% block title %}{{ object }}{% endblock %}
+{% load webs %}
 
 {% block object %}
-<h1>{{ object }}</h1>
-
-{% block tools %}
-{% show_view_buttons web user object %}
-{% endblock %}
-
 <dl class="infobox">
 <dt>Location</dt><dd>{{ object }}</dd>
 <dt>Address</dt><dd>{{ object.address|linebreaks }}</dd>
