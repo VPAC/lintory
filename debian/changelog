@@ -1,3 +1,13 @@
+lintory (0.6-1) unstable; urgency=low
+
+  * Update standards version to 3.9.1
+  * Remove old cruft.
+  * Use AJAX for selecting values.
+  * Extract common code to django-webs project.
+  * General improvements.
+
+ -- Brian May <bam@debian.org>  Thu, 23 Jun 2011 10:39:01 +1000
+
 lintory (0.5-1) unstable; urgency=low
 
   * Remove eparty infrastructure, make lintory not require LDAP.
