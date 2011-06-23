@@ -654,7 +654,9 @@ class license_key_web(base_web):
 
     def get_delete_finished_url(self, instance):
         self.assert_instance_type(instance)
-        return instance.software.get_view_url()
+        software_web = software_web()
+        return software_web.get_view_url(instance.software)
+
 
 #########################
 # SOFTWARE_INSTALLATION #

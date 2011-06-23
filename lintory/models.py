@@ -875,7 +875,7 @@ class license_key(base_model):
 
     def check_delete(self):
         errorlist = []
-        if object.software_installations_found() > 0:
+        if self.software_installations_found() > 0:
             errorlist.append("Cannot delete license key with installations")
         return errorlist
 
