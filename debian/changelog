@@ -1,6 +1,6 @@
 lintory (0.6-1) unstable; urgency=low
 
-  * Update standards version to 3.9.1
+  * Update standards version to 3.9.2
   * Remove old cruft.
   * Use AJAX for selecting values.
   * Extract common code to django-webs project.
