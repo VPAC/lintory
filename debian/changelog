@@ -1,3 +1,11 @@
+lintory (0.8-1) unstable; urgency=low
+
+  * Fix changelog.
+  * Make application/xhtml+xml the default.
+  * Follow symlinks on /usr/share/lintory/media.
+
+ -- Brian May <bam@debian.org>  Thu, 23 Jun 2011 13:55:11 +1000
+
 lintory (0.7-1) unstable; urgency=low
 
   * No changes
