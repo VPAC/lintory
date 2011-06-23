@@ -1,7 +1,6 @@
 lintory (0.7-1) unstable; urgency=low
 
-  * Fix XHTML errors.
-  * Split django-webs into separate package.
+  * No changes
 
  -- Brian May <bam@debian.org>  Thu, 23 Jun 2011 10:59:43 +1000
 
@@ -11,6 +10,7 @@ lintory (0.6-1) unstable; urgency=low
   * Remove old cruft.
   * Use AJAX for selecting values.
   * Extract common code to django-webs project.
+  * Fix XHTML errors.
   * General improvements.
 
  -- Brian May <bam@debian.org>  Thu, 23 Jun 2011 10:39:01 +1000
