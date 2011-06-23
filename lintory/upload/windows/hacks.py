@@ -142,28 +142,31 @@ def strip_software_version(software_name):
 def get_license_key(software_name, license_keys):
     key = None
 
-    if software_name in license_keys:
-        key = license_keys[software_name]
+    try:
+        if software_name in license_keys:
+            key = license_keys[software_name]
 
-    elif software_name == "Microsoft Windows Server 2008 Standard":
-        key = license_keys["Windows Server (R) 2008 Standard"]
+        elif software_name == "Microsoft Windows Server 2008 Standard":
+            key = license_keys["Windows Server (R) 2008 Standard"]
 
-    elif software_name == "Microsoft Windows Vista Business":
-        key = license_keys["Windows Vista (TM) Business"]
+        elif software_name == "Microsoft Windows Vista Business":
+            key = license_keys["Windows Vista (TM) Business"]
 
-    elif software_name == "Microsoft Windows Vista Ultimate":
-        key = license_keys["Windows Vista (TM) Ultimate"]
+        elif software_name == "Microsoft Windows Vista Ultimate":
+            key = license_keys["Windows Vista (TM) Ultimate"]
 
-    elif software_name == "Microsoft Windows XP Professional":
-        key = license_keys["Microsoft Windows XP"]
+        elif software_name == "Microsoft Windows XP Professional":
+            key = license_keys["Microsoft Windows XP"]
 
-    elif software_name == "Microsoft Windows 7 Home Premium":
-        key = license_keys["Windows 7 Home Premium"]
+        elif software_name == "Microsoft Windows 7 Home Premium":
+            key = license_keys["Windows 7 Home Premium"]
 
-    elif software_name == "Microsoft Windows 7 Professional":
-        key = license_keys["Windows 7 Professional"]
+        elif software_name == "Microsoft Windows 7 Professional":
+            key = license_keys["Windows 7 Professional"]
 
-    elif software_name == "Microsoft Windows 7 Ultimate":
-        key = license_keys["Windows 7 Ultimate"]
+        elif software_name == "Microsoft Windows 7 Ultimate":
+            key = license_keys["Windows 7 Ultimate"]
+    except KeyError, e:
+        key = None
 
     return key
