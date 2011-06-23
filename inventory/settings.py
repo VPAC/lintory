@@ -74,4 +74,6 @@ AJAX_LOOKUP_CHANNELS = {
     'software' : ('lintory.lookup', 'software_lookup'),
 }
 
+DEFAULT_CONTENT_TYPE = "application/xhtml+xml"
+
 execfile("/etc/lintory/settings.py")
