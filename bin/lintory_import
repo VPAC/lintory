@@ -46,7 +46,7 @@ def main():
                 data_list = models.data.objects.filter(computer=computer, format="windows").order_by("-datetime")
                 try:
                     data = data_list[0]
-                    print "--- %s ---"%(data.file)
+                    print "--- %s (%d) ---"%(data.file, data.pk)
                     load(data)
                     print
                 except IndexError, e:
@@ -68,7 +68,7 @@ def main():
                 data.delete()
 
         for data in models.data.objects.filter(imported__isnull=True, format="windows"):
-            print "--- %s ---"%(data.file)
+            print "--- %s (%d) ---"%(data.file, data.pk)
             load(data)
             print
 
