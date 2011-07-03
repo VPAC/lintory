@@ -608,7 +608,7 @@ def software_add_license(request,object_id):
     else:
         form = forms.license_add_form()
 
-    return render_to_response('lintory/object_edit.html', {
+    return render_to_response('django_webs/object_edit.html', {
             'object': None, 'type': 'software license',
             'breadcrumbs': breadcrumbs,
             'form' : form,
