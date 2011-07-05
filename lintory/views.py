@@ -566,9 +566,10 @@ def software_add_license(request,object_id):
             # we try to get license_key first, in case something goes wrong.
             # if something goes wrong, no license will be created.
             key = form.cleaned_data['key'].strip()
+            lk_web = webs.license_key_web()
             try:
                 # try to find existing license for key
-                if request.has_perm('lintory.edit_license_key'):
+                if lk_web.has_edit_perms(request.user):
                     license_key = models.license_key.objects.get(key=key,software=object)
                 else:
                     msg = u"License key exists and no permission to modify"
@@ -576,7 +577,7 @@ def software_add_license(request,object_id):
                     valid = False
             except models.license_key.DoesNotExist, e:
                 # no license found, we have to create one
-                if request.has_perm('lintory.add_license_key'):
+                if lk_web.has_add_perms(request.user):
                     license_key = models.license_key()
                     license_key.software = object
                     license_key.key = key
