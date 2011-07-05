@@ -602,8 +602,7 @@ def software_add_license(request,object_id):
                 license_key.save()
 
                 # we finished
-                license_web = webs.license_web()
-                url = license_web.get_view_url(license)
+                url = l_web.get_view_url(license)
                 url = request.GET.get("next",url)
                 return HttpResponseRedirect(url)
     else:
