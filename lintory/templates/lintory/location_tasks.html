@@ -8,9 +8,9 @@
 <h1>{{ object }}</h1>
 
 <dl class="infobox">
-<dt>Location</dt><dd><a href="{{ object.get_absolute_url }}">{{ object }}</a></dt>
+<dt>Location</dt><dd><a href="{{ object.get_absolute_url }}">{{ object }}</a></dd>
 {% if task %}
-<dt>Task</dt><dd><a href="{{ task.get_absolute_url }}">{{ task }}</a></dt>
+<dt>Task</dt><dd><a href="{{ task.get_absolute_url }}">{{ task }}</a></dd>
 {% endif %}
 </dl>
 

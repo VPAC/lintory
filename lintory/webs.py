@@ -299,12 +299,6 @@ class hardware_web(base_web):
             if type_name != expected_type:
                 raise RuntimeError("Expected type '%s' but got '%s'"%(expected_type,type_name))
 
-    def get_breadcrumbs(self):
-        breadcrumbs = []
-        breadcrumbs.append(breadcrumb(reverse("root"), _("Home")))
-        breadcrumbs.append(breadcrumb(reverse("hardware_list"), "hardware"))
-        return breadcrumbs
-
     def get_instance(self):
         instance = self.initial_model_class()
         if self.initial_installed_on is not None:
@@ -694,9 +688,8 @@ class software_installation_web(base_web):
 
     def get_view_breadcrumbs(self, instance):
         self.assert_instance_type(instance)
-        web = get_web_for_object(instance.software)
-        breadcrumbs = web.get_breadcrumbs(instance.software)
-        breadcrumbs.append(breadcrumb(web.get_view_url(instance.software), instance))
+        web = software_web()
+        breadcrumbs = web.get_view_breadcrumbs(instance.software)
         return breadcrumbs
 
     ##############
@@ -729,8 +722,7 @@ class software_installation_web(base_web):
 
     def get_edit_breadcrumbs(self, instance):
         self.assert_instance_type(instance)
-        web = software_web()
-        breadcrumbs = web.get_view_breadcrumbs(instance.software)
+        breadcrumbs = self.get_view_breadcrumbs(instance)
         breadcrumbs.append(breadcrumb(self.get_edit_url(instance), "edit installation"))
         return breadcrumbs
 
@@ -745,8 +737,8 @@ class software_installation_web(base_web):
 
     def get_delete_breadcrumbs(self, instance):
         self.assert_instance_type(instance)
-        breadcrumbs = instance.get_breadcrumbs()
-        breadcrumbs.append(breadcrumb(instance.get_delete_url(), "delete installation"))
+        breadcrumbs = self.get_view_breadcrumbs(instance)
+        breadcrumbs.append(breadcrumb(self.get_delete_url(instance), "delete installation"))
         return breadcrumbs
 
 
@@ -826,9 +818,8 @@ class hardware_task_web(base_web):
 
     def get_view_breadcrumbs(self, instance):
         self.assert_instance_type(instance)
-        web = get_web_for_object(instance.task)
-        breadcrumbs = web.get_breadcrumbs(instance.task)
-        breadcrumbs.append(breadcrumb(web.get_view_url(instance.task), instance))
+        web = task_web()
+        breadcrumbs = web.get_view_breadcrumbs(instance.task)
         return breadcrumbs
 
     ##############
@@ -851,8 +842,7 @@ class hardware_task_web(base_web):
 
     def get_edit_breadcrumbs(self, instance):
         self.assert_instance_type(instance)
-        web = task_web()
-        breadcrumbs = web.get_view_breadcrumbs(instance.task)
+        breadcrumbs = self.get_view_breadcrumbs(instance)
         breadcrumbs.append(breadcrumb(self.get_edit_url(instance), "edit hardware todo"))
         return breadcrumbs
 
@@ -867,9 +857,7 @@ class hardware_task_web(base_web):
 
     def get_delete_breadcrumbs(self, instance):
         self.assert_instance_type(instance)
-        self.assert_instance_type(instance)
-        web = task_web()
-        breadcrumbs = web.get_view_breadcrumbs(instance.task)
+        breadcrumbs = self.get_view_breadcrumbs(instance)
         breadcrumbs.append(breadcrumb(self.get_delete_url(instance), "delete hardware todo"))
         return breadcrumbs
 

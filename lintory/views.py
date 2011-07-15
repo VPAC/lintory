@@ -226,10 +226,11 @@ def location_detail(request, object_id):
     return web.object_view(request, object)
 
 def location_task_list(request, object_id):
+    web = webs.location_web()
     object = get_object_or_404(models.location, pk=object_id)
 
-    breadcrumbs = object.get_breadcrumbs()
-    breadcrumbs.append(models.breadcrumb(reverse('location_task_list',kwargs={'object_id':object_id}),"tasks"))
+    breadcrumbs = web.get_view_breadcrumbs(object)
+    breadcrumbs.append(webs.breadcrumb(reverse('location_task_list',kwargs={'object_id':object_id}),"tasks"))
 
     return render_to_response('lintory/location_tasks.html', {
             'object': object,
@@ -239,12 +240,13 @@ def location_task_list(request, object_id):
             },context_instance=RequestContext(request))
 
 def location_task(request, object_id, task_id):
+    web = webs.location_web()
     object = get_object_or_404(models.location, pk=object_id)
     task = get_object_or_404(models.task, pk=task_id)
 
-    breadcrumbs = object.get_breadcrumbs()
-    breadcrumbs.append(models.breadcrumb(reverse('location_task_list',kwargs={'object_id':object_id}),"tasks"))
-    breadcrumbs.append(models.breadcrumb(reverse('location_task',kwargs={'object_id':object_id,'task_id':task_id}),task))
+    breadcrumbs = web.get_view_breadcrumbs(object)
+    breadcrumbs.append(webs.breadcrumb(reverse('location_task_list',kwargs={'object_id':object_id}),"tasks"))
+    breadcrumbs.append(webs.breadcrumb(reverse('location_task',kwargs={'object_id':object_id,'task_id':task_id}),task))
 
     return render_to_response('lintory/location_tasks.html', {
             'object': object,
