@@ -1,3 +1,10 @@
+lintory (0.9-1) unstable; urgency=low
+
+  * Fix lots of different error conditions.
+  * Print object id when importing data.
+
+ -- Brian May <bam@debian.org>  Fri, 15 Jul 2011 10:35:10 +1000
+
 lintory (0.8-1) unstable; urgency=low
 
   * Fix changelog.
