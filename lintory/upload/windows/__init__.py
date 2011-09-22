@@ -540,11 +540,10 @@ def sync_hardware(data_datetime, computer, data_dict):
             )
 
             # sanity checks
-            if not c and s.used_by.pk != computer.pk:
-                raise import_error("The storage device '%s' (%d) is in use by another computer"%(s,s.pk))
-
             if s.used_by is None:
                 print u"Marking storage as used by computer '%s'"%(computer)
+            elif s.used_by.pk != computer.pk:
+                raise import_error("The storage device '%s' (%d) is in use by another computer"%(s,s.pk))
 
             # Update values
             s.total_size   = son(disk_drive['TotalSectors'])
