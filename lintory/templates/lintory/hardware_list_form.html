@@ -1,8 +1,7 @@
 {% extends "base_site.html" %}
 {% load i18n %}
 {% load inventory %}
-
-{% block stylesheet %}{{ MEDIA_URL }}css/changelists.css{% endblock %}
+{% load webs %}
 
 {% block title %}Install {{ type.plural_name }} on {{ object }}{% endblock %}
 
