@@ -51,6 +51,8 @@ def upload(request):
 # Used for stripping non-ascii characters
 t = "".join(map(chr, range(256)))
 d = "".join(map(chr, range(128,256)))
+#control characters:
+d = d + "".join(map(chr, range(0,32)))
 
 def parse_file(file):
     data_dict = {}
