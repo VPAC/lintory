@@ -690,7 +690,7 @@ def software_installation_edit_license_key(request,object_id):
         form = forms.license_key_select_form(object.software,{'key': key})
         # fix me, choice may be null
 
-    return render_to_response('lintory/object_edit.html', {
+    return render_to_response('django_webs/object_edit.html', {
             'object': object,
             'breadcrumbs': breadcrumbs,
             'form' : form,
