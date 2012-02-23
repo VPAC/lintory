@@ -73,6 +73,8 @@ AJAX_LOOKUP_CHANNELS = {
     'location' : ('lintory.lookup', 'location_lookup'),
     'software' : ('lintory.lookup', 'software_lookup'),
 }
+AJAX_SELECT_BOOTSTRAP = False
+AJAX_SELECT_INLINES = None
 
 DEFAULT_CONTENT_TYPE = "application/xhtml+xml"
 

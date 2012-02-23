@@ -13,3 +13,9 @@ clean::
 install/lintory::
 	rm debian/lintory/usr/share/lintory/media/js/jquery.js
 	ln -s /usr/share/javascript/jquery/jquery.js debian/lintory/usr/share/lintory/media/js/jquery.js
+	rm debian/lintory/usr/share/lintory/media/js/jquery-ui.js
+	ln -s /usr/share/javascript/jquery-ui/jquery-ui.js debian/lintory/usr/share/lintory/media/js/jquery-ui.js
+	rm debian/lintory/usr/share/lintory/media/css/jquery-ui.css
+	ln -s /usr/share/javascript/jquery-ui/css/smoothness/jquery-ui.css debian/lintory/usr/share/lintory/media/css/jquery-ui.css
+	rm debian/lintory/usr/share/lintory/media/css/images
+	ln -s /usr/share/javascript/jquery-ui/css/smoothness/images debian/lintory/usr/share/lintory/media/css/images
