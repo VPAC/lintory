@@ -24,7 +24,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
 
     (r'^', include('lintory.urls')),
-    (r'^admin/(.*)', admin.site.root),
+    url(r'^admin/(.*)', include(admin.site.urls)),
 
     url(r'^account/login/$', 'django.contrib.auth.views.login', name='login'),
     url(r'^account/logout/$', 'django.contrib.auth.views.logout', name='logout'),
