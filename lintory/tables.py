@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from lintory import models, webs
-import django_tables as tables
+import django_tables2 as tables
 
 from django.http import QueryDict
 from django.utils.html import conditional_escape
@@ -26,7 +26,7 @@ def get_next_url(request):
     qd["next"] = request.get_full_path()
     return qd.urlencode()
 
-class action_table(tables.ModelTable):
+class action_table(tables.Table):
     def __init__(self, request, web, *args, **kwargs):
         super(action_table,self).__init__(*args, **kwargs)
         self.request = request
@@ -38,28 +38,28 @@ class action_table(tables.ModelTable):
         if web.has_delete_perms(self.user):
             self.base_columns["delete"] = tables.Column(sortable=False)
 
-    def render_edit(self, data):
-        web = webs.get_web_from_object(data)
+    def render_edit(self, record):
+        web = webs.get_web_from_object(record)
         return mark_safe("<a class='changelink' href='%s?%s'>%s</a>"%(
-                web.get_edit_url(data),
+                web.get_edit_url(record),
                 get_next_url(self.request),
                 "edit"))
 
-    def render_delete(self, data):
-        web = webs.get_web_from_object(data)
+    def render_delete(self, record):
+        web = webs.get_web_from_object(record)
         return mark_safe("<a class='deletelink' href='%s?%s'>%s</a>"%(
-                web.get_delete_url(data),
+                web.get_delete_url(record),
                 get_next_url(self.request),
                 "delete"))
 
-def render_link(data, title=None):
+def render_link(record, title=None):
     if title is None:
-        title=u"%s"%(data)
+        title=u"%s"%(record)
 
-    if data is not None:
-        web = webs.get_web_from_object(data)
+    if record is not None:
+        web = webs.get_web_from_object(record)
         return mark_safe(u"<a href='%s'>%s</a>"%(
-                web.get_view_url(data),
+                web.get_view_url(record),
                 conditional_escape(title)))
     else:
         return mark_safe(u"-")
@@ -68,8 +68,8 @@ class party(action_table):
     id = tables.Column(sortable=False, visible=False)
     name = tables.Column()
 
-    def render_name(self, data):
-        return render_link(data)
+    def render_name(self, record):
+        return render_link(record)
 
     class Meta:
         model = models.party
@@ -81,8 +81,8 @@ class vendor(action_table):
     email = tables.Column(sortable=False)
     name = tables.Column()
 
-    def render_name(self, data):
-        return render_link(data)
+    def render_name(self, record):
+        return render_link(record)
 
     class Meta:
         model = models.vendor
@@ -94,14 +94,14 @@ class location(action_table):
     owner = tables.Column()
     user = tables.Column()
 
-    def render_name(self, data):
-        return render_link(data)
+    def render_name(self, record):
+        return render_link(record)
 
-    def render_owner(self, data):
-        return render_link(data.owner)
+    def render_owner(self, record):
+        return render_link(record.owner)
 
-    def render_user(self, data):
-        return render_link(data.user)
+    def render_user(self, record):
+        return render_link(record.user)
 
     class Meta:
         model = models.location
@@ -111,7 +111,7 @@ class location(action_table):
 class hardware(action_table):
     id = tables.Column(sortable=False, visible=False)
     name = tables.Column(sortable=False)
-    type_id = tables.Column(name="Type")
+    type_id = tables.Column(accessor="Type")
     manufacturer = tables.Column()
     model = tables.Column()
     serial_number = tables.Column()
@@ -121,26 +121,26 @@ class hardware(action_table):
     location = tables.Column()
     installed_on = tables.Column()
 
-    def render_name(self, data):
-        return render_link(data)
+    def render_name(self, record):
+        return render_link(record)
 
-    def render_owner(self, data):
-        return render_link(data.owner)
+    def render_owner(self, record):
+        return render_link(record.owner)
 
-    def render_user(self, data):
-        return render_link(data.user)
+    def render_user(self, record):
+        return render_link(record.user)
 
-    def render_location(self, data):
-        return render_link(data.location)
+    def render_location(self, record):
+        return render_link(record.location)
 
-    def render_installed_on(self, data):
-        return render_link(data.installed_on)
+    def render_installed_on(self, record):
+        return render_link(record.installed_on)
 
-    def render_edit(self, data):
-        return super(hardware, self).render_edit(data.get_object())
+    def render_edit(self, record):
+        return super(hardware, self).render_edit(record.get_object())
 
-    def render_delete(self, data):
-        return super(hardware, self).render_delete(data.get_object())
+    def render_delete(self, record):
+        return super(hardware, self).render_delete(record.get_object())
 
     class Meta:
         pass
@@ -154,7 +154,7 @@ class hardware_list_form(hardware):
             try:
                 self.int_pks[int(pk)] = True
             except ValueError, e:
-                # ignore illegal values
+                # ignore illegal records
                 pass
 
         self.base_columns["name"] = tables.Column(sortable=False)
@@ -164,14 +164,14 @@ class hardware_list_form(hardware):
         if 'delete' in self.base_columns:
             del self.base_columns["delete"]
 
-    def render_name(self, data):
+    def render_name(self, record):
         checked = ""
-        if data.pk in self.int_pks:
+        if record.pk in self.int_pks:
             checked = "checked='checked' "
 
         return mark_safe(
-            "<input id='pk_%d' type='checkbox' name='pk' value='%d' %s/> <label for='pk_%d'>%s</label>"%(
-                data.pk, data.pk, checked, data.pk, data))
+            "<input id='pk_%d' type='checkbox' name='pk' record='%d' %s/> <label for='pk_%d'>%s</label>"%(
+                record.pk, record.pk, checked, record.pk, record))
 
 
     class Meta:
@@ -183,14 +183,14 @@ class os(action_table):
     computer = tables.Column()
     storage = tables.Column()
 
-    def render_name(self, data):
-        return render_link(data)
+    def render_name(self, record):
+        return render_link(record)
 
-    def render_computer(self, data):
-        return render_link(data.storage.used_by)
+    def render_computer(self, record):
+        return render_link(record.storage.used_by)
 
-    def render_storage(self, data):
-        return render_link(data.storage)
+    def render_storage(self, record):
+        return render_link(record.storage)
 
     class Meta:
         model = models.os
@@ -200,15 +200,15 @@ class software(action_table):
     id = tables.Column(sortable=False, visible=False)
     name = tables.Column()
     vendor = tables.Column()
-    max = tables.Column(data="software_installations_max", sortable=False)
-    found = tables.Column(data="software_installations_found", sortable=False)
-    left = tables.Column(data="software_installations_left", sortable=False)
+    max = tables.Column(accessor="software_installations_max", sortable=False)
+    found = tables.Column(accessor="software_installations_found", sortable=False)
+    left = tables.Column(accessor="software_installations_left", sortable=False)
 
-    def render_name(self, data):
-        return render_link(data)
+    def render_name(self, record):
+        return render_link(record)
 
-    def render_vendor(self, data):
-        return render_link(data.vendor)
+    def render_vendor(self, record):
+        return render_link(record.vendor)
 
     class Meta:
         model = models.software
@@ -220,22 +220,22 @@ class license(action_table):
     computer = tables.Column()
     expires = tables.Column()
     owner = tables.Column()
-    max = tables.Column(data="installations_max", sortable=False)
-    found = tables.Column(data="software_installations_found", sortable=False)
-    left = tables.Column(data="software_installations_left", sortable=False)
+    max = tables.Column(accessor="installations_max", sortable=False)
+    found = tables.Column(accessor="software_installations_found", sortable=False)
+    left = tables.Column(accessor="software_installations_left", sortable=False)
     comments = tables.Column()
 
-    def render_name(self, data):
-        return render_link(data)
+    def render_name(self, record):
+        return render_link(record)
 
-    def render_vendor(self, data):
-        return render_link(data.vendor)
+    def render_vendor(self, record):
+        return render_link(record.vendor)
 
-    def render_computer(self, data):
-        return render_link(data.computer)
+    def render_computer(self, record):
+        return render_link(record.computer)
 
-    def render_owner(self, data):
-        return render_link(data.owner)
+    def render_owner(self, record):
+        return render_link(record.owner)
 
     class Meta:
         pass
@@ -247,20 +247,20 @@ class license_key(action_table):
     license = tables.Column()
     comments = tables.Column()
 
-    def render_key(self, data):
-        return render_link(data)
+    def render_key(self, record):
+        return render_link(record)
 
-    def render_software(self, data):
-        return render_link(data.software)
+    def render_software(self, record):
+        return render_link(record.software)
 
-    def render_license(self, data):
-        return render_link(data.license)
+    def render_license(self, record):
+        return render_link(record.license)
 
-    def render_key(self, data):
+    def render_key(self, record):
         if self.web.has_name_perms(self.user,"can_see_key"):
-            return render_link(data, data.key)
+            return render_link(record, record.key)
         else:
-            return render_link(data)
+            return render_link(record)
 
     class Meta:
         pass
@@ -275,35 +275,35 @@ class software_installation(action_table):
     license_key = tables.Column()
     comments = tables.Column()
 
-    def render_software(self, data):
-        return render_link(data.software)
+    def render_software(self, record):
+        return render_link(record.software)
 
-    def render_computer(self, data):
-        return render_link(data.os.storage.used_by)
+    def render_computer(self, record):
+        return render_link(record.os.storage.used_by)
 
-    def render_storage(self, data):
-        return render_link(data.os.storage)
+    def render_storage(self, record):
+        return render_link(record.os.storage)
 
-    def render_os(self, data):
-        return render_link(data.os)
+    def render_os(self, record):
+        return render_link(record.os)
 
-    def render_license_key(self, data):
-        if data.license_key is None:
+    def render_license_key(self, record):
+        if record.license_key is None:
             return "-"
         elif self.web.has_name_perms(self.user,"can_see_key"):
-            return render_link(data.license_key, data.license_key.key)
+            return render_link(record.license_key, record.license_key.key)
         else:
-            return render_link(data.license_key)
+            return render_link(record.license_key)
 
     def __init__(self, request, web, *args, **kwargs):
         super(software_installation,self).__init__(request, web, *args, **kwargs)
         if web.has_edit_perms(request.user):
             self.base_columns["edit_key"] = tables.Column(sortable=False)
 
-    def render_edit_key(self, data):
-        web = webs.get_web_from_object(data)
+    def render_edit_key(self, record):
+        web = webs.get_web_from_object(record)
         return mark_safe("<a class='changelink' href='%s?%s'>%s</a>"%(
-                web.get_edit_license_key_url(data),
+                web.get_edit_license_key_url(record),
                 get_next_url(self.request),
                 "key"))
 
@@ -317,17 +317,17 @@ class task(action_table):
     done = tables.Column(sortable=False)
     todo = tables.Column(sortable=False)
 
-    def render_name(self, data):
-        return render_link(data)
+    def render_name(self, record):
+        return render_link(record)
 
-    def render_total(self, data):
-        return data.hardware_tasks_all().count()
+    def render_total(self, record):
+        return record.hardware_tasks_all().count()
 
-    def render_done(self, data):
-        return data.hardware_tasks_done().count()
+    def render_done(self, record):
+        return record.hardware_tasks_done().count()
 
-    def render_todo(self, data):
-        return data.hardware_tasks_todo().count()
+    def render_todo(self, record):
+        return record.hardware_tasks_todo().count()
 
     class Meta:
         model = models.task
@@ -339,22 +339,22 @@ class hardware_task(action_table):
     user = tables.Column()
     assigned = tables.Column()
 
-    def render_task(self, data):
-        return render_link(data.task)
+    def render_task(self, record):
+        return render_link(record.task)
 
-    def render_hardware(self, data):
-        return render_link(data.hardware)
+    def render_hardware(self, record):
+        return render_link(record.hardware)
 
-    def render_user(self, data):
-        return render_link(data.hardware.user)
+    def render_user(self, record):
+        return render_link(record.hardware.user)
 
-    def render_assigned(self, data):
-        return render_link(data.assigned)
+    def render_assigned(self, record):
+        return render_link(record.assigned)
 
     class Meta:
         model = models.hardware_task
 
-class data(action_table):
+class record(action_table):
     id = tables.Column(sortable=False, visible=False)
     name = tables.Column()
     datetime = tables.Column()
@@ -365,14 +365,14 @@ class data(action_table):
     last_attempt = tables.Column()
     comments = tables.Column()
 
-    def render_name(self, data):
-        return render_link(data)
+    def render_name(self, record):
+        return render_link(record)
 
-    def render_computer(self, data):
-        return render_link(data.computer)
+    def render_computer(self, record):
+        return render_link(record.computer)
 
-    def render_os(self, data):
-        return render_link(data.os)
+    def render_os(self, record):
+        return render_link(record.os)
 
     class Meta:
         pass

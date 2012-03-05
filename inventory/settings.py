@@ -62,6 +62,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'south',
     'ajax_select',
+    'django_tables2',
 )
 
 LOGIN_URL = "/lintory/account/login/"
