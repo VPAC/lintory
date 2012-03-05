@@ -103,7 +103,7 @@ def main():
             data.file = models.data_upload_to(data, None)
             if os.path.exists(data.file.path):
                 if not os.path.samefile(path, data.file.path):
-                    raise RuntimeException("Destination '%s' already exists"%(data.file.path))
+                    raise RuntimeError("Destination '%s' already exists"%(data.file.path))
                 else:
                     # File is the same, no need to rename it.
                     pass
