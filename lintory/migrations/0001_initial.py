@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
         
         # Adding model 'party'
         db.create_table('lintory_party', (
-            ('eparty', self.gf('lintory.eparty.fields.name_model_field')(db_index=True, max_length=104, null=True, blank=True)),
+            ('eparty', self.gf('lintory.mfields.text_field')(db_index=True, max_length=104, null=True, blank=True)),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('comments', self.gf('lintory.mfields.text_field')(null=True, blank=True)),
             ('name', self.gf('lintory.mfields.char_field')(max_length=30)),
