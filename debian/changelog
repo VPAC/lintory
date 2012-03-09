@@ -1,3 +1,11 @@
+lintory (0.11-1) unstable; urgency=low
+
+  * New upstream version.
+  * Support django tables 0.9.4.
+  * Fix initial db migration.
+
+ -- Brian May <bam@debian.org>  Fri, 09 Mar 2012 11:54:21 +1100
+
 lintory (0.10-1) unstable; urgency=low
 
   * Various bug fixes.
