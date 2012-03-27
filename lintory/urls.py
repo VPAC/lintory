@@ -14,14 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls.defaults import *
-from lintory.models import *
-from datetime import *
+from django.conf.urls.defaults import url, include, patterns
+from django.conf import settings
 
-import django.views.generic.simple
-import django.views.generic.list_detail
-from django.contrib.auth.decorators import login_required
-object_list = login_required(django.views.generic.list_detail.object_list)
+from django.contrib import admin
+admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$',
@@ -316,4 +313,16 @@ urlpatterns = patterns('',
 
 
     url(r'^ajax/', include('ajax_select.urls')),
+
+    # account management
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^account/login/$', 'django.contrib.auth.views.login', name='login'),
+    url(r'^account/logout/$', 'django.contrib.auth.views.logout', name='logout'),
+    url(r'^account/password_change/$', 'django.contrib.auth.views.password_change', name='password_change'),
+    url(r'^account/password_change/done/$', 'django.contrib.auth.views.password_change_done', name='password_change_done'),
 )
+
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
+    )

@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.core.management import setup_environ
-from inventory import settings
+from lintory import settings
 setup_environ(settings)
 
 from optparse import OptionParser

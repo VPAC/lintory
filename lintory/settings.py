@@ -42,7 +42,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.transaction.TransactionMiddleware',
 )
 
-ROOT_URLCONF = 'inventory.urls'
+ROOT_URLCONF = 'lintory.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -53,7 +53,6 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'django_webs',
-    'inventory',
     'lintory',
     'django.contrib.auth',
     'django.contrib.admin',

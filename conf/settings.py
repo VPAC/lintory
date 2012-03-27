@@ -27,7 +27,7 @@ LDAP_PEOPLE = 'ou=People, dc=example, dc=org'
 LDAP_GROUPS = 'ou=Group, dc=example, dc=org'
 LDAP_BASE = 'dc=example, dc=org'
 AUTHENTICATION_BACKENDS = (
- 'inventory.backends.auth.LDAPBackend',
+ 'lintory.backends.auth.LDAPBackend',
 )
 
 # Local time zone for this installation. Choices can be found here:
