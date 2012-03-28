@@ -354,7 +354,7 @@ class hardware_task(action_table):
     class Meta:
         model = models.hardware_task
 
-class record(action_table):
+class data(action_table):
     id = tables.Column(sortable=False, visible=False)
     name = tables.Column()
     datetime = tables.Column()
