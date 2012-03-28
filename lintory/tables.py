@@ -34,9 +34,9 @@ class action_table(tables.Table):
         self.web = web
 
         if web.has_edit_perms(self.user):
-            self.base_columns["edit"] = tables.Column(sortable=False)
+            self.base_columns["edit"] = tables.Column(orderable=False)
         if web.has_delete_perms(self.user):
-            self.base_columns["delete"] = tables.Column(sortable=False)
+            self.base_columns["delete"] = tables.Column(orderable=False)
 
     def render_edit(self, record):
         web = webs.get_web_from_object(record)
@@ -65,7 +65,7 @@ def render_link(record, title=None):
         return mark_safe(u"-")
 
 class party(action_table):
-    id = tables.Column(sortable=False, visible=False)
+    id = tables.Column(orderable=False, visible=False)
     name = tables.Column()
 
     def render_name(self, record):
@@ -76,9 +76,9 @@ class party(action_table):
         exclude = ('eparty', 'comments', )
 
 class vendor(action_table):
-    id = tables.Column(sortable=False, visible=False)
-    telephone = tables.Column(sortable=False)
-    email = tables.Column(sortable=False)
+    id = tables.Column(orderable=False, visible=False)
+    telephone = tables.Column(orderable=False)
+    email = tables.Column(orderable=False)
     name = tables.Column()
 
     def render_name(self, record):
@@ -89,7 +89,7 @@ class vendor(action_table):
         exclude = ('url', 'address', 'comments', )
 
 class location(action_table):
-    id = tables.Column(sortable=False, visible=False)
+    id = tables.Column(orderable=False, visible=False)
     name = tables.Column()
     owner = tables.Column()
     user = tables.Column()
@@ -109,8 +109,8 @@ class location(action_table):
         exclude = ('address', 'parent', 'comments', )
 
 class hardware(action_table):
-    id = tables.Column(sortable=False, visible=False)
-    name = tables.Column(sortable=False)
+    id = tables.Column(orderable=False, visible=False)
+    name = tables.Column(orderable=False)
     type_id = tables.Column(accessor="Type")
     manufacturer = tables.Column()
     model = tables.Column()
@@ -157,7 +157,7 @@ class hardware_list_form(hardware):
                 # ignore illegal records
                 pass
 
-        self.base_columns["name"] = tables.Column(sortable=False)
+        self.base_columns["name"] = tables.Column(orderable=False)
 
         if 'edit' in self.base_columns:
             del self.base_columns["edit"]
@@ -178,7 +178,7 @@ class hardware_list_form(hardware):
         pass
 
 class os(action_table):
-    id = tables.Column(sortable=False, visible=False)
+    id = tables.Column(orderable=False, visible=False)
     name = tables.Column()
     computer = tables.Column()
     storage = tables.Column()
@@ -197,12 +197,12 @@ class os(action_table):
         exclude = ( "seen_first", "seen_last", "comments", )
 
 class software(action_table):
-    id = tables.Column(sortable=False, visible=False)
+    id = tables.Column(orderable=False, visible=False)
     name = tables.Column()
     vendor = tables.Column()
-    max = tables.Column(accessor="software_installations_max", sortable=False)
-    found = tables.Column(accessor="software_installations_found", sortable=False)
-    left = tables.Column(accessor="software_installations_left", sortable=False)
+    max = tables.Column(accessor="software_installations_max", orderable=False)
+    found = tables.Column(accessor="software_installations_found", orderable=False)
+    left = tables.Column(accessor="software_installations_left", orderable=False)
 
     def render_name(self, record):
         return render_link(record)
@@ -214,15 +214,15 @@ class software(action_table):
         model = models.software
 
 class license(action_table):
-    id = tables.Column(sortable=False, visible=False)
+    id = tables.Column(orderable=False, visible=False)
     name = tables.Column()
     vendor = tables.Column()
     computer = tables.Column()
     expires = tables.Column()
     owner = tables.Column()
-    max = tables.Column(accessor="installations_max", sortable=False)
-    found = tables.Column(accessor="software_installations_found", sortable=False)
-    left = tables.Column(accessor="software_installations_left", sortable=False)
+    max = tables.Column(accessor="installations_max", orderable=False)
+    found = tables.Column(accessor="software_installations_found", orderable=False)
+    left = tables.Column(accessor="software_installations_left", orderable=False)
     comments = tables.Column()
 
     def render_name(self, record):
@@ -241,7 +241,7 @@ class license(action_table):
         pass
 
 class license_key(action_table):
-    id = tables.Column(sortable=False, visible=False)
+    id = tables.Column(orderable=False, visible=False)
     key = tables.Column()
     software = tables.Column()
     license = tables.Column()
@@ -266,7 +266,7 @@ class license_key(action_table):
         pass
 
 class software_installation(action_table):
-    id = tables.Column(sortable=False, visible=False)
+    id = tables.Column(orderable=False, visible=False)
     software = tables.Column()
     software_version = tables.Column()
     computer = tables.Column()
@@ -298,7 +298,7 @@ class software_installation(action_table):
     def __init__(self, request, web, *args, **kwargs):
         super(software_installation,self).__init__(request, web, *args, **kwargs)
         if web.has_edit_perms(request.user):
-            self.base_columns["edit_key"] = tables.Column(sortable=False)
+            self.base_columns["edit_key"] = tables.Column(orderable=False)
 
     def render_edit_key(self, record):
         web = webs.get_web_from_object(record)
@@ -311,11 +311,11 @@ class software_installation(action_table):
         pass
 
 class task(action_table):
-    id = tables.Column(sortable=False, visible=False)
+    id = tables.Column(orderable=False, visible=False)
     name = tables.Column()
-    total = tables.Column(sortable=False)
-    done = tables.Column(sortable=False)
-    todo = tables.Column(sortable=False)
+    total = tables.Column(orderable=False)
+    done = tables.Column(orderable=False)
+    todo = tables.Column(orderable=False)
 
     def render_name(self, record):
         return render_link(record)
@@ -333,7 +333,7 @@ class task(action_table):
         model = models.task
 
 class hardware_task(action_table):
-    id = tables.Column(sortable=False, visible=False)
+    id = tables.Column(orderable=False, visible=False)
     task = tables.Column()
     hardware = tables.Column()
     user = tables.Column()
@@ -355,7 +355,7 @@ class hardware_task(action_table):
         model = models.hardware_task
 
 class data(action_table):
-    id = tables.Column(sortable=False, visible=False)
+    id = tables.Column(orderable=False, visible=False)
     name = tables.Column()
     datetime = tables.Column()
     format = tables.Column()
