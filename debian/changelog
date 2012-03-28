@@ -1,3 +1,10 @@
+lintory (0.12-1) unstable; urgency=low
+
+  * Bugs fixed.
+  * Restructure code.
+
+ -- Brian May <bam@debian.org>  Wed, 28 Mar 2012 12:05:49 +1100
+
 lintory (0.11-1) unstable; urgency=low
 
   * New upstream version.
