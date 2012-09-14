@@ -1,3 +1,11 @@
+lintory (0.14-1) unstable; urgency=low
+
+  * Delete cruft.
+  * Move lintory_update_secret_key to management command.
+  * Use Django 1.3 static file support.
+
+ -- Brian May <bam@debian.org>  Fri, 14 Sep 2012 10:22:55 +1000
+
 lintory (0.13-1) unstable; urgency=low
 
   * Bugs fixed.
