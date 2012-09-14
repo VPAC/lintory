@@ -11,12 +11,6 @@ case "$1" in
                 dpkg-statoverride --update --add root www-data 775 $i
             fi
         done
-
-        if [ ! -f /etc/lintory/settings.py ]
-        then
-            cp /usr/share/doc/lintory/examples/settings.py /etc/lintory/settings.py
-            lintory update_secret_key
-        fi
     ;;
 esac
 
@@ -24,6 +18,11 @@ esac
 
 case "$1" in
     (configure)
+        if [ ! -f /etc/lintory/settings.py ]
+        then
+            cp /usr/share/doc/lintory/examples/settings.py /etc/lintory/settings.py
+            lintory update_secret_key
+        fi
         su -s /usr/bin/lintory www-data -- syncdb --migrate
         lintory collectstatic --noinput
     ;;
