@@ -15,6 +15,7 @@ case "$1" in
         if [ ! -f /etc/lintory/settings.py ]
         then
             cp /usr/share/doc/lintory/examples/settings.py /etc/lintory/settings.py
+            lintory update_secret_key
         fi
     ;;
 esac
@@ -24,7 +25,6 @@ esac
 
 case "$1" in
     (configure)
-        lintory_update_secret_key
         lintory syncdb --migrate
         chown www-data:www-data /var/lib/lintory/lintory.db
     ;;
