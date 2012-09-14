@@ -10,6 +10,7 @@ case "$1" in
                 dpkg-statoverride --remove $i
             fi
         done
+        rm -rf /usr/share/lintory/static
         rm /etc/lintory/settings.py*
         rm /var/lib/lintory/lintory.db*
     ;;
