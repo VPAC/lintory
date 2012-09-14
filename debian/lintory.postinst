@@ -20,12 +20,11 @@ case "$1" in
     ;;
 esac
 
-
 #DEBHELPER#
 
 case "$1" in
     (configure)
-        lintory syncdb --migrate
-        chown www-data:www-data /var/lib/lintory/lintory.db
+        su -s /usr/bin/lintory www-data -- syncdb --migrate
+        lintory collectstatic --noinput
     ;;
 esac
