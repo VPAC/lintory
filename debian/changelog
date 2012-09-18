@@ -1,3 +1,9 @@
+lintory (0.15-1) unstable; urgency=low
+
+  * Fix media issues.
+
+ -- Brian May <bam@debian.org>  Tue, 18 Sep 2012 13:29:54 +1000
+
 lintory (0.14-1) unstable; urgency=low
 
   * Delete cruft.
